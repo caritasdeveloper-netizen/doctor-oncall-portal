@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "887678983320",
+    "project_id": "doctor-oncall-portal",
+    "storage_bucket": "doctor-oncall-portal.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:887678983320:android:8a69822dcadc5ecf8244ed",
+        "android_client_info": {
+          "package_name": "com.example.oncall_doctor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAPhPLkHe7RcljS1Hc6ownXOiPzuMKp94"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
