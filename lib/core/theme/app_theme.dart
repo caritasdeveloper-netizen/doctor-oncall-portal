@@ -12,7 +12,7 @@ class AppTheme {
   static const Color sidebarColor = Colors.white;
   static const Color textColor = Color(0xFF0F172A); // Slate 900
   static const Color textSecondaryColor = Color(0xFF64748B); // Slate 500
-  static const Color borderColor = Color(0xFFE2E8F0); // Slate 200
+  static const Color borderColor = Color(0xFFCBD5E1); // Slate 300 - More visible than Slate 200
 
   
   // Glassmorphic properties
@@ -46,6 +46,15 @@ class AppTheme {
           color: textColor,
           fontSize: 16,
         ),
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: NoAnimationPageTransitionsBuilder(),
+          TargetPlatform.iOS: NoAnimationPageTransitionsBuilder(),
+          TargetPlatform.windows: NoAnimationPageTransitionsBuilder(),
+          TargetPlatform.macOS: NoAnimationPageTransitionsBuilder(),
+          TargetPlatform.linux: NoAnimationPageTransitionsBuilder(),
+        },
       ),
       cardTheme: const CardThemeData(
         color: Colors.white,
@@ -108,6 +117,21 @@ class AppTheme {
         hintStyle: GoogleFonts.plusJakartaSans(color: textSecondaryColor, fontSize: 14),
       ),
     );
+  }
+}
+
+class NoAnimationPageTransitionsBuilder extends PageTransitionsBuilder {
+  const NoAnimationPageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return child;
   }
 }
 

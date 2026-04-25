@@ -23,7 +23,12 @@ class BulkAssignmentView extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStepHeader(context, '01', 'Select Departments', 'Choose the departments for bulk assignment'),
+          _buildStepHeader(
+            context,
+            '01',
+            'Select Departments',
+            'Choose the departments for bulk assignment',
+          ),
           deptsAsync.when(
             data: (depts) => _buildMultiSelect(
               context,
@@ -32,30 +37,50 @@ class BulkAssignmentView extends ConsumerWidget {
               onTap: () => _showMultiPicker(
                 context,
                 title: 'Select Departments',
-                items: depts.map((Department d) => _PickerItem(id: d.id, name: d.name)).toList(),
+                items: depts
+                    .map((Department d) => _PickerItem(id: d.id, name: d.name))
+                    .toList(),
                 initialSelectedIds: state.selectedDepartmentIds,
-                onChanged: (ids) => ref.read(bulkAssignmentControllerProvider.notifier).updateDepartments(ids),
+                onChanged: (ids) => ref
+                    .read(bulkAssignmentControllerProvider.notifier)
+                    .updateDepartments(ids),
               ),
             ),
             loading: () => const LinearProgressIndicator(minHeight: 2),
-            error: (e, s) => Text('Error: $e', style: const TextStyle(color: Colors.red)),
+            error: (e, s) =>
+                Text('Error: $e', style: const TextStyle(color: Colors.red)),
           ),
           const SizedBox(height: 40),
 
-          _buildStepHeader(context, '02', 'Select Date Range', 'Define the timeframe for this schedule'),
+          _buildStepHeader(
+            context,
+            '02',
+            'Select Date Range',
+            'Define the timeframe for this schedule',
+          ),
           _buildDateConfig(context, ref, state),
           const SizedBox(height: 40),
 
-          _buildStepHeader(context, '03', 'Staff Assignment', 'Assign doctors to the selected slots'),
+          _buildStepHeader(
+            context,
+            '03',
+            'Staff Assignment',
+            'Assign doctors to the selected slots',
+          ),
           doctorsAsync.when(
             data: (docs) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                _buildShiftHeader('Day Shift', Icons.wb_sunny_rounded),
+                const SizedBox(height: 12),
                 _buildDoctorSelector(
                   context,
                   label: 'First On-Call',
-                  selectedIds: state.firstOnCallDoctorIds,
+                  selectedIds: state.dayFirstOnCallDoctorIds,
                   allDoctors: docs,
-                  onChanged: (ids) => ref.read(bulkAssignmentControllerProvider.notifier).updateFirstOnCall(ids),
+                  onChanged: (ids) => ref
+                      .read(bulkAssignmentControllerProvider.notifier)
+                      .updateDayFirstOnCall(ids),
                   icon: Icons.looks_one_rounded,
                   color: AppTheme.primaryColor,
                 ),
@@ -63,16 +88,45 @@ class BulkAssignmentView extends ConsumerWidget {
                 _buildDoctorSelector(
                   context,
                   label: 'Second On-Call',
-                  selectedIds: state.secondOnCallDoctorIds,
+                  selectedIds: state.daySecondOnCallDoctorIds,
                   allDoctors: docs,
-                  onChanged: (ids) => ref.read(bulkAssignmentControllerProvider.notifier).updateSecondOnCall(ids),
+                  onChanged: (ids) => ref
+                      .read(bulkAssignmentControllerProvider.notifier)
+                      .updateDaySecondOnCall(ids),
+                  icon: Icons.looks_two_rounded,
+                  color: AppTheme.secondaryColor,
+                ),
+                const SizedBox(height: 32),
+                _buildShiftHeader('Night Shift', Icons.nightlight_round),
+                const SizedBox(height: 12),
+                _buildDoctorSelector(
+                  context,
+                  label: 'First On-Call',
+                  selectedIds: state.nightFirstOnCallDoctorIds,
+                  allDoctors: docs,
+                  onChanged: (ids) => ref
+                      .read(bulkAssignmentControllerProvider.notifier)
+                      .updateNightFirstOnCall(ids),
+                  icon: Icons.looks_one_rounded,
+                  color: AppTheme.primaryColor,
+                ),
+                const SizedBox(height: 20),
+                _buildDoctorSelector(
+                  context,
+                  label: 'Second On-Call',
+                  selectedIds: state.nightSecondOnCallDoctorIds,
+                  allDoctors: docs,
+                  onChanged: (ids) => ref
+                      .read(bulkAssignmentControllerProvider.notifier)
+                      .updateNightSecondOnCall(ids),
                   icon: Icons.looks_two_rounded,
                   color: AppTheme.secondaryColor,
                 ),
               ],
             ),
             loading: () => const LinearProgressIndicator(minHeight: 2),
-            error: (e, s) => Text('Error: $e', style: const TextStyle(color: Colors.red)),
+            error: (e, s) =>
+                Text('Error: $e', style: const TextStyle(color: Colors.red)),
           ),
           const SizedBox(height: 48),
 
@@ -82,14 +136,23 @@ class BulkAssignmentView extends ConsumerWidget {
               height: 64,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                gradient: (state.selectedDepartmentIds.isEmpty || state.selectedDates.isEmpty || state.isApplying)
+                gradient:
+                    (state.selectedDepartmentIds.isEmpty ||
+                        state.selectedDates.isEmpty ||
+                        state.isApplying)
                     ? null
                     : const LinearGradient(
-                        colors: [AppTheme.primaryColor, AppTheme.secondaryColor],
+                        colors: [
+                          AppTheme.primaryColor,
+                          AppTheme.secondaryColor,
+                        ],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
-                boxShadow: (state.selectedDepartmentIds.isEmpty || state.selectedDates.isEmpty || state.isApplying)
+                boxShadow:
+                    (state.selectedDepartmentIds.isEmpty ||
+                        state.selectedDates.isEmpty ||
+                        state.isApplying)
                     ? null
                     : [
                         BoxShadow(
@@ -100,26 +163,39 @@ class BulkAssignmentView extends ConsumerWidget {
                       ],
               ),
               child: ElevatedButton(
-                onPressed: (state.selectedDepartmentIds.isEmpty || state.selectedDates.isEmpty || state.isApplying)
+                onPressed:
+                    (state.selectedDepartmentIds.isEmpty ||
+                        state.selectedDates.isEmpty ||
+                        state.isApplying)
                     ? null
                     : () async {
-                        await ref.read(bulkAssignmentControllerProvider.notifier).apply();
+                        await ref
+                            .read(bulkAssignmentControllerProvider.notifier)
+                            .apply();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Row(
                                 children: [
-                                  const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                                  const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
                                   const SizedBox(width: 12),
                                   Text(
                                     'Bulk assignment applied successfully',
-                                    style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ],
                               ),
                               behavior: SnackBarBehavior.floating,
                               backgroundColor: AppTheme.textColor,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               margin: const EdgeInsets.all(24),
                             ),
                           );
@@ -130,17 +206,25 @@ class BulkAssignmentView extends ConsumerWidget {
                   foregroundColor: Colors.white,
                   shadowColor: Colors.transparent,
                   disabledBackgroundColor: Colors.grey.shade200,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
                 child: state.isApplying
                     ? const SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
                       )
                     : Text(
-                        'Apply Bulk Assignment', 
-                        style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)
+                        'Apply Bulk Assignment',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
               ),
             ),
@@ -151,7 +235,12 @@ class BulkAssignmentView extends ConsumerWidget {
     );
   }
 
-  Widget _buildStepHeader(BuildContext context, String number, String title, String subtitle) {
+  Widget _buildStepHeader(
+    BuildContext context,
+    String number,
+    String title,
+    String subtitle,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Row(
@@ -166,7 +255,7 @@ class BulkAssignmentView extends ConsumerWidget {
             child: Text(
               number,
               style: GoogleFonts.plusJakartaSans(
-                color: AppTheme.primaryColor, 
+                color: AppTheme.primaryColor,
                 fontWeight: FontWeight.w800,
                 fontSize: 12,
               ),
@@ -200,13 +289,37 @@ class BulkAssignmentView extends ConsumerWidget {
     );
   }
 
-  Widget _buildMultiSelect(BuildContext context, {required String label, required int selectedCount, required VoidCallback onTap}) {
+  Widget _buildShiftHeader(String label, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: AppTheme.textSecondaryColor),
+        const SizedBox(width: 8),
+        Text(
+          label.toUpperCase(),
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            color: AppTheme.textSecondaryColor,
+            letterSpacing: 1.2,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(child: Divider(color: AppTheme.borderColor.withOpacity(0.8))),
+      ],
+    );
+  }
+
+  Widget _buildMultiSelect(
+    BuildContext context, {
+    required String label,
+    required int selectedCount,
+    required VoidCallback onTap,
+  }) {
     final isSelected = selectedCount > 0;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
@@ -229,29 +342,44 @@ class BulkAssignmentView extends ConsumerWidget {
             Row(
               children: [
                 Icon(
-                  isSelected ? Icons.check_circle_rounded : Icons.add_circle_outline_rounded, 
-                  color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryColor,
+                  isSelected
+                      ? Icons.check_circle_rounded
+                      : Icons.add_circle_outline_rounded,
+                  color: isSelected
+                      ? AppTheme.primaryColor
+                      : AppTheme.textSecondaryColor,
                   size: 20,
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  selectedCount == 0 ? 'Select $label' : '$selectedCount $label selected',
+                  selectedCount == 0
+                      ? 'Select $label'
+                      : '$selectedCount $label selected',
                   style: GoogleFonts.plusJakartaSans(
-                    color: isSelected ? AppTheme.textColor : AppTheme.textSecondaryColor,
+                    color: isSelected
+                        ? AppTheme.textColor
+                        : AppTheme.textSecondaryColor,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                     fontSize: 14,
                   ),
                 ),
               ],
             ),
-            const Icon(Icons.chevron_right_rounded, color: AppTheme.textSecondaryColor),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppTheme.textSecondaryColor,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDateConfig(BuildContext context, WidgetRef ref, BulkAssignmentState state) {
+  Widget _buildDateConfig(
+    BuildContext context,
+    WidgetRef ref,
+    BulkAssignmentState state,
+  ) {
     return Column(
       children: [
         GridView.count(
@@ -269,8 +397,13 @@ class BulkAssignmentView extends ConsumerWidget {
               onTap: () {
                 final now = DateTime.now();
                 final days = DateTime(now.year, now.month + 1, 0).day;
-                final dates = List.generate(days, (i) => DateTime(now.year, now.month, i + 1));
-                ref.read(bulkAssignmentControllerProvider.notifier).updateDates(dates);
+                final dates = List.generate(
+                  days,
+                  (i) => DateTime(now.year, now.month, i + 1),
+                );
+                ref
+                    .read(bulkAssignmentControllerProvider.notifier)
+                    .updateDates(dates);
               },
             ),
             _buildPatternButton(
@@ -280,10 +413,13 @@ class BulkAssignmentView extends ConsumerWidget {
               onTap: () {
                 final now = DateTime.now();
                 final days = DateTime(now.year, now.month + 1, 0).day;
-                final dates = List.generate(days, (i) => DateTime(now.year, now.month, i + 1))
-                    .where((d) => d.weekday < 6)
-                    .toList();
-                ref.read(bulkAssignmentControllerProvider.notifier).updateDates(dates);
+                final dates = List.generate(
+                  days,
+                  (i) => DateTime(now.year, now.month, i + 1),
+                ).where((d) => d.weekday < 6).toList();
+                ref
+                    .read(bulkAssignmentControllerProvider.notifier)
+                    .updateDates(dates);
               },
             ),
             _buildPatternButton(
@@ -293,10 +429,13 @@ class BulkAssignmentView extends ConsumerWidget {
               onTap: () {
                 final now = DateTime.now();
                 final days = DateTime(now.year, now.month + 1, 0).day;
-                final dates = List.generate(days, (i) => DateTime(now.year, now.month, i + 1))
-                    .where((d) => d.weekday >= 6)
-                    .toList();
-                ref.read(bulkAssignmentControllerProvider.notifier).updateDates(dates);
+                final dates = List.generate(
+                  days,
+                  (i) => DateTime(now.year, now.month, i + 1),
+                ).where((d) => d.weekday >= 6).toList();
+                ref
+                    .read(bulkAssignmentControllerProvider.notifier)
+                    .updateDates(dates);
               },
             ),
             _buildPatternButton(
@@ -324,10 +463,16 @@ class BulkAssignmentView extends ConsumerWidget {
                 );
                 if (range != null) {
                   final dates = <DateTime>[];
-                  for (int i = 0; i <= range.end.difference(range.start).inDays; i++) {
+                  for (
+                    int i = 0;
+                    i <= range.end.difference(range.start).inDays;
+                    i++
+                  ) {
                     dates.add(range.start.add(Duration(days: i)));
                   }
-                  ref.read(bulkAssignmentControllerProvider.notifier).updateDates(dates);
+                  ref
+                      .read(bulkAssignmentControllerProvider.notifier)
+                      .updateDates(dates);
                 }
               },
             ),
@@ -341,7 +486,7 @@ class BulkAssignmentView extends ConsumerWidget {
             decoration: BoxDecoration(
               color: AppTheme.primaryLight.withOpacity(0.5),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.primaryColor.withOpacity(0.1)),
+              border: Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
             ),
             child: Row(
               children: [
@@ -351,7 +496,11 @@ class BulkAssignmentView extends ConsumerWidget {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.calendar_today_rounded, color: AppTheme.primaryColor, size: 18),
+                  child: const Icon(
+                    Icons.calendar_today_rounded,
+                    color: AppTheme.primaryColor,
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -361,7 +510,7 @@ class BulkAssignmentView extends ConsumerWidget {
                       Text(
                         'Timeframe Configured',
                         style: GoogleFonts.plusJakartaSans(
-                          color: AppTheme.textColor, 
+                          color: AppTheme.textColor,
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
                         ),
@@ -384,7 +533,12 @@ class BulkAssignmentView extends ConsumerWidget {
     );
   }
 
-  Widget _buildPatternButton(BuildContext context, {required String label, required IconData icon, required VoidCallback onTap}) {
+  Widget _buildPatternButton(
+    BuildContext context, {
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -420,7 +574,15 @@ class BulkAssignmentView extends ConsumerWidget {
     );
   }
 
-  Widget _buildDoctorSelector(BuildContext context, {required String label, required List<String> selectedIds, required List<Doctor> allDoctors, required Function(List<String>) onChanged, required IconData icon, required Color color}) {
+  Widget _buildDoctorSelector(
+    BuildContext context, {
+    required String label,
+    required List<String> selectedIds,
+    required List<Doctor> allDoctors,
+    required Function(List<String>) onChanged,
+    required IconData icon,
+    required Color color,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -433,7 +595,7 @@ class BulkAssignmentView extends ConsumerWidget {
               Text(
                 label,
                 style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.w700, 
+                  fontWeight: FontWeight.w700,
                   color: AppTheme.textColor,
                   fontSize: 14,
                 ),
@@ -448,7 +610,9 @@ class BulkAssignmentView extends ConsumerWidget {
           onTap: () => _showMultiPicker(
             context,
             title: 'Select $label',
-            items: allDoctors.map((Doctor d) => _PickerItem(id: d.id, name: d.name)).toList(),
+            items: allDoctors
+                .map((Doctor d) => _PickerItem(id: d.id, name: d.name))
+                .toList(),
             initialSelectedIds: selectedIds,
             onChanged: onChanged,
           ),
@@ -457,14 +621,24 @@ class BulkAssignmentView extends ConsumerWidget {
     );
   }
 
-  void _showMultiPicker(BuildContext context, {required String title, required List<_PickerItem> items, required List<String> initialSelectedIds, required Function(List<String>) onChanged}) {
-    final selectionNotifier = ValueNotifier<List<String>>(List.from(initialSelectedIds));
+  void _showMultiPicker(
+    BuildContext context, {
+    required String title,
+    required List<_PickerItem> items,
+    required List<String> initialSelectedIds,
+    required Function(List<String>) onChanged,
+  }) {
+    final selectionNotifier = ValueNotifier<List<String>>(
+      List.from(initialSelectedIds),
+    );
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
       builder: (context) {
         return Container(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -486,7 +660,7 @@ class BulkAssignmentView extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    title, 
+                    title,
                     style: GoogleFonts.plusJakartaSans(
                       fontWeight: FontWeight.w800,
                       fontSize: 20,
@@ -499,7 +673,9 @@ class BulkAssignmentView extends ConsumerWidget {
                     },
                     child: Text(
                       'Done',
-                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                 ],
@@ -511,13 +687,16 @@ class BulkAssignmentView extends ConsumerWidget {
                   builder: (context, selected, _) {
                     return ListView.separated(
                       itemCount: items.length,
-                      separatorBuilder: (context, index) => const Divider(height: 1, color: AppTheme.borderColor),
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1, color: AppTheme.borderColor),
                       itemBuilder: (context, index) {
                         final item = items[index];
                         final isSelected = selected.contains(item.id);
                         return InkWell(
                           onTap: () {
-                            final newList = List<String>.from(selectionNotifier.value);
+                            final newList = List<String>.from(
+                              selectionNotifier.value,
+                            );
                             if (!isSelected) {
                               newList.add(item.id);
                             } else {
@@ -526,21 +705,28 @@ class BulkAssignmentView extends ConsumerWidget {
                             selectionNotifier.value = newList;
                           },
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal: 8,
+                            ),
                             child: Row(
                               children: [
                                 Container(
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: isSelected ? AppTheme.primaryLight : AppTheme.backgroundColor,
+                                    color: isSelected
+                                        ? AppTheme.primaryLight
+                                        : AppTheme.backgroundColor,
                                     shape: BoxShape.circle,
                                   ),
                                   child: Center(
                                     child: Text(
                                       item.name[0].toUpperCase(),
                                       style: GoogleFonts.plusJakartaSans(
-                                        color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryColor,
+                                        color: isSelected
+                                            ? AppTheme.primaryColor
+                                            : AppTheme.textSecondaryColor,
                                         fontWeight: FontWeight.w800,
                                       ),
                                     ),
@@ -551,13 +737,18 @@ class BulkAssignmentView extends ConsumerWidget {
                                   child: Text(
                                     item.name,
                                     style: GoogleFonts.plusJakartaSans(
-                                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w700
+                                          : FontWeight.w600,
                                       fontSize: 15,
                                     ),
                                   ),
                                 ),
                                 if (isSelected)
-                                  const Icon(Icons.check_circle_rounded, color: AppTheme.primaryColor),
+                                  const Icon(
+                                    Icons.check_circle_rounded,
+                                    color: AppTheme.primaryColor,
+                                  ),
                               ],
                             ),
                           ),

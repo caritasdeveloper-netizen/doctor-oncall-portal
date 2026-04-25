@@ -9,6 +9,12 @@ abstract class DailySchedule with _$DailySchedule {
     required String id,
     required DateTime date,
     required String departmentId,
+    @Default([]) List<String> dayFirstOnCallDoctorIds,
+    @Default([]) List<String> daySecondOnCallDoctorIds,
+    @Default([]) List<String> nightFirstOnCallDoctorIds,
+    @Default([]) List<String> nightSecondOnCallDoctorIds,
+    
+    // For backward compatibility during migration
     @Default([]) List<String> firstOnCallDoctorIds,
     @Default([]) List<String> secondOnCallDoctorIds,
   }) = _DailySchedule;
@@ -21,8 +27,10 @@ abstract class BulkAssignmentRequest with _$BulkAssignmentRequest {
   const factory BulkAssignmentRequest({
     required List<String> departmentIds,
     required List<DateTime> dates,
-    required List<String> firstOnCallDoctorIds,
-    required List<String> secondOnCallDoctorIds,
+    @Default([]) List<String> dayFirstOnCallDoctorIds,
+    @Default([]) List<String> daySecondOnCallDoctorIds,
+    @Default([]) List<String> nightFirstOnCallDoctorIds,
+    @Default([]) List<String> nightSecondOnCallDoctorIds,
     required bool overrideExisting,
   }) = _BulkAssignmentRequest;
 }

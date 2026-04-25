@@ -94,15 +94,10 @@ class DayByDayView extends ConsumerWidget {
                 return _buildEmptyState();
               }
 
-              return GridView.builder(
+              return ListView.separated(
                 padding: const EdgeInsets.fromLTRB(32, 0, 32, 120),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 600,
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 20,
-                  mainAxisExtent: 320,
-                ),
                 itemCount: filteredDepts.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final dept = filteredDepts[index];
                   final draft = state.draftSchedules[dept.id];
@@ -137,8 +132,7 @@ class DayByDayView extends ConsumerWidget {
           child: InkWell(
             onTap: () => ref.read(schedulingControllerProvider.notifier).setDate(date),
             borderRadius: BorderRadius.circular(12),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+            child: Container(
               width: 64,
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
@@ -189,9 +183,11 @@ class DayByDayView extends ConsumerWidget {
         int staffed = 0;
         for (final dept in depts) {
           final draft = state.draftSchedules[dept.id];
-          final hasFirst = draft?.firstOnCallDoctorIds.isNotEmpty ?? false;
-          final hasSecond = draft?.secondOnCallDoctorIds.isNotEmpty ?? false;
-          if (hasFirst && hasSecond) staffed++;
+          final isDayStaffed = (draft?.dayFirstOnCallDoctorIds.isNotEmpty ?? false) && 
+                              (draft?.daySecondOnCallDoctorIds.isNotEmpty ?? false);
+          final isNightStaffed = (draft?.nightFirstOnCallDoctorIds.isNotEmpty ?? false) && 
+                                (draft?.nightSecondOnCallDoctorIds.isNotEmpty ?? false);
+          if (isDayStaffed && isNightStaffed) staffed++;
         }
 
         return Container(

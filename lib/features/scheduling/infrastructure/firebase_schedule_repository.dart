@@ -62,8 +62,13 @@ class FirebaseScheduleRepository implements ScheduleRepository {
         final data = {
           'date': Timestamp.fromDate(date),
           'departmentId': deptId,
-          'firstOnCallDoctorIds': request.firstOnCallDoctorIds,
-          'secondOnCallDoctorIds': request.secondOnCallDoctorIds,
+          'dayFirstOnCallDoctorIds': request.dayFirstOnCallDoctorIds,
+          'daySecondOnCallDoctorIds': request.daySecondOnCallDoctorIds,
+          'nightFirstOnCallDoctorIds': request.nightFirstOnCallDoctorIds,
+          'nightSecondOnCallDoctorIds': request.nightSecondOnCallDoctorIds,
+          // Keep old fields for backward compatibility during transition if needed
+          'firstOnCallDoctorIds': request.dayFirstOnCallDoctorIds,
+          'secondOnCallDoctorIds': request.daySecondOnCallDoctorIds,
         };
         
         batch.set(docRef, data);

@@ -1,117 +1,450 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:oncall_doctor/core/theme/app_theme.dart';
+import 'package:oncall_doctor/features/departments/application/department_controller.dart';
 import 'package:oncall_doctor/features/departments/application/department_provider.dart';
+import 'package:oncall_doctor/features/departments/domain/department.dart';
 
-class DepartmentsListPage extends ConsumerWidget {
+class DepartmentsListPage extends ConsumerStatefulWidget {
   const DepartmentsListPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DepartmentsListPage> createState() => _DepartmentsListPageState();
+}
+
+class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
+  bool _isAdding = false;
+  final TextEditingController _nameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final departmentsAsync = ref.watch(departmentsProvider);
+    final controllerState = ref.watch(departmentControllerProvider);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Departments',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textColor,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Action Bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (!_isAdding)
+                  FilledButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _isAdding = true;
+                      });
+                    },
+                    icon: const Icon(Icons.add_circle_outline_rounded, size: 20),
+                    label: const Text('Add Department'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      elevation: 0,
                     ),
-              ),
-              FilledButton.icon(
-                onPressed: () => context.pushNamed('create-department'),
-                icon: const Icon(Icons.add_business_rounded, size: 18),
-                label: const Text('Add Department'),
-                style: FilledButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: departmentsAsync.when(
-              data: (departments) {
-                if (departments.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.business_rounded, size: 64, color: AppTheme.textSecondaryColor.withOpacity(0.3)),
-                        const SizedBox(height: 16),
-                        const Text('No departments found. Add your first department!'),
-                      ],
-                    ),
-                  );
-                }
-
-                return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 2.5,
                   ),
-                  itemCount: departments.length,
-                  itemBuilder: (context, index) {
-                    final dept = departments[index];
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppTheme.borderColor),
-                      ),
-                      child: Row(
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Inline Add Form
+            if (_isAdding)
+              _buildInlineAddForm(controllerState),
+
+            // Main Content Area
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(top: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppTheme.borderColor),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: departmentsAsync.when(
+                    data: (departments) {
+                      if (departments.isEmpty && !_isAdding) {
+                        return _buildEmptyState(context);
+                      }
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          // Table Header
                           Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                            decoration: const BoxDecoration(
+                              color: AppTheme.backgroundColor,
+                              border: Border(bottom: BorderSide(color: AppTheme.borderColor)),
                             ),
-                            child: const Icon(Icons.business_rounded, color: AppTheme.primaryColor, size: 20),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            child: Row(
                               children: [
-                                Text(
-                                  dept.name,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textColor),
-                                  overflow: TextOverflow.ellipsis,
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    'DEPARTMENT NAME',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                      color: AppTheme.textSecondaryColor,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
                                 ),
-                                Text(
-                                  'ID: ${dept.id}',
-                                  style: Theme.of(context).textTheme.labelSmall,
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    'SYSTEM ID',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                      color: AppTheme.textSecondaryColor,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 100,
+                                  child: Text(
+                                    'ACTIONS',
+                                    textAlign: TextAlign.right,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                      color: AppTheme.textSecondaryColor,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.more_vert_rounded, size: 20),
-                            onPressed: () {
-                              // TODO: Implement menu
-                            },
+                          // Table Body
+                          Expanded(
+                            child: ListView.separated(
+                              padding: EdgeInsets.zero,
+                              itemCount: departments.length,
+                              separatorBuilder: (context, index) => const Divider(height: 1, color: AppTheme.borderColor),
+                              itemBuilder: (context, index) {
+                                final dept = departments[index];
+                                return _buildDepartmentListItem(context, dept);
+                              },
+                            ),
                           ),
                         ],
+                      );
+                    },
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (e, s) => Center(child: Text('Error: $e')),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInlineAddForm(AsyncValue<void> controllerState) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryColor.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryLight,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.add_business_rounded, color: AppTheme.primaryColor, size: 22),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Quick Add Department',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: AppTheme.textColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _nameController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: 'Enter department name...',
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppTheme.borderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppTheme.primaryColor, width: 1.5),
+                    ),
+                  ),
+                  onSubmitted: (_) => _saveDepartment(),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 20),
+          Column(
+            children: [
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _isAdding = false;
+                        _nameController.clear();
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppTheme.textSecondaryColor,
+                        fontWeight: FontWeight.w600,
                       ),
-                    );
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => Center(child: Text('Error: $e')),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: controllerState.isLoading ? null : _saveDepartment,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: controllerState.isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                        : Text(
+                            'Save',
+                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
+                          ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _saveDepartment() async {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a department name'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
+    await ref.read(departmentControllerProvider.notifier).createDepartment(name: name);
+    
+    if (mounted) {
+      setState(() {
+        _isAdding = false;
+        _nameController.clear();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 12),
+              Text(
+                'Department "$name" created successfully',
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppTheme.textColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(24),
+        ),
+      );
+    }
+  }
+
+  Widget _buildDepartmentListItem(BuildContext context, Department dept) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {},
+        hoverColor: AppTheme.primaryLight.withOpacity(0.3),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryLight,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.business_rounded, color: AppTheme.primaryColor, size: 20),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        dept.name,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textColor,
+                          fontSize: 16,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.backgroundColor,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: AppTheme.borderColor),
+                  ),
+                  child: Text(
+                    dept.id.toUpperCase(),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      color: AppTheme.textSecondaryColor,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 100,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, size: 20),
+                      color: AppTheme.textSecondaryColor,
+                      tooltip: 'Edit Department',
+                      onPressed: () {},
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                      color: Colors.red.shade400,
+                      tooltip: 'Delete Department',
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryLight.withOpacity(0.5),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.business_rounded, size: 64, color: AppTheme.primaryColor.withOpacity(0.5)),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'No Departments Found',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.textColor,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Start by adding your first medical department\nto manage schedules.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.plusJakartaSans(
+              color: AppTheme.textSecondaryColor,
+              fontSize: 15,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 32),
+          FilledButton.icon(
+            onPressed: () {
+              setState(() {
+                _isAdding = true;
+              });
+            },
+            icon: const Icon(Icons.add_circle_outline_rounded, size: 20),
+            label: const Text('Add First Department'),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
           ),
         ],
@@ -119,3 +452,6 @@ class DepartmentsListPage extends ConsumerWidget {
     );
   }
 }
+
+
+

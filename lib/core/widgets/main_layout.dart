@@ -121,7 +121,7 @@ class _Sidebar extends StatelessWidget {
           _SidebarItem(
             icon: Icons.account_tree_rounded,
             label: 'Departments',
-            isActive: currentRoute == '/departments' || currentRoute == '/create-department',
+            isActive: currentRoute == '/departments',
             onTap: () => context.goNamed('departments'),
           ),
           const Spacer(),
@@ -214,8 +214,7 @@ class _SidebarItemState extends State<_SidebarItem> {
         child: InkWell(
           onTap: widget.onTap,
           borderRadius: BorderRadius.circular(16),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
+          child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: widget.isActive 
@@ -269,7 +268,6 @@ class _Header extends StatelessWidget {
     if (currentRoute == '/doctors') title = 'Medical Staff';
     if (currentRoute == '/create-doctor') title = 'Register Doctor';
     if (currentRoute == '/departments') title = 'Departments';
-    if (currentRoute == '/create-department') title = 'New Department';
 
     return Container(
       padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
@@ -298,12 +296,12 @@ class _Header extends StatelessWidget {
               ],
             ),
           ),
-          // Glassmorphic Search Bar
+          // Simplified Search Bar (Performance Focus)
           Container(
             width: 340,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppTheme.borderColor),
               boxShadow: [
@@ -314,22 +312,16 @@ class _Header extends StatelessWidget {
                 ),
               ],
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search staff or departments...',
-                    hintStyle: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor, fontSize: 13),
-                    prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.textSecondaryColor, size: 20),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    fillColor: Colors.transparent,
-                  ),
-                ),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search staff or departments...',
+                hintStyle: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor, fontSize: 13),
+                prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.textSecondaryColor, size: 20),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                fillColor: Colors.transparent,
               ),
             ),
           ),

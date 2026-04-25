@@ -42,7 +42,7 @@ class DoctorChipSelector extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppTheme.primaryLight.withOpacity(0.4),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.1)),
+                        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -82,24 +82,27 @@ class DoctorChipSelector extends StatelessWidget {
                   }).toList(),
                 ),
               ),
-            GestureDetector(
+            InkWell(
               onTap: () => _showDoctorPicker(context, deptDoctors),
+              borderRadius: BorderRadius.circular(10),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: AppTheme.backgroundColor,
+                  color: AppTheme.primaryLight.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppTheme.borderColor),
+                  border: Border.all(
+                    color: AppTheme.primaryColor.withOpacity(0.3),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.add_rounded, size: 16, color: AppTheme.textSecondaryColor),
+                    const Icon(Icons.add_circle_outline_rounded, size: 16, color: AppTheme.primaryColor),
                     const SizedBox(width: 6),
                     Text(
                       'Assign Doctor',
                       style: GoogleFonts.plusJakartaSans(
-                        color: AppTheme.textSecondaryColor,
+                        color: AppTheme.primaryColor,
                         fontWeight: FontWeight.w700,
                         fontSize: 12,
                       ),
@@ -275,8 +278,7 @@ class _DoctorPickerModalState extends State<_DoctorPickerModal> {
                 final doctor = filteredDoctors[index];
                 final isSelected = _tempSelectedIds.contains(doctor.id);
 
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+                return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
                     color: isSelected ? AppTheme.primaryLight.withOpacity(0.3) : Colors.transparent,

@@ -42,7 +42,7 @@ final class BulkAssignmentControllerProvider
 }
 
 String _$bulkAssignmentControllerHash() =>
-    r'ef6b4824ba4f9508045df4e7a1c403a512fed421';
+    r'9dd4435e5cd6bc7b4a8770b20276f9752a1a268c';
 
 abstract class _$BulkAssignmentController
     extends $Notifier<BulkAssignmentState> {

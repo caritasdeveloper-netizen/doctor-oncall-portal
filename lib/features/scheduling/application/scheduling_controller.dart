@@ -23,7 +23,10 @@ abstract class SchedulingState with _$SchedulingState {
       for (final draft in draftSchedules.values) {
         final original = originalSchedules[draft.departmentId];
         if (original == null) {
-          if (draft.firstOnCallDoctorIds.isNotEmpty || draft.secondOnCallDoctorIds.isNotEmpty) {
+          if (draft.dayFirstOnCallDoctorIds.isNotEmpty || 
+              draft.daySecondOnCallDoctorIds.isNotEmpty ||
+              draft.nightFirstOnCallDoctorIds.isNotEmpty ||
+              draft.nightSecondOnCallDoctorIds.isNotEmpty) {
             return true;
           }
         } else if (draft != original) {
@@ -92,7 +95,11 @@ class SchedulingController extends _$SchedulingController {
     state = state.copyWith(searchQuery: query);
   }
 
-  void updateAssignment(String departmentId, {List<String>? firstOnCall, List<String>? secondOnCall}) {
+  void updateAssignment(String departmentId, {
+    List<String>? firstOnCall, 
+    List<String>? secondOnCall,
+    bool isNight = false,
+  }) {
     final currentDraft = state.draftSchedules[departmentId] ??
         DailySchedule(
           id: '',
@@ -100,10 +107,15 @@ class SchedulingController extends _$SchedulingController {
           departmentId: departmentId,
         );
 
-    final updatedDraft = currentDraft.copyWith(
-      firstOnCallDoctorIds: firstOnCall ?? currentDraft.firstOnCallDoctorIds,
-      secondOnCallDoctorIds: secondOnCall ?? currentDraft.secondOnCallDoctorIds,
-    );
+    final updatedDraft = isNight 
+      ? currentDraft.copyWith(
+          nightFirstOnCallDoctorIds: firstOnCall ?? currentDraft.nightFirstOnCallDoctorIds,
+          nightSecondOnCallDoctorIds: secondOnCall ?? currentDraft.nightSecondOnCallDoctorIds,
+        )
+      : currentDraft.copyWith(
+          dayFirstOnCallDoctorIds: firstOnCall ?? currentDraft.dayFirstOnCallDoctorIds,
+          daySecondOnCallDoctorIds: secondOnCall ?? currentDraft.daySecondOnCallDoctorIds,
+        );
 
     final newDrafts = Map<String, DailySchedule>.from(state.draftSchedules);
     newDrafts[departmentId] = updatedDraft;

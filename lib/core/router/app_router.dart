@@ -1,7 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:oncall_doctor/features/scheduling/presentation/scheduling_page.dart';
 import 'package:oncall_doctor/features/departments/presentation/departments_list_page.dart';
-import 'package:oncall_doctor/features/departments/presentation/create_department_page.dart';
 import 'package:oncall_doctor/features/doctors/presentation/doctors_list_page.dart';
 import 'package:oncall_doctor/features/doctors/presentation/create_doctor_page.dart';
 import 'package:oncall_doctor/core/widgets/main_layout.dart';
@@ -23,27 +22,30 @@ GoRouter appRouter(Ref ref) {
           GoRoute(
             path: '/',
             name: 'scheduling',
-            builder: (context, state) => const SchedulingPage(),
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: SchedulingPage(),
+            ),
           ),
           GoRoute(
             path: '/doctors',
             name: 'doctors',
-            builder: (context, state) => const DoctorsListPage(),
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: DoctorsListPage(),
+            ),
           ),
           GoRoute(
             path: '/create-doctor',
             name: 'create-doctor',
-            builder: (context, state) => const CreateDoctorPage(),
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: CreateDoctorPage(),
+            ),
           ),
           GoRoute(
             path: '/departments',
             name: 'departments',
-            builder: (context, state) => const DepartmentsListPage(),
-          ),
-          GoRoute(
-            path: '/create-department',
-            name: 'create-department',
-            builder: (context, state) => const CreateDepartmentPage(),
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: DepartmentsListPage(),
+            ),
           ),
         ],
       ),

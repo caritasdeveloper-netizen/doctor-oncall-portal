@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DailySchedule {
 
- String get id; DateTime get date; String get departmentId; List<String> get firstOnCallDoctorIds; List<String> get secondOnCallDoctorIds;
+ String get id; DateTime get date; String get departmentId; List<String> get dayFirstOnCallDoctorIds; List<String> get daySecondOnCallDoctorIds; List<String> get nightFirstOnCallDoctorIds; List<String> get nightSecondOnCallDoctorIds;// For backward compatibility during migration
+ List<String> get firstOnCallDoctorIds; List<String> get secondOnCallDoctorIds;
 /// Create a copy of DailySchedule
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $DailyScheduleCopyWith<DailySchedule> get copyWith => _$DailyScheduleCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DailySchedule&&(identical(other.id, id) || other.id == id)&&(identical(other.date, date) || other.date == date)&&(identical(other.departmentId, departmentId) || other.departmentId == departmentId)&&const DeepCollectionEquality().equals(other.firstOnCallDoctorIds, firstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.secondOnCallDoctorIds, secondOnCallDoctorIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DailySchedule&&(identical(other.id, id) || other.id == id)&&(identical(other.date, date) || other.date == date)&&(identical(other.departmentId, departmentId) || other.departmentId == departmentId)&&const DeepCollectionEquality().equals(other.dayFirstOnCallDoctorIds, dayFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.daySecondOnCallDoctorIds, daySecondOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.nightFirstOnCallDoctorIds, nightFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.nightSecondOnCallDoctorIds, nightSecondOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.firstOnCallDoctorIds, firstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.secondOnCallDoctorIds, secondOnCallDoctorIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,date,departmentId,const DeepCollectionEquality().hash(firstOnCallDoctorIds),const DeepCollectionEquality().hash(secondOnCallDoctorIds));
+int get hashCode => Object.hash(runtimeType,id,date,departmentId,const DeepCollectionEquality().hash(dayFirstOnCallDoctorIds),const DeepCollectionEquality().hash(daySecondOnCallDoctorIds),const DeepCollectionEquality().hash(nightFirstOnCallDoctorIds),const DeepCollectionEquality().hash(nightSecondOnCallDoctorIds),const DeepCollectionEquality().hash(firstOnCallDoctorIds),const DeepCollectionEquality().hash(secondOnCallDoctorIds));
 
 @override
 String toString() {
-  return 'DailySchedule(id: $id, date: $date, departmentId: $departmentId, firstOnCallDoctorIds: $firstOnCallDoctorIds, secondOnCallDoctorIds: $secondOnCallDoctorIds)';
+  return 'DailySchedule(id: $id, date: $date, departmentId: $departmentId, dayFirstOnCallDoctorIds: $dayFirstOnCallDoctorIds, daySecondOnCallDoctorIds: $daySecondOnCallDoctorIds, nightFirstOnCallDoctorIds: $nightFirstOnCallDoctorIds, nightSecondOnCallDoctorIds: $nightSecondOnCallDoctorIds, firstOnCallDoctorIds: $firstOnCallDoctorIds, secondOnCallDoctorIds: $secondOnCallDoctorIds)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $DailyScheduleCopyWith<$Res>  {
   factory $DailyScheduleCopyWith(DailySchedule value, $Res Function(DailySchedule) _then) = _$DailyScheduleCopyWithImpl;
 @useResult
 $Res call({
- String id, DateTime date, String departmentId, List<String> firstOnCallDoctorIds, List<String> secondOnCallDoctorIds
+ String id, DateTime date, String departmentId, List<String> dayFirstOnCallDoctorIds, List<String> daySecondOnCallDoctorIds, List<String> nightFirstOnCallDoctorIds, List<String> nightSecondOnCallDoctorIds, List<String> firstOnCallDoctorIds, List<String> secondOnCallDoctorIds
 });
 
 
@@ -65,12 +66,16 @@ class _$DailyScheduleCopyWithImpl<$Res>
 
 /// Create a copy of DailySchedule
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? date = null,Object? departmentId = null,Object? firstOnCallDoctorIds = null,Object? secondOnCallDoctorIds = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? date = null,Object? departmentId = null,Object? dayFirstOnCallDoctorIds = null,Object? daySecondOnCallDoctorIds = null,Object? nightFirstOnCallDoctorIds = null,Object? nightSecondOnCallDoctorIds = null,Object? firstOnCallDoctorIds = null,Object? secondOnCallDoctorIds = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,departmentId: null == departmentId ? _self.departmentId : departmentId // ignore: cast_nullable_to_non_nullable
-as String,firstOnCallDoctorIds: null == firstOnCallDoctorIds ? _self.firstOnCallDoctorIds : firstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as String,dayFirstOnCallDoctorIds: null == dayFirstOnCallDoctorIds ? _self.dayFirstOnCallDoctorIds : dayFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,daySecondOnCallDoctorIds: null == daySecondOnCallDoctorIds ? _self.daySecondOnCallDoctorIds : daySecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,nightFirstOnCallDoctorIds: null == nightFirstOnCallDoctorIds ? _self.nightFirstOnCallDoctorIds : nightFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,nightSecondOnCallDoctorIds: null == nightSecondOnCallDoctorIds ? _self.nightSecondOnCallDoctorIds : nightSecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,firstOnCallDoctorIds: null == firstOnCallDoctorIds ? _self.firstOnCallDoctorIds : firstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,secondOnCallDoctorIds: null == secondOnCallDoctorIds ? _self.secondOnCallDoctorIds : secondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
@@ -157,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime date,  String departmentId,  List<String> firstOnCallDoctorIds,  List<String> secondOnCallDoctorIds)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DateTime date,  String departmentId,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  List<String> firstOnCallDoctorIds,  List<String> secondOnCallDoctorIds)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DailySchedule() when $default != null:
-return $default(_that.id,_that.date,_that.departmentId,_that.firstOnCallDoctorIds,_that.secondOnCallDoctorIds);case _:
+return $default(_that.id,_that.date,_that.departmentId,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.firstOnCallDoctorIds,_that.secondOnCallDoctorIds);case _:
   return orElse();
 
 }
@@ -178,10 +183,10 @@ return $default(_that.id,_that.date,_that.departmentId,_that.firstOnCallDoctorId
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime date,  String departmentId,  List<String> firstOnCallDoctorIds,  List<String> secondOnCallDoctorIds)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DateTime date,  String departmentId,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  List<String> firstOnCallDoctorIds,  List<String> secondOnCallDoctorIds)  $default,) {final _that = this;
 switch (_that) {
 case _DailySchedule():
-return $default(_that.id,_that.date,_that.departmentId,_that.firstOnCallDoctorIds,_that.secondOnCallDoctorIds);case _:
+return $default(_that.id,_that.date,_that.departmentId,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.firstOnCallDoctorIds,_that.secondOnCallDoctorIds);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +203,10 @@ return $default(_that.id,_that.date,_that.departmentId,_that.firstOnCallDoctorId
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime date,  String departmentId,  List<String> firstOnCallDoctorIds,  List<String> secondOnCallDoctorIds)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DateTime date,  String departmentId,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  List<String> firstOnCallDoctorIds,  List<String> secondOnCallDoctorIds)?  $default,) {final _that = this;
 switch (_that) {
 case _DailySchedule() when $default != null:
-return $default(_that.id,_that.date,_that.departmentId,_that.firstOnCallDoctorIds,_that.secondOnCallDoctorIds);case _:
+return $default(_that.id,_that.date,_that.departmentId,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.firstOnCallDoctorIds,_that.secondOnCallDoctorIds);case _:
   return null;
 
 }
@@ -213,13 +218,43 @@ return $default(_that.id,_that.date,_that.departmentId,_that.firstOnCallDoctorId
 @JsonSerializable()
 
 class _DailySchedule implements DailySchedule {
-  const _DailySchedule({required this.id, required this.date, required this.departmentId, final  List<String> firstOnCallDoctorIds = const [], final  List<String> secondOnCallDoctorIds = const []}): _firstOnCallDoctorIds = firstOnCallDoctorIds,_secondOnCallDoctorIds = secondOnCallDoctorIds;
+  const _DailySchedule({required this.id, required this.date, required this.departmentId, final  List<String> dayFirstOnCallDoctorIds = const [], final  List<String> daySecondOnCallDoctorIds = const [], final  List<String> nightFirstOnCallDoctorIds = const [], final  List<String> nightSecondOnCallDoctorIds = const [], final  List<String> firstOnCallDoctorIds = const [], final  List<String> secondOnCallDoctorIds = const []}): _dayFirstOnCallDoctorIds = dayFirstOnCallDoctorIds,_daySecondOnCallDoctorIds = daySecondOnCallDoctorIds,_nightFirstOnCallDoctorIds = nightFirstOnCallDoctorIds,_nightSecondOnCallDoctorIds = nightSecondOnCallDoctorIds,_firstOnCallDoctorIds = firstOnCallDoctorIds,_secondOnCallDoctorIds = secondOnCallDoctorIds;
   factory _DailySchedule.fromJson(Map<String, dynamic> json) => _$DailyScheduleFromJson(json);
 
 @override final  String id;
 @override final  DateTime date;
 @override final  String departmentId;
+ final  List<String> _dayFirstOnCallDoctorIds;
+@override@JsonKey() List<String> get dayFirstOnCallDoctorIds {
+  if (_dayFirstOnCallDoctorIds is EqualUnmodifiableListView) return _dayFirstOnCallDoctorIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_dayFirstOnCallDoctorIds);
+}
+
+ final  List<String> _daySecondOnCallDoctorIds;
+@override@JsonKey() List<String> get daySecondOnCallDoctorIds {
+  if (_daySecondOnCallDoctorIds is EqualUnmodifiableListView) return _daySecondOnCallDoctorIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_daySecondOnCallDoctorIds);
+}
+
+ final  List<String> _nightFirstOnCallDoctorIds;
+@override@JsonKey() List<String> get nightFirstOnCallDoctorIds {
+  if (_nightFirstOnCallDoctorIds is EqualUnmodifiableListView) return _nightFirstOnCallDoctorIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_nightFirstOnCallDoctorIds);
+}
+
+ final  List<String> _nightSecondOnCallDoctorIds;
+@override@JsonKey() List<String> get nightSecondOnCallDoctorIds {
+  if (_nightSecondOnCallDoctorIds is EqualUnmodifiableListView) return _nightSecondOnCallDoctorIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_nightSecondOnCallDoctorIds);
+}
+
+// For backward compatibility during migration
  final  List<String> _firstOnCallDoctorIds;
+// For backward compatibility during migration
 @override@JsonKey() List<String> get firstOnCallDoctorIds {
   if (_firstOnCallDoctorIds is EqualUnmodifiableListView) return _firstOnCallDoctorIds;
   // ignore: implicit_dynamic_type
@@ -247,16 +282,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DailySchedule&&(identical(other.id, id) || other.id == id)&&(identical(other.date, date) || other.date == date)&&(identical(other.departmentId, departmentId) || other.departmentId == departmentId)&&const DeepCollectionEquality().equals(other._firstOnCallDoctorIds, _firstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._secondOnCallDoctorIds, _secondOnCallDoctorIds));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DailySchedule&&(identical(other.id, id) || other.id == id)&&(identical(other.date, date) || other.date == date)&&(identical(other.departmentId, departmentId) || other.departmentId == departmentId)&&const DeepCollectionEquality().equals(other._dayFirstOnCallDoctorIds, _dayFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._daySecondOnCallDoctorIds, _daySecondOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._nightFirstOnCallDoctorIds, _nightFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._nightSecondOnCallDoctorIds, _nightSecondOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._firstOnCallDoctorIds, _firstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._secondOnCallDoctorIds, _secondOnCallDoctorIds));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,date,departmentId,const DeepCollectionEquality().hash(_firstOnCallDoctorIds),const DeepCollectionEquality().hash(_secondOnCallDoctorIds));
+int get hashCode => Object.hash(runtimeType,id,date,departmentId,const DeepCollectionEquality().hash(_dayFirstOnCallDoctorIds),const DeepCollectionEquality().hash(_daySecondOnCallDoctorIds),const DeepCollectionEquality().hash(_nightFirstOnCallDoctorIds),const DeepCollectionEquality().hash(_nightSecondOnCallDoctorIds),const DeepCollectionEquality().hash(_firstOnCallDoctorIds),const DeepCollectionEquality().hash(_secondOnCallDoctorIds));
 
 @override
 String toString() {
-  return 'DailySchedule(id: $id, date: $date, departmentId: $departmentId, firstOnCallDoctorIds: $firstOnCallDoctorIds, secondOnCallDoctorIds: $secondOnCallDoctorIds)';
+  return 'DailySchedule(id: $id, date: $date, departmentId: $departmentId, dayFirstOnCallDoctorIds: $dayFirstOnCallDoctorIds, daySecondOnCallDoctorIds: $daySecondOnCallDoctorIds, nightFirstOnCallDoctorIds: $nightFirstOnCallDoctorIds, nightSecondOnCallDoctorIds: $nightSecondOnCallDoctorIds, firstOnCallDoctorIds: $firstOnCallDoctorIds, secondOnCallDoctorIds: $secondOnCallDoctorIds)';
 }
 
 
@@ -267,7 +302,7 @@ abstract mixin class _$DailyScheduleCopyWith<$Res> implements $DailyScheduleCopy
   factory _$DailyScheduleCopyWith(_DailySchedule value, $Res Function(_DailySchedule) _then) = __$DailyScheduleCopyWithImpl;
 @override @useResult
 $Res call({
- String id, DateTime date, String departmentId, List<String> firstOnCallDoctorIds, List<String> secondOnCallDoctorIds
+ String id, DateTime date, String departmentId, List<String> dayFirstOnCallDoctorIds, List<String> daySecondOnCallDoctorIds, List<String> nightFirstOnCallDoctorIds, List<String> nightSecondOnCallDoctorIds, List<String> firstOnCallDoctorIds, List<String> secondOnCallDoctorIds
 });
 
 
@@ -284,12 +319,16 @@ class __$DailyScheduleCopyWithImpl<$Res>
 
 /// Create a copy of DailySchedule
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? date = null,Object? departmentId = null,Object? firstOnCallDoctorIds = null,Object? secondOnCallDoctorIds = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? date = null,Object? departmentId = null,Object? dayFirstOnCallDoctorIds = null,Object? daySecondOnCallDoctorIds = null,Object? nightFirstOnCallDoctorIds = null,Object? nightSecondOnCallDoctorIds = null,Object? firstOnCallDoctorIds = null,Object? secondOnCallDoctorIds = null,}) {
   return _then(_DailySchedule(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,departmentId: null == departmentId ? _self.departmentId : departmentId // ignore: cast_nullable_to_non_nullable
-as String,firstOnCallDoctorIds: null == firstOnCallDoctorIds ? _self._firstOnCallDoctorIds : firstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as String,dayFirstOnCallDoctorIds: null == dayFirstOnCallDoctorIds ? _self._dayFirstOnCallDoctorIds : dayFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,daySecondOnCallDoctorIds: null == daySecondOnCallDoctorIds ? _self._daySecondOnCallDoctorIds : daySecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,nightFirstOnCallDoctorIds: null == nightFirstOnCallDoctorIds ? _self._nightFirstOnCallDoctorIds : nightFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,nightSecondOnCallDoctorIds: null == nightSecondOnCallDoctorIds ? _self._nightSecondOnCallDoctorIds : nightSecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,firstOnCallDoctorIds: null == firstOnCallDoctorIds ? _self._firstOnCallDoctorIds : firstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,secondOnCallDoctorIds: null == secondOnCallDoctorIds ? _self._secondOnCallDoctorIds : secondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
@@ -301,7 +340,7 @@ as List<String>,
 /// @nodoc
 mixin _$BulkAssignmentRequest {
 
- List<String> get departmentIds; List<DateTime> get dates; List<String> get firstOnCallDoctorIds; List<String> get secondOnCallDoctorIds; bool get overrideExisting;
+ List<String> get departmentIds; List<DateTime> get dates; List<String> get dayFirstOnCallDoctorIds; List<String> get daySecondOnCallDoctorIds; List<String> get nightFirstOnCallDoctorIds; List<String> get nightSecondOnCallDoctorIds; bool get overrideExisting;
 /// Create a copy of BulkAssignmentRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -312,16 +351,16 @@ $BulkAssignmentRequestCopyWith<BulkAssignmentRequest> get copyWith => _$BulkAssi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkAssignmentRequest&&const DeepCollectionEquality().equals(other.departmentIds, departmentIds)&&const DeepCollectionEquality().equals(other.dates, dates)&&const DeepCollectionEquality().equals(other.firstOnCallDoctorIds, firstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.secondOnCallDoctorIds, secondOnCallDoctorIds)&&(identical(other.overrideExisting, overrideExisting) || other.overrideExisting == overrideExisting));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkAssignmentRequest&&const DeepCollectionEquality().equals(other.departmentIds, departmentIds)&&const DeepCollectionEquality().equals(other.dates, dates)&&const DeepCollectionEquality().equals(other.dayFirstOnCallDoctorIds, dayFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.daySecondOnCallDoctorIds, daySecondOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.nightFirstOnCallDoctorIds, nightFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.nightSecondOnCallDoctorIds, nightSecondOnCallDoctorIds)&&(identical(other.overrideExisting, overrideExisting) || other.overrideExisting == overrideExisting));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(departmentIds),const DeepCollectionEquality().hash(dates),const DeepCollectionEquality().hash(firstOnCallDoctorIds),const DeepCollectionEquality().hash(secondOnCallDoctorIds),overrideExisting);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(departmentIds),const DeepCollectionEquality().hash(dates),const DeepCollectionEquality().hash(dayFirstOnCallDoctorIds),const DeepCollectionEquality().hash(daySecondOnCallDoctorIds),const DeepCollectionEquality().hash(nightFirstOnCallDoctorIds),const DeepCollectionEquality().hash(nightSecondOnCallDoctorIds),overrideExisting);
 
 @override
 String toString() {
-  return 'BulkAssignmentRequest(departmentIds: $departmentIds, dates: $dates, firstOnCallDoctorIds: $firstOnCallDoctorIds, secondOnCallDoctorIds: $secondOnCallDoctorIds, overrideExisting: $overrideExisting)';
+  return 'BulkAssignmentRequest(departmentIds: $departmentIds, dates: $dates, dayFirstOnCallDoctorIds: $dayFirstOnCallDoctorIds, daySecondOnCallDoctorIds: $daySecondOnCallDoctorIds, nightFirstOnCallDoctorIds: $nightFirstOnCallDoctorIds, nightSecondOnCallDoctorIds: $nightSecondOnCallDoctorIds, overrideExisting: $overrideExisting)';
 }
 
 
@@ -332,7 +371,7 @@ abstract mixin class $BulkAssignmentRequestCopyWith<$Res>  {
   factory $BulkAssignmentRequestCopyWith(BulkAssignmentRequest value, $Res Function(BulkAssignmentRequest) _then) = _$BulkAssignmentRequestCopyWithImpl;
 @useResult
 $Res call({
- List<String> departmentIds, List<DateTime> dates, List<String> firstOnCallDoctorIds, List<String> secondOnCallDoctorIds, bool overrideExisting
+ List<String> departmentIds, List<DateTime> dates, List<String> dayFirstOnCallDoctorIds, List<String> daySecondOnCallDoctorIds, List<String> nightFirstOnCallDoctorIds, List<String> nightSecondOnCallDoctorIds, bool overrideExisting
 });
 
 
@@ -349,12 +388,14 @@ class _$BulkAssignmentRequestCopyWithImpl<$Res>
 
 /// Create a copy of BulkAssignmentRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? departmentIds = null,Object? dates = null,Object? firstOnCallDoctorIds = null,Object? secondOnCallDoctorIds = null,Object? overrideExisting = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? departmentIds = null,Object? dates = null,Object? dayFirstOnCallDoctorIds = null,Object? daySecondOnCallDoctorIds = null,Object? nightFirstOnCallDoctorIds = null,Object? nightSecondOnCallDoctorIds = null,Object? overrideExisting = null,}) {
   return _then(_self.copyWith(
 departmentIds: null == departmentIds ? _self.departmentIds : departmentIds // ignore: cast_nullable_to_non_nullable
 as List<String>,dates: null == dates ? _self.dates : dates // ignore: cast_nullable_to_non_nullable
-as List<DateTime>,firstOnCallDoctorIds: null == firstOnCallDoctorIds ? _self.firstOnCallDoctorIds : firstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
-as List<String>,secondOnCallDoctorIds: null == secondOnCallDoctorIds ? _self.secondOnCallDoctorIds : secondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<DateTime>,dayFirstOnCallDoctorIds: null == dayFirstOnCallDoctorIds ? _self.dayFirstOnCallDoctorIds : dayFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,daySecondOnCallDoctorIds: null == daySecondOnCallDoctorIds ? _self.daySecondOnCallDoctorIds : daySecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,nightFirstOnCallDoctorIds: null == nightFirstOnCallDoctorIds ? _self.nightFirstOnCallDoctorIds : nightFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,nightSecondOnCallDoctorIds: null == nightSecondOnCallDoctorIds ? _self.nightSecondOnCallDoctorIds : nightSecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,overrideExisting: null == overrideExisting ? _self.overrideExisting : overrideExisting // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
@@ -441,10 +482,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> departmentIds,  List<DateTime> dates,  List<String> firstOnCallDoctorIds,  List<String> secondOnCallDoctorIds,  bool overrideExisting)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> departmentIds,  List<DateTime> dates,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  bool overrideExisting)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BulkAssignmentRequest() when $default != null:
-return $default(_that.departmentIds,_that.dates,_that.firstOnCallDoctorIds,_that.secondOnCallDoctorIds,_that.overrideExisting);case _:
+return $default(_that.departmentIds,_that.dates,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.overrideExisting);case _:
   return orElse();
 
 }
@@ -462,10 +503,10 @@ return $default(_that.departmentIds,_that.dates,_that.firstOnCallDoctorIds,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> departmentIds,  List<DateTime> dates,  List<String> firstOnCallDoctorIds,  List<String> secondOnCallDoctorIds,  bool overrideExisting)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> departmentIds,  List<DateTime> dates,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  bool overrideExisting)  $default,) {final _that = this;
 switch (_that) {
 case _BulkAssignmentRequest():
-return $default(_that.departmentIds,_that.dates,_that.firstOnCallDoctorIds,_that.secondOnCallDoctorIds,_that.overrideExisting);case _:
+return $default(_that.departmentIds,_that.dates,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.overrideExisting);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -482,10 +523,10 @@ return $default(_that.departmentIds,_that.dates,_that.firstOnCallDoctorIds,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> departmentIds,  List<DateTime> dates,  List<String> firstOnCallDoctorIds,  List<String> secondOnCallDoctorIds,  bool overrideExisting)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> departmentIds,  List<DateTime> dates,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  bool overrideExisting)?  $default,) {final _that = this;
 switch (_that) {
 case _BulkAssignmentRequest() when $default != null:
-return $default(_that.departmentIds,_that.dates,_that.firstOnCallDoctorIds,_that.secondOnCallDoctorIds,_that.overrideExisting);case _:
+return $default(_that.departmentIds,_that.dates,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.overrideExisting);case _:
   return null;
 
 }
@@ -497,7 +538,7 @@ return $default(_that.departmentIds,_that.dates,_that.firstOnCallDoctorIds,_that
 
 
 class _BulkAssignmentRequest implements BulkAssignmentRequest {
-  const _BulkAssignmentRequest({required final  List<String> departmentIds, required final  List<DateTime> dates, required final  List<String> firstOnCallDoctorIds, required final  List<String> secondOnCallDoctorIds, required this.overrideExisting}): _departmentIds = departmentIds,_dates = dates,_firstOnCallDoctorIds = firstOnCallDoctorIds,_secondOnCallDoctorIds = secondOnCallDoctorIds;
+  const _BulkAssignmentRequest({required final  List<String> departmentIds, required final  List<DateTime> dates, final  List<String> dayFirstOnCallDoctorIds = const [], final  List<String> daySecondOnCallDoctorIds = const [], final  List<String> nightFirstOnCallDoctorIds = const [], final  List<String> nightSecondOnCallDoctorIds = const [], required this.overrideExisting}): _departmentIds = departmentIds,_dates = dates,_dayFirstOnCallDoctorIds = dayFirstOnCallDoctorIds,_daySecondOnCallDoctorIds = daySecondOnCallDoctorIds,_nightFirstOnCallDoctorIds = nightFirstOnCallDoctorIds,_nightSecondOnCallDoctorIds = nightSecondOnCallDoctorIds;
   
 
  final  List<String> _departmentIds;
@@ -514,18 +555,32 @@ class _BulkAssignmentRequest implements BulkAssignmentRequest {
   return EqualUnmodifiableListView(_dates);
 }
 
- final  List<String> _firstOnCallDoctorIds;
-@override List<String> get firstOnCallDoctorIds {
-  if (_firstOnCallDoctorIds is EqualUnmodifiableListView) return _firstOnCallDoctorIds;
+ final  List<String> _dayFirstOnCallDoctorIds;
+@override@JsonKey() List<String> get dayFirstOnCallDoctorIds {
+  if (_dayFirstOnCallDoctorIds is EqualUnmodifiableListView) return _dayFirstOnCallDoctorIds;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_firstOnCallDoctorIds);
+  return EqualUnmodifiableListView(_dayFirstOnCallDoctorIds);
 }
 
- final  List<String> _secondOnCallDoctorIds;
-@override List<String> get secondOnCallDoctorIds {
-  if (_secondOnCallDoctorIds is EqualUnmodifiableListView) return _secondOnCallDoctorIds;
+ final  List<String> _daySecondOnCallDoctorIds;
+@override@JsonKey() List<String> get daySecondOnCallDoctorIds {
+  if (_daySecondOnCallDoctorIds is EqualUnmodifiableListView) return _daySecondOnCallDoctorIds;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_secondOnCallDoctorIds);
+  return EqualUnmodifiableListView(_daySecondOnCallDoctorIds);
+}
+
+ final  List<String> _nightFirstOnCallDoctorIds;
+@override@JsonKey() List<String> get nightFirstOnCallDoctorIds {
+  if (_nightFirstOnCallDoctorIds is EqualUnmodifiableListView) return _nightFirstOnCallDoctorIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_nightFirstOnCallDoctorIds);
+}
+
+ final  List<String> _nightSecondOnCallDoctorIds;
+@override@JsonKey() List<String> get nightSecondOnCallDoctorIds {
+  if (_nightSecondOnCallDoctorIds is EqualUnmodifiableListView) return _nightSecondOnCallDoctorIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_nightSecondOnCallDoctorIds);
 }
 
 @override final  bool overrideExisting;
@@ -540,16 +595,16 @@ _$BulkAssignmentRequestCopyWith<_BulkAssignmentRequest> get copyWith => __$BulkA
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkAssignmentRequest&&const DeepCollectionEquality().equals(other._departmentIds, _departmentIds)&&const DeepCollectionEquality().equals(other._dates, _dates)&&const DeepCollectionEquality().equals(other._firstOnCallDoctorIds, _firstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._secondOnCallDoctorIds, _secondOnCallDoctorIds)&&(identical(other.overrideExisting, overrideExisting) || other.overrideExisting == overrideExisting));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkAssignmentRequest&&const DeepCollectionEquality().equals(other._departmentIds, _departmentIds)&&const DeepCollectionEquality().equals(other._dates, _dates)&&const DeepCollectionEquality().equals(other._dayFirstOnCallDoctorIds, _dayFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._daySecondOnCallDoctorIds, _daySecondOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._nightFirstOnCallDoctorIds, _nightFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._nightSecondOnCallDoctorIds, _nightSecondOnCallDoctorIds)&&(identical(other.overrideExisting, overrideExisting) || other.overrideExisting == overrideExisting));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_departmentIds),const DeepCollectionEquality().hash(_dates),const DeepCollectionEquality().hash(_firstOnCallDoctorIds),const DeepCollectionEquality().hash(_secondOnCallDoctorIds),overrideExisting);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_departmentIds),const DeepCollectionEquality().hash(_dates),const DeepCollectionEquality().hash(_dayFirstOnCallDoctorIds),const DeepCollectionEquality().hash(_daySecondOnCallDoctorIds),const DeepCollectionEquality().hash(_nightFirstOnCallDoctorIds),const DeepCollectionEquality().hash(_nightSecondOnCallDoctorIds),overrideExisting);
 
 @override
 String toString() {
-  return 'BulkAssignmentRequest(departmentIds: $departmentIds, dates: $dates, firstOnCallDoctorIds: $firstOnCallDoctorIds, secondOnCallDoctorIds: $secondOnCallDoctorIds, overrideExisting: $overrideExisting)';
+  return 'BulkAssignmentRequest(departmentIds: $departmentIds, dates: $dates, dayFirstOnCallDoctorIds: $dayFirstOnCallDoctorIds, daySecondOnCallDoctorIds: $daySecondOnCallDoctorIds, nightFirstOnCallDoctorIds: $nightFirstOnCallDoctorIds, nightSecondOnCallDoctorIds: $nightSecondOnCallDoctorIds, overrideExisting: $overrideExisting)';
 }
 
 
@@ -560,7 +615,7 @@ abstract mixin class _$BulkAssignmentRequestCopyWith<$Res> implements $BulkAssig
   factory _$BulkAssignmentRequestCopyWith(_BulkAssignmentRequest value, $Res Function(_BulkAssignmentRequest) _then) = __$BulkAssignmentRequestCopyWithImpl;
 @override @useResult
 $Res call({
- List<String> departmentIds, List<DateTime> dates, List<String> firstOnCallDoctorIds, List<String> secondOnCallDoctorIds, bool overrideExisting
+ List<String> departmentIds, List<DateTime> dates, List<String> dayFirstOnCallDoctorIds, List<String> daySecondOnCallDoctorIds, List<String> nightFirstOnCallDoctorIds, List<String> nightSecondOnCallDoctorIds, bool overrideExisting
 });
 
 
@@ -577,12 +632,14 @@ class __$BulkAssignmentRequestCopyWithImpl<$Res>
 
 /// Create a copy of BulkAssignmentRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? departmentIds = null,Object? dates = null,Object? firstOnCallDoctorIds = null,Object? secondOnCallDoctorIds = null,Object? overrideExisting = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? departmentIds = null,Object? dates = null,Object? dayFirstOnCallDoctorIds = null,Object? daySecondOnCallDoctorIds = null,Object? nightFirstOnCallDoctorIds = null,Object? nightSecondOnCallDoctorIds = null,Object? overrideExisting = null,}) {
   return _then(_BulkAssignmentRequest(
 departmentIds: null == departmentIds ? _self._departmentIds : departmentIds // ignore: cast_nullable_to_non_nullable
 as List<String>,dates: null == dates ? _self._dates : dates // ignore: cast_nullable_to_non_nullable
-as List<DateTime>,firstOnCallDoctorIds: null == firstOnCallDoctorIds ? _self._firstOnCallDoctorIds : firstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
-as List<String>,secondOnCallDoctorIds: null == secondOnCallDoctorIds ? _self._secondOnCallDoctorIds : secondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<DateTime>,dayFirstOnCallDoctorIds: null == dayFirstOnCallDoctorIds ? _self._dayFirstOnCallDoctorIds : dayFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,daySecondOnCallDoctorIds: null == daySecondOnCallDoctorIds ? _self._daySecondOnCallDoctorIds : daySecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,nightFirstOnCallDoctorIds: null == nightFirstOnCallDoctorIds ? _self._nightFirstOnCallDoctorIds : nightFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+as List<String>,nightSecondOnCallDoctorIds: null == nightSecondOnCallDoctorIds ? _self._nightSecondOnCallDoctorIds : nightSecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,overrideExisting: null == overrideExisting ? _self.overrideExisting : overrideExisting // ignore: cast_nullable_to_non_nullable
 as bool,
   ));

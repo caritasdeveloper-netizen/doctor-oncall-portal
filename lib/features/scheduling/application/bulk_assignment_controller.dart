@@ -11,8 +11,10 @@ abstract class BulkAssignmentState with _$BulkAssignmentState {
   const factory BulkAssignmentState({
     @Default([]) List<String> selectedDepartmentIds,
     @Default([]) List<DateTime> selectedDates,
-    @Default([]) List<String> firstOnCallDoctorIds,
-    @Default([]) List<String> secondOnCallDoctorIds,
+    @Default([]) List<String> dayFirstOnCallDoctorIds,
+    @Default([]) List<String> daySecondOnCallDoctorIds,
+    @Default([]) List<String> nightFirstOnCallDoctorIds,
+    @Default([]) List<String> nightSecondOnCallDoctorIds,
     @Default(false) bool isApplying,
   }) = _BulkAssignmentState;
 }
@@ -24,8 +26,11 @@ class BulkAssignmentController extends _$BulkAssignmentController {
 
   void updateDepartments(List<String> ids) => state = state.copyWith(selectedDepartmentIds: ids);
   void updateDates(List<DateTime> dates) => state = state.copyWith(selectedDates: dates);
-  void updateFirstOnCall(List<String> ids) => state = state.copyWith(firstOnCallDoctorIds: ids);
-  void updateSecondOnCall(List<String> ids) => state = state.copyWith(secondOnCallDoctorIds: ids);
+  
+  void updateDayFirstOnCall(List<String> ids) => state = state.copyWith(dayFirstOnCallDoctorIds: ids);
+  void updateDaySecondOnCall(List<String> ids) => state = state.copyWith(daySecondOnCallDoctorIds: ids);
+  void updateNightFirstOnCall(List<String> ids) => state = state.copyWith(nightFirstOnCallDoctorIds: ids);
+  void updateNightSecondOnCall(List<String> ids) => state = state.copyWith(nightSecondOnCallDoctorIds: ids);
 
   Future<void> apply() async {
     state = state.copyWith(isApplying: true);
@@ -33,8 +38,10 @@ class BulkAssignmentController extends _$BulkAssignmentController {
       final request = BulkAssignmentRequest(
         departmentIds: state.selectedDepartmentIds,
         dates: state.selectedDates,
-        firstOnCallDoctorIds: state.firstOnCallDoctorIds,
-        secondOnCallDoctorIds: state.secondOnCallDoctorIds,
+        dayFirstOnCallDoctorIds: state.dayFirstOnCallDoctorIds,
+        daySecondOnCallDoctorIds: state.daySecondOnCallDoctorIds,
+        nightFirstOnCallDoctorIds: state.nightFirstOnCallDoctorIds,
+        nightSecondOnCallDoctorIds: state.nightSecondOnCallDoctorIds,
         overrideExisting: true,
       );
       await ref.read(scheduleRepositoryProvider).applyBulkAssignment(request);
