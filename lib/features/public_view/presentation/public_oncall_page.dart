@@ -172,12 +172,12 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
               children: [
                 Text(
                   'Search Department',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textColor,
-                    letterSpacing: -0.2,
-                  ),
+                 style: GoogleFonts.plusJakartaSans(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF1A1C1E),
+              letterSpacing: -0.2,
+            ),
                 ),
                 const SizedBox(height: 12),
                 Container(
@@ -196,7 +196,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
                       hintText: 'Type ward or specialty...',
                       hintStyle: GoogleFonts.plusJakartaSans(
                         color: AppTheme.textSecondaryColor.withOpacity(0.7),
-                        fontSize: 14,
+                        fontSize: 18,
                       ),
                       prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.textSecondaryColor, size: 20),
                       border: InputBorder.none,
@@ -373,244 +373,264 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
   }
 
   Widget _buildDepartmentSection(Department dept, DailySchedule schedule, List<Doctor> doctors) {
-    final allOnCallIds = {
+    final dayDoctorIds = {
       ...schedule.dayFirstOnCallDoctorIds,
       ...schedule.daySecondOnCallDoctorIds,
+    };
+    final nightDoctorIds = {
       ...schedule.nightFirstOnCallDoctorIds,
       ...schedule.nightSecondOnCallDoctorIds,
     };
 
-    final onCallDoctors = doctors.where((d) => allOnCallIds.contains(d.id)).toList();
+    final dayDoctors = doctors.where((d) => dayDoctorIds.contains(d.id)).toList();
+    final nightDoctors = doctors.where((d) => nightDoctorIds.contains(d.id)).toList();
     
-    final displayDoctors = onCallDoctors;
+    final totalOnCall = dayDoctors.length + nightDoctors.length;
 
-    if (_searchQuery.isNotEmpty && displayDoctors.isEmpty) {
+    if (_searchQuery.isNotEmpty && totalOnCall == 0 && !dept.name.toLowerCase().contains(_searchQuery.toLowerCase())) {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 4),
-          child: Row(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFECEFF3)),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          iconColor: const Color(0xFF0056D2),
+          collapsedIconColor: const Color(0xFF8E9199),
+          title: Row(
             children: [
+              Container(
+                width: 10,
+                height: 10,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFF6B00),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 12),
               Text(
                 dept.name,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: AppTheme.textColor,
-                  letterSpacing: -0.5,
+                  color: const Color(0xFF1A1C1E),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
+              Text(
+                '$totalOnCall',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF8E9199),
+                ),
+              ),
+            ],
+          ),
+          childrenPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Day Shift Column
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildShiftHeader('Day Shift', Icons.wb_sunny_rounded, Colors.orange),
+                      const SizedBox(height: 16),
+                      if (dayDoctors.isEmpty)
+                        _buildEmptyShift()
+                      else
+                        ...dayDoctors.map((doc) => _buildDoctorCard(doc, dept.name)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 24),
+                // Night Shift Column
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildShiftHeader('Night Shift', Icons.nightlight_round, Colors.indigo),
+                      const SizedBox(height: 16),
+                      if (nightDoctors.isEmpty)
+                        _buildEmptyShift()
+                      else
+                        ...nightDoctors.map((doc) => _buildDoctorCard(doc, dept.name)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShiftHeader(String title, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 16),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: color,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyShift() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFECEFF3), width: 1),
+      ),
+      child: Column(
+        children: [
+          Icon(Icons.event_busy_rounded, size: 32, color: Colors.grey.withOpacity(0.3)),
+          const SizedBox(height: 12),
+          Text(
+            'No assignments',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              color: const Color(0xFF8E9199),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDoctorCard(Doctor doctor, String deptName) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFECEFF3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Profile Icon at the left side
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F7FA),
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xFFECEFF3)),
+            ),
+            child: const Icon(Icons.person_rounded, color: Color(0xFF0056D2), size: 24),
+          ),
+          const SizedBox(width: 16),
+          // Left Side: Name and Phone Number
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  doctor.name,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF1A1C1E),
+                    letterSpacing: -0.3,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  doctor.phoneNumber,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF8E9199),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          // Right Side: On-Call Status and Call Now Button
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  color: const Color(0xFFE7F3FF),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  '${displayDoctors.length} On-Call',
+                  'On-Call Now',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: AppTheme.primaryColor,
+                    color: const Color(0xFF0056D2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                onPressed: () => _makePhoneCall(doctor.phoneNumber),
+                icon: const Icon(Icons.call_rounded, size: 16),
+                label: const Text('Call Now'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF0056D2),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                  textStyle: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
             ],
           ),
-        ),
-        if (displayDoctors.isEmpty)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.borderColor.withOpacity(0.3), width: 1),
-            ),
-            child: Column(
-              children: [
-                Icon(Icons.event_busy_rounded, size: 48, color: AppTheme.textSecondaryColor.withOpacity(0.5)),
-                const SizedBox(height: 16),
-                Text(
-                  'No doctors assigned for this shift',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: AppTheme.textSecondaryColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          )
-        else
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 420,
-              mainAxisExtent: 130,
-              crossAxisSpacing: 20,
-              mainAxisSpacing: 20,
-            ),
-            itemCount: displayDoctors.length,
-            itemBuilder: (context, index) {
-              final doctor = displayDoctors[index];
-              return _buildDoctorCard(doctor, schedule);
-            },
-          ),
-        const SizedBox(height: 24),
-      ],
-    );
-  }
-
-  Widget _buildDoctorCard(Doctor doctor, DailySchedule schedule) {
-    bool isDay = schedule.dayFirstOnCallDoctorIds.contains(doctor.id) || schedule.daySecondOnCallDoctorIds.contains(doctor.id);
-    bool isNight = schedule.nightFirstOnCallDoctorIds.contains(doctor.id) || schedule.nightSecondOnCallDoctorIds.contains(doctor.id);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.borderColor.withOpacity(0.3), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-        child: InkWell(
-          onTap: () => _makePhoneCall(doctor.phoneNumber),
-          borderRadius: BorderRadius.circular(20),
-          hoverColor: AppTheme.primaryColor.withOpacity(0.02),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryLight,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.primaryColor.withOpacity(0.1), width: 2),
-                  ),
-                  child: Center(
-                    child: Text(
-                      doctor.name[0].toUpperCase(),
-                      style: GoogleFonts.plusJakartaSans(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 24,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        doctor.name,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 17,
-                          color: AppTheme.textColor,
-                          letterSpacing: -0.3,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        doctor.phoneNumber,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14,
-                          color: AppTheme.textSecondaryColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          if (isDay) _buildShiftPill(true),
-                          if (isDay && isNight) const SizedBox(width: 8),
-                          if (isNight) _buildShiftPill(false),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.green.shade400, Colors.green.shade600],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.green.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.all(14.0),
-                    child: Icon(Icons.call_rounded, color: Colors.white, size: 24),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShiftPill(bool isDay) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: isDay ? Colors.amber.shade50 : Colors.indigo.shade50,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: isDay ? Colors.amber.shade200 : Colors.indigo.shade200,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isDay ? Icons.wb_sunny_rounded : Icons.nightlight_round,
-            size: 12,
-            color: isDay ? Colors.orange.shade700 : Colors.indigo.shade700,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            isDay ? 'Day' : 'Night',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 11,
-              color: isDay ? Colors.orange.shade700 : Colors.indigo.shade700,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
         ],
       ),
     );
   }
+
 }
+
