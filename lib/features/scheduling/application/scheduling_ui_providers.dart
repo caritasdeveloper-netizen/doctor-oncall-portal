@@ -44,6 +44,12 @@ class DoctorPickerSelection extends _$DoctorPickerSelection {
     state = {...state, key: current};
   }
 
+  void remove(String key) {
+    final newState = Map<String, List<String>>.from(state);
+    newState.remove(key);
+    state = newState;
+  }
+
   List<String> getSelected(String key) => state[key] ?? [];
 }
 
@@ -59,6 +65,12 @@ class DoctorPickerSearch extends _$DoctorPickerSearch {
 
   void clear(String key) {
     state = {...state, key: ''};
+  }
+
+  void remove(String key) {
+    final newState = Map<String, String>.from(state);
+    newState.remove(key);
+    state = newState;
   }
 
   String getQuery(String key) => state[key] ?? '';

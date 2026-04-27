@@ -225,7 +225,7 @@ class _AssignButton extends StatelessWidget {
 
 // ── Doctor Picker Dialog (ConsumerWidget = stateless + Riverpod) ──────────────
 
-class _DoctorPickerDialog extends ConsumerWidget {
+class _DoctorPickerDialog extends ConsumerStatefulWidget {
   final List<Doctor> availableDoctors;
   final List<String> initialSelectedIds;
   final Function(List<String>) onSave;
@@ -236,27 +236,50 @@ class _DoctorPickerDialog extends ConsumerWidget {
     required this.onSave,
   });
 
+  @override
+  ConsumerState<_DoctorPickerDialog> createState() => _DoctorPickerDialogState();
+}
+
+class _DoctorPickerDialogState extends ConsumerState<_DoctorPickerDialog> {
   String get _pickerKey =>
-      'picker_${initialSelectedIds.join("_")}_${availableDoctors.map((d) => d.id).join("_")}';
+      'picker_${widget.initialSelectedIds.join("_")}_${widget.availableDoctors.map((d) => d.id).join("_")}';
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    // Initialise state only once when the widget is first created
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final key = _pickerKey;
+        ref.read(doctorPickerSelectionProvider.notifier).reset(key, widget.initialSelectedIds);
+        ref.read(doctorPickerSearchProvider.notifier).clear(key);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    final key = _pickerKey;
+    // Clean up state in a microtask to avoid issues during widget tree disposal
+    Future.microtask(() {
+      ref.read(doctorPickerSelectionProvider.notifier).remove(key);
+      ref.read(doctorPickerSearchProvider.notifier).remove(key);
+    });
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final key = _pickerKey;
 
-    // Initialise state on first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(doctorPickerSelectionProvider.notifier).reset(key, initialSelectedIds);
-      ref.read(doctorPickerSearchProvider.notifier).clear(key);
-    });
-
     final selected = ref.watch(
-      doctorPickerSelectionProvider.select((s) => s[key] ?? initialSelectedIds),
+      doctorPickerSelectionProvider.select((s) => s[key] ?? widget.initialSelectedIds),
     );
     final query = ref.watch(
       doctorPickerSearchProvider.select((s) => s[key] ?? ''),
     );
 
-    final filtered = availableDoctors
+    final filtered = widget.availableDoctors
         .where(
           (d) =>
               d.name.toLowerCase().contains(query.toLowerCase()) ||
@@ -471,7 +494,7 @@ class _DoctorPickerDialog extends ConsumerWidget {
                     const SizedBox(width: 8),
                     FilledButton(
                       onPressed: () {
-                        onSave(selected);
+                        widget.onSave(selected);
                         Navigator.pop(context);
                       },
                       style: FilledButton.styleFrom(

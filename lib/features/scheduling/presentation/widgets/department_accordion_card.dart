@@ -475,7 +475,7 @@ class _UnsavedChangesBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: const BoxDecoration(
         color: Color(0xFFFFFBEB),
         border: Border(top: BorderSide(color: Color(0xFFFEF08A))),
@@ -483,12 +483,12 @@ class _UnsavedChangesBar extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.edit_note_rounded, size: 16, color: Colors.amber),
-          const SizedBox(width: 8),
+          const Icon(Icons.edit_note_rounded, size: 24, color: Colors.amber),
+          const SizedBox(width: 12),
           Text(
             'Unsaved changes',
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 12,
+              fontSize: 15,
               color: const Color(0xFF92400E),
               fontWeight: FontWeight.w700,
             ),
@@ -502,18 +502,18 @@ class _UnsavedChangesBar extends ConsumerWidget {
                           .read(schedulingControllerProvider.notifier)
                           .resetChanges(),
             style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             ),
             child: Text(
               'Discard',
               style: GoogleFonts.plusJakartaSans(
                 color: AppTheme.textSecondaryColor,
                 fontWeight: FontWeight.w700,
-                fontSize: 13,
+                fontSize: 15,
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 14),
           FilledButton.icon(
             onPressed: isSaving
                 ? null
@@ -522,26 +522,26 @@ class _UnsavedChangesBar extends ConsumerWidget {
                       .saveChanges(),
             icon: isSaving
                 ? const SizedBox(
-                    width: 14,
-                    height: 14,
+                    width: 18,
+                    height: 18,
                     child: CircularProgressIndicator(
                       color: Colors.white,
-                      strokeWidth: 2,
+                      strokeWidth: 2.5,
                     ),
                   )
-                : const Icon(Icons.save_rounded, size: 14),
+                : const Icon(Icons.save_rounded, size: 18),
             label: Text(
               'Save Changes',
               style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w800,
-                fontSize: 13,
+                fontSize: 15,
               ),
             ),
             style: FilledButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 26),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
               ),
               elevation: 0,
             ),

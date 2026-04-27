@@ -93,50 +93,50 @@ class SchedulingPage extends ConsumerWidget {
                 ],
               ),
             ),
-            if (state.hasUnsavedChanges)
-              Positioned(
-                right: 24,
-                bottom: 24,
-                child: FloatingActionButton.extended(
-                  onPressed: () async {
-                    await ref.read(schedulingControllerProvider.notifier).saveChanges();
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Row(
-                            children: [
-                              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
-                              const SizedBox(width: 12),
-                              Text(
-                                'Changes saved successfully',
-                                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                          behavior: SnackBarBehavior.floating,
-                          backgroundColor: AppTheme.textColor,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          margin: const EdgeInsets.all(24),
-                        ),
-                      );
-                    }
-                  },
-                  backgroundColor: AppTheme.primaryColor,
-                  elevation: 8,
-                  label: Text(
-                    'Save Changes',
-                    style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w700),
-                  ),
-                  icon: state.isSaving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                        )
-                      : const Icon(Icons.save_rounded, color: Colors.white),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-              ),
+            // if (state.hasUnsavedChanges)
+            //   Positioned(
+            //     right: 24,
+            //     bottom: 24,
+            //     child: FloatingActionButton.extended(
+            //       onPressed: () async {
+            //         await ref.read(schedulingControllerProvider.notifier).saveChanges();
+            //         if (context.mounted) {
+            //           ScaffoldMessenger.of(context).showSnackBar(
+            //             SnackBar(
+            //               content: Row(
+            //                 children: [
+            //                   const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+            //                   const SizedBox(width: 12),
+            //                   Text(
+            //                     'Changes saved successfully',
+            //                     style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+            //                   ),
+            //                 ],
+            //               ),
+            //               behavior: SnackBarBehavior.floating,
+            //               backgroundColor: AppTheme.textColor,
+            //               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            //               margin: const EdgeInsets.all(24),
+            //             ),
+            //           );
+            //         }
+            //       },
+            //       backgroundColor: AppTheme.primaryColor,
+            //       elevation: 8,
+            //       label: Text(
+            //         'Save Changes',
+            //         style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w700),
+            //       ),
+            //       icon: state.isSaving
+            //           ? const SizedBox(
+            //               width: 18,
+            //               height: 18,
+            //               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+            //             )
+            //           : const Icon(Icons.save_rounded, color: Colors.white),
+            //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            //     ),
+            //   ),
           ],
         ),
       ),
