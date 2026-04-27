@@ -3,16 +3,31 @@ import 'package:oncall_doctor/features/scheduling/presentation/scheduling_page.d
 import 'package:oncall_doctor/features/departments/presentation/departments_list_page.dart';
 import 'package:oncall_doctor/features/doctors/presentation/doctors_list_page.dart';
 import 'package:oncall_doctor/features/doctors/presentation/create_doctor_page.dart';
+import 'package:oncall_doctor/features/auth/presentation/login_page.dart';
+import 'package:oncall_doctor/features/auth/providers/auth_provider.dart';
 import 'package:oncall_doctor/core/widgets/main_layout.dart';
+import 'package:oncall_doctor/features/public_view/presentation/public_oncall_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
 
 @riverpod
 GoRouter appRouter(Ref ref) {
+  final isAuth = ref.watch(isAuthenticatedProvider);
+
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/oncall',
     routes: [
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        path: '/oncall',
+        name: 'oncall',
+        builder: (context, state) => const PublicOnCallPage(),
+      ),
       ShellRoute(
         builder: (context, state, child) => MainLayout(
           currentRoute: state.uri.path,
@@ -50,9 +65,19 @@ GoRouter appRouter(Ref ref) {
         ],
       ),
     ],
-    // Add route guards here if auth is implemented
     redirect: (context, state) {
-      // Logic for Admin/Manager role checking
+      final isLoggingIn = state.uri.path == '/login';
+      final isPublicPage = state.uri.path == '/oncall';
+
+      if (!isAuth) {
+        if (isLoggingIn || isPublicPage) return null;
+        return '/oncall';
+      }
+
+      if (isLoggingIn) {
+        return '/';
+      }
+
       return null;
     },
   );

@@ -1,10 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:oncall_doctor/core/config/app_config.dart';
 import 'package:oncall_doctor/core/theme/app_theme.dart';
+import 'package:oncall_doctor/features/auth/providers/auth_provider.dart';
 
-class MainLayout extends StatelessWidget {
+class MainLayout extends ConsumerWidget {
   final Widget child;
   final String currentRoute;
 
@@ -15,29 +18,16 @@ class MainLayout extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      body: Stack(
+      body: Row(
         children: [
-          // Removed problematic external texture
-          Row(
-
-            children: [
-              _Sidebar(currentRoute: currentRoute),
-              Expanded(
-                child: Column(
-                  children: [
-
-                    Expanded(
-                      child: ClipRRect(
-                        child: child,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          _Sidebar(currentRoute: currentRoute),
+          Expanded(
+            child: ClipRRect(
+              child: child,
+            ),
           ),
         ],
       ),
@@ -45,12 +35,16 @@ class MainLayout extends StatelessWidget {
   }
 }
 
-class _Sidebar extends StatelessWidget {
+class _Sidebar extends ConsumerWidget {
   final String currentRoute;
   const _Sidebar({required this.currentRoute});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authStateProvider).value;
+    final email = user?.email ?? '';
+    final initials = email.isNotEmpty ? email.substring(0, 2).toUpperCase() : 'U';
+
     return Container(
       width: 260,
       margin: const EdgeInsets.fromLTRB(16, 16, 0, 16),
@@ -69,7 +63,6 @@ class _Sidebar extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 40),
-          // Logo with unique styling
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
@@ -125,7 +118,152 @@ class _Sidebar extends StatelessWidget {
             onTap: () => context.goNamed('departments'),
           ),
           const Spacer(),
-          // Unique Profile Section
+          
+          // Logout Button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: InkWell(
+              onTap: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                    child: Dialog(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      child: Container(
+                        constraints: const BoxConstraints(maxWidth: 400),
+                        padding: const EdgeInsets.all(32),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 40,
+                              offset: const Offset(0, 20),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.logout_rounded,
+                                color: Colors.redAccent,
+                                size: 32,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Sign Out',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 24,
+                                color: AppTheme.textColor,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Are you sure you want to log out? You\'ll need to sign in again to access the admin dashboard.',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.plusJakartaSans(
+                                color: AppTheme.textSecondaryColor,
+                                fontSize: 16,
+                                height: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        side: const BorderSide(color: AppTheme.borderColor),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Cancel',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: AppTheme.textColor,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () => Navigator.pop(context, true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.redAccent,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Sign Out',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+                
+                if (confirm == true) {
+                  ref.read(authStateProvider.notifier).logout();
+                }
+              },
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.red.withOpacity(0.05),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+                    const SizedBox(width: 16),
+                    Text(
+                      'Logout',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Profile Section
           Padding(
             padding: const EdgeInsets.all(16),
             child: Container(
@@ -140,7 +278,7 @@ class _Sidebar extends StatelessWidget {
                     radius: 18,
                     backgroundColor: AppTheme.primaryColor,
                     child: Text(
-                      'AR',
+                      initials,
                       style: GoogleFonts.plusJakartaSans(
                         color: Colors.white,
                         fontSize: 10,
@@ -148,14 +286,13 @@ class _Sidebar extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Alex Rivera',
+                          email.split('@')[0],
                           style: GoogleFonts.plusJakartaSans(
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
@@ -226,21 +363,20 @@ class _SidebarItemState extends State<_SidebarItem> {
               children: [
                 Icon(
                   widget.icon,
-                  color: widget.isActive ? Colors.white : (widget.isActive ? AppTheme.primaryColor : AppTheme.textSecondaryColor),
+                  color: widget.isActive ? Colors.white : AppTheme.textSecondaryColor,
                   size: 20,
                 ),
                 const SizedBox(width: 16),
                 Text(
                   widget.label,
                   style: GoogleFonts.plusJakartaSans(
-                    color: widget.isActive ? Colors.white : (widget.isActive ? AppTheme.primaryColor : AppTheme.textSecondaryColor),
+                    color: widget.isActive ? Colors.white : AppTheme.textSecondaryColor,
                     fontWeight: widget.isActive ? FontWeight.w700 : FontWeight.w600,
                     fontSize: 14,
                   ),
                 ),
-                if (widget.isActive)
+                if (widget.isActive) ...[
                   const Spacer(),
-                if (widget.isActive)
                   Container(
                     width: 6,
                     height: 6,
@@ -249,6 +385,7 @@ class _SidebarItemState extends State<_SidebarItem> {
                       shape: BoxShape.circle,
                     ),
                   ),
+                ],
               ],
             ),
           ),

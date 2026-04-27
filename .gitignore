@@ -43,3 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Web related
+node_modules/
+.npm/
+
+# Secrets
+*.json
+!pubspec.json
+!package.json
+!package-lock.json

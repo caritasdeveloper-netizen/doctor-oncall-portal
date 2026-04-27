@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:oncall_doctor/core/router/app_router.dart';
 import 'package:oncall_doctor/core/theme/app_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:oncall_doctor/core/providers/shared_prefs_provider.dart';
 import 'package:oncall_doctor/firebase_options.dart';
 
 void main() async {
@@ -12,9 +14,14 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  final sharedPreferences = await SharedPreferences.getInstance();
+
   runApp(
-    const ProviderScope(
-      child: OnCallDoctorApp(),
+    ProviderScope(
+      overrides: [
+        sharedPrefsProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const OnCallDoctorApp(),
     ),
   );
 }
