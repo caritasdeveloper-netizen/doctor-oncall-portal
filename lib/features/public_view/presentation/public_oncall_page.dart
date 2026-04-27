@@ -188,7 +188,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            _buildDateNavButton(Icons.chevron_left_rounded, () => setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 7)))),
+            _buildDateNavButton(Icons.chevron_left_rounded, () => setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)))),
             const SizedBox(width: 6),
             SizedBox(
               height: 64,
@@ -234,7 +234,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
               ),
             ),
             const SizedBox(width: 6),
-            _buildDateNavButton(Icons.chevron_right_rounded, () => setState(() => _selectedDate = _selectedDate.add(const Duration(days: 7)))),
+            _buildDateNavButton(Icons.chevron_right_rounded, () => setState(() => _selectedDate = _selectedDate.add(const Duration(days: 1)))),
           ],
         ),
       ],

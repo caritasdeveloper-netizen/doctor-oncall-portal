@@ -22,6 +22,16 @@ class FirebaseDepartmentRepository implements DepartmentRepository {
   Future<void> createDepartment(Department department) async {
     await _firestore.collection('departments').add(department.toJson());
   }
+
+  @override
+  Future<void> updateDepartment(Department department) async {
+    await _firestore.collection('departments').doc(department.id).update(department.toJson());
+  }
+
+  @override
+  Future<void> deleteDepartment(String id) async {
+    await _firestore.collection('departments').doc(id).delete();
+  }
 }
 
 @riverpod

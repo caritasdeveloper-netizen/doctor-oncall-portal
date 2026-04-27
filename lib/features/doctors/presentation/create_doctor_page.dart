@@ -5,17 +5,19 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:oncall_doctor/core/theme/app_theme.dart';
 import 'package:oncall_doctor/features/departments/application/department_provider.dart';
 import 'package:oncall_doctor/features/doctors/application/doctor_provider.dart';
+import 'package:oncall_doctor/features/doctors/domain/doctor.dart';
 
 class CreateDoctorPage extends ConsumerWidget {
-  const CreateDoctorPage({super.key});
+  final Doctor? doctor;
+  const CreateDoctorPage({super.key, this.doctor});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // We use ValueNotifier for local form state to avoid StatefulWidget
-    final employeeIdController = ValueNotifier<String>('');
-    final nameController = ValueNotifier<String>('');
-    final phoneController = ValueNotifier<String>('');
-    final selectedDepts = ValueNotifier<List<String>>([]);
+    final employeeIdController = ValueNotifier<String>(doctor?.employeeId ?? '');
+    final nameController = ValueNotifier<String>(doctor?.name ?? '');
+    final phoneController = ValueNotifier<String>(doctor?.phoneNumber ?? '');
+    final selectedDepts = ValueNotifier<List<String>>(doctor?.departmentIds ?? []);
 
     final departmentsAsync = ref.watch(departmentsProvider);
     final doctorControllerState = ref.watch(doctorControllerProvider);
@@ -97,7 +99,7 @@ class CreateDoctorPage extends ConsumerWidget {
                           ),
                           const SizedBox(width: 16),
                           Text(
-                            'Professional Details',
+                            doctor != null ? 'Edit Professional' : 'Professional Details',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -121,6 +123,7 @@ class CreateDoctorPage extends ConsumerWidget {
                                   label: 'Employee ID',
                                   hint: 'e.g. DOC-001',
                                   icon: Icons.badge_outlined,
+                                  initialValue: employeeIdController.value,
                                   onChanged: (v) => employeeIdController.value = v,
                                 ),
                               ),
@@ -130,6 +133,7 @@ class CreateDoctorPage extends ConsumerWidget {
                                   label: 'Doctor Name',
                                   hint: 'e.g. Dr. John Doe',
                                   icon: Icons.person_outline_rounded,
+                                  initialValue: nameController.value,
                                   onChanged: (v) => nameController.value = v,
                                 ),
                               ),
@@ -141,6 +145,7 @@ class CreateDoctorPage extends ConsumerWidget {
                             hint: '+1 234 567 890',
                             icon: Icons.phone_android_rounded,
                             keyboardType: TextInputType.phone,
+                            initialValue: phoneController.value,
                             onChanged: (v) => phoneController.value = v,
                           ),
                           const SizedBox(height: 32),
@@ -173,15 +178,28 @@ class CreateDoctorPage extends ConsumerWidget {
                                         _showSnackBar(context, 'Please fill required fields', isError: true);
                                         return;
                                       }
-                                      await ref.read(doctorControllerProvider.notifier).createDoctor(
-                                            employeeId: employeeIdController.value,
-                                            name: nameController.value,
-                                            phoneNumber: phoneController.value,
-                                            departmentIds: selectedDepts.value,
-                                          );
+                                      if (doctor != null) {
+                                        await ref.read(doctorControllerProvider.notifier).updateDoctor(
+                                              id: doctor!.id,
+                                              employeeId: employeeIdController.value,
+                                              name: nameController.value,
+                                              phoneNumber: phoneController.value,
+                                              departmentIds: selectedDepts.value,
+                                            );
+                                      } else {
+                                        await ref.read(doctorControllerProvider.notifier).createDoctor(
+                                              employeeId: employeeIdController.value,
+                                              name: nameController.value,
+                                              phoneNumber: phoneController.value,
+                                              departmentIds: selectedDepts.value,
+                                            );
+                                      }
                                       if (context.mounted) {
                                         context.pop();
-                                        _showSnackBar(context, 'Doctor registered successfully');
+                                        _showSnackBar(
+                                          context,
+                                          doctor != null ? 'Doctor updated successfully' : 'Doctor registered successfully',
+                                        );
                                       }
                                     },
                               style: FilledButton.styleFrom(
@@ -202,7 +220,7 @@ class CreateDoctorPage extends ConsumerWidget {
                                         const Icon(Icons.check_circle_outline_rounded, size: 20),
                                         const SizedBox(width: 12),
                                         Text(
-                                          'Register Doctor',
+                                          doctor != null ? 'Update Doctor' : 'Register Doctor',
                                           style: GoogleFonts.plusJakartaSans(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
@@ -283,6 +301,7 @@ class CreateDoctorPage extends ConsumerWidget {
     required String hint,
     required IconData icon,
     required Function(String) onChanged,
+    String? initialValue,
     TextInputType? keyboardType,
   }) {
     return Column(
@@ -297,7 +316,8 @@ class CreateDoctorPage extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 10),
-        TextField(
+        TextFormField(
+          initialValue: initialValue,
           onChanged: onChanged,
           keyboardType: keyboardType,
           style: GoogleFonts.plusJakartaSans(

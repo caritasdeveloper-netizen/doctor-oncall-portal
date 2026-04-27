@@ -42,7 +42,7 @@ final class DepartmentControllerProvider
 }
 
 String _$departmentControllerHash() =>
-    r'c8be2ce855dd6295250aec070a2a795e93ec8825';
+    r'691f112d429c8ca7d2dba0baef32e59330b58260';
 
 abstract class _$DepartmentController extends $Notifier<AsyncValue<void>> {
   AsyncValue<void> build();

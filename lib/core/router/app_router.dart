@@ -8,6 +8,7 @@ import 'package:oncall_doctor/features/auth/providers/auth_provider.dart';
 import 'package:oncall_doctor/core/widgets/main_layout.dart';
 import 'package:oncall_doctor/features/public_view/presentation/public_oncall_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:oncall_doctor/features/doctors/domain/doctor.dart';
 
 part 'app_router.g.dart';
 
@@ -51,9 +52,12 @@ GoRouter appRouter(Ref ref) {
           GoRoute(
             path: '/create-doctor',
             name: 'create-doctor',
-            pageBuilder: (context, state) => const NoTransitionPage(
-              child: CreateDoctorPage(),
-            ),
+            pageBuilder: (context, state) {
+              final doctor = state.extra as Doctor?;
+              return NoTransitionPage(
+                child: CreateDoctorPage(doctor: doctor),
+              );
+            },
           ),
           GoRoute(
             path: '/departments',

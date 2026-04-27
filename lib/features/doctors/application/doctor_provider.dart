@@ -32,4 +32,31 @@ class DoctorController extends _$DoctorController {
       await ref.read(doctorRepositoryProvider).createDoctor(doctor);
     });
   }
+
+  Future<void> updateDoctor({
+    required String id,
+    required String employeeId,
+    required String name,
+    required String phoneNumber,
+    required List<String> departmentIds,
+  }) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final doctor = Doctor(
+        id: id,
+        employeeId: employeeId,
+        name: name,
+        phoneNumber: phoneNumber,
+        departmentIds: departmentIds,
+      );
+      await ref.read(doctorRepositoryProvider).updateDoctor(doctor);
+    });
+  }
+
+  Future<void> deleteDoctor(String id) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(doctorRepositoryProvider).deleteDoctor(id);
+    });
+  }
 }

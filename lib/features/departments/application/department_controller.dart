@@ -23,4 +23,25 @@ class DepartmentController extends _$DepartmentController {
       await ref.read(departmentRepositoryProvider).createDepartment(dept);
     });
   }
+
+  Future<void> updateDepartment({
+    required String id,
+    required String name,
+  }) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final dept = Department(
+        id: id,
+        name: name,
+      );
+      await ref.read(departmentRepositoryProvider).updateDepartment(dept);
+    });
+  }
+
+  Future<void> deleteDepartment(String id) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await ref.read(departmentRepositoryProvider).deleteDepartment(id);
+    });
+  }
 }

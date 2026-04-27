@@ -383,13 +383,13 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                       icon: const Icon(Icons.edit_outlined, size: 20),
                       color: AppTheme.textSecondaryColor,
                       tooltip: 'Edit Department',
-                      onPressed: () {},
+                      onPressed: () => _showEditDialog(context, ref, dept),
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete_outline_rounded, size: 20),
                       color: Colors.red.shade400,
                       tooltip: 'Delete Department',
-                      onPressed: () {},
+                      onPressed: () => _confirmDelete(context, ref, dept),
                     ),
                   ],
                 ),
@@ -399,6 +399,95 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _showEditDialog(BuildContext context, WidgetRef ref, Department dept) async {
+    final editController = TextEditingController(text: dept.name);
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Edit Department',
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
+        ),
+        content: TextField(
+          controller: editController,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: 'Department Name',
+            hintText: 'Enter new name',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          onSubmitted: (value) => Navigator.pop(context, value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor)),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, editController.text),
+            child: Text('Save Changes', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+
+    if (newName != null && newName.trim().isNotEmpty && newName != dept.name) {
+      await ref.read(departmentControllerProvider.notifier).updateDepartment(
+            id: dept.id,
+            name: newName.trim(),
+          );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Department updated successfully'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppTheme.textColor,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, Department dept) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Delete Department?',
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
+        ),
+        content: Text(
+          'Are you sure you want to delete ${dept.name}? All doctors assigned to this department will lose this assignment.',
+          style: GoogleFonts.plusJakartaSans(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor)),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red.shade400),
+            child: Text('Delete', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(departmentControllerProvider.notifier).deleteDepartment(dept.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${dept.name} deleted successfully'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppTheme.textColor,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildEmptyState(BuildContext context) {

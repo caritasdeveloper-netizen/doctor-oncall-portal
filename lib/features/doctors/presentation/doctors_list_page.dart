@@ -122,7 +122,7 @@ class DoctorsListPage extends ConsumerWidget {
                               separatorBuilder: (context, index) => const Divider(height: 1, color: AppTheme.borderColor),
                               itemBuilder: (context, index) {
                                 final doctor = doctors[index];
-                                return _buildDoctorListItem(context, doctor);
+                                return _buildDoctorListItem(context, ref, doctor);
                               },
                             ),
                           ),
@@ -141,7 +141,7 @@ class DoctorsListPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildDoctorListItem(BuildContext context, Doctor doctor) {
+  Widget _buildDoctorListItem(BuildContext context, WidgetRef ref, Doctor doctor) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -227,13 +227,13 @@ class DoctorsListPage extends ConsumerWidget {
                       icon: const Icon(Icons.edit_outlined, size: 20),
                       color: AppTheme.textSecondaryColor,
                       tooltip: 'Edit Doctor',
-                      onPressed: () {},
+                      onPressed: () => context.pushNamed('create-doctor', extra: doctor),
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete_outline_rounded, size: 20),
                       color: Colors.red.shade400,
                       tooltip: 'Delete Doctor',
-                      onPressed: () {},
+                      onPressed: () => _confirmDelete(context, ref, doctor),
                     ),
                   ],
                 ),
@@ -243,6 +243,46 @@ class DoctorsListPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, Doctor doctor) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Delete Doctor?',
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
+        ),
+        content: Text(
+          'Are you sure you want to delete ${doctor.name}? This action cannot be undone.',
+          style: GoogleFonts.plusJakartaSans(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor)),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red.shade400),
+            child: Text('Delete', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ref.read(doctorControllerProvider.notifier).deleteDoctor(doctor.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${doctor.name} deleted successfully'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppTheme.textColor,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildEmptyState(BuildContext context) {

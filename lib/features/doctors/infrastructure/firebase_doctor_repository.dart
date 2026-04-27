@@ -24,6 +24,16 @@ class FirebaseDoctorRepository implements DoctorRepository {
   }
 
   @override
+  Future<void> updateDoctor(Doctor doctor) async {
+    await _firestore.collection('doctors').doc(doctor.id).update(doctor.toJson());
+  }
+
+  @override
+  Future<void> deleteDoctor(String id) async {
+    await _firestore.collection('doctors').doc(id).delete();
+  }
+
+  @override
   Future<Doctor?> getDoctorById(String id) async {
     final doc = await _firestore.collection('doctors').doc(id).get();
     if (!doc.exists) return null;
