@@ -62,13 +62,13 @@ class DoctorChipSelector extends StatelessWidget {
   }
 
   void _showDoctorPicker(BuildContext context, List<Doctor> availableDoctors) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.72,
-        child: _DoctorPickerSheet(
+      barrierColor: Colors.black.withOpacity(0.35),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+        child: _DoctorPickerDialog(
           availableDoctors: availableDoctors,
           initialSelectedIds: selectedIds,
           onSave: onChanged,
@@ -183,7 +183,7 @@ class _AssignButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
           color: hasAssigned
               ? AppTheme.backgroundColor
@@ -223,20 +223,19 @@ class _AssignButton extends StatelessWidget {
   }
 }
 
-// ── Doctor Picker Bottom Sheet (ConsumerWidget = stateless + Riverpod) ────────
+// ── Doctor Picker Dialog (ConsumerWidget = stateless + Riverpod) ──────────────
 
-class _DoctorPickerSheet extends ConsumerWidget {
+class _DoctorPickerDialog extends ConsumerWidget {
   final List<Doctor> availableDoctors;
   final List<String> initialSelectedIds;
   final Function(List<String>) onSave;
 
-  const _DoctorPickerSheet({
+  const _DoctorPickerDialog({
     required this.availableDoctors,
     required this.initialSelectedIds,
     required this.onSave,
   });
 
-  // Unique key based on the hash of initialSelectedIds content
   String get _pickerKey =>
       'picker_${initialSelectedIds.join("_")}_${availableDoctors.map((d) => d.id).join("_")}';
 
@@ -244,7 +243,7 @@ class _DoctorPickerSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final key = _pickerKey;
 
-    // Lazily initialise selection in the provider
+    // Initialise state on first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(doctorPickerSelectionProvider.notifier).reset(key, initialSelectedIds);
       ref.read(doctorPickerSearchProvider.notifier).clear(key);
@@ -265,186 +264,238 @@ class _DoctorPickerSheet extends ConsumerWidget {
         )
         .toList();
 
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        decoration: const BoxDecoration(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 480, maxHeight: 560),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Material(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Column(
-          children: [
-            // Handle bar
-            const SizedBox(height: 12),
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppTheme.borderColor,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Header row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Select Staff',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 22,
-                            color: AppTheme.textColor,
-                          ),
-                        ),
-                        Text(
-                          '${selected.length} selected',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
+          elevation: 0,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ── Header ──────────────────────────────────────────────
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 18, 12, 14),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: AppTheme.borderColor),
                   ),
-                  // Confirm button
-                  FilledButton(
-                    onPressed: () {
-                      onSave(selected);
-                      Navigator.pop(context);
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      minimumSize: Size.zero,
-                    ),
-                    child: Text(
-                      'Confirm',
-                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Search bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: AppTheme.backgroundColor,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppTheme.borderColor),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.search_rounded,
-                      color: AppTheme.textSecondaryColor,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 10),
                     Expanded(
-                      child: TextField(
-                        onChanged: (v) => ref
-                            .read(doctorPickerSearchProvider.notifier)
-                            .setQuery(key, v),
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14,
-                          color: AppTheme.textColor,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Search by name or ID…',
-                          hintStyle: GoogleFonts.plusJakartaSans(
-                            color: AppTheme.textSecondaryColor,
-                            fontSize: 14,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Assign Doctor',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                              color: AppTheme.textColor,
+                            ),
                           ),
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.zero,
-                        ),
+                          if (selected.isNotEmpty)
+                            Text(
+                              '${selected.length} selected',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: AppTheme.primaryColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                    if (query.isNotEmpty)
-                      GestureDetector(
-                        onTap: () => ref
-                            .read(doctorPickerSearchProvider.notifier)
-                            .clear(key),
-                        child: const Icon(
-                          Icons.clear_rounded,
-                          size: 16,
-                          color: AppTheme.textSecondaryColor,
-                        ),
-                      ),
+                    // Close button
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close_rounded),
+                      color: AppTheme.textSecondaryColor,
+                      iconSize: 20,
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(),
+                    ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
 
-            // Empty state
-            if (filtered.isEmpty)
-              Expanded(
-                child: Center(
+              // ── Search bar ───────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.backgroundColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.borderColor),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.search_rounded,
+                        color: AppTheme.textSecondaryColor,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          autofocus: true,
+                          onChanged: (v) => ref
+                              .read(doctorPickerSearchProvider.notifier)
+                              .setQuery(key, v),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14,
+                            color: AppTheme.textColor,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Search by name or ID…',
+                            hintStyle: GoogleFonts.plusJakartaSans(
+                              color: AppTheme.textSecondaryColor,
+                              fontSize: 13,
+                            ),
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                      if (query.isNotEmpty)
+                        GestureDetector(
+                          onTap: () => ref
+                              .read(doctorPickerSearchProvider.notifier)
+                              .clear(key),
+                          child: const Icon(
+                            Icons.clear_rounded,
+                            size: 16,
+                            color: AppTheme.textSecondaryColor,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── Doctor list ──────────────────────────────────────────
+              if (filtered.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.person_search_rounded,
-                        size: 48,
+                        size: 40,
                         color: AppTheme.textSecondaryColor.withOpacity(0.3),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       Text(
                         'No doctors found',
                         style: GoogleFonts.plusJakartaSans(
                           color: AppTheme.textSecondaryColor,
                           fontWeight: FontWeight.w600,
+                          fontSize: 14,
                         ),
                       ),
                     ],
                   ),
+                )
+              else
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final doctor = filtered[index];
+                      final isSelected = selected.contains(doctor.id);
+                      return _DoctorPickerTile(
+                        doctor: doctor,
+                        isSelected: isSelected,
+                        onTap: () => ref
+                            .read(doctorPickerSelectionProvider.notifier)
+                            .toggle(key, doctor.id),
+                      );
+                    },
+                  ),
                 ),
-              )
-            else
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                  itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    final doctor = filtered[index];
-                    final isSelected = selected.contains(doctor.id);
 
-                    return _DoctorPickerTile(
-                      doctor: doctor,
-                      isSelected: isSelected,
-                      onTap: () => ref
-                          .read(doctorPickerSelectionProvider.notifier)
-                          .toggle(key, doctor.id),
-                    );
-                  },
+              // ── Footer action bar ────────────────────────────────────
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: AppTheme.borderColor),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    // Selected count chip
+                    if (selected.isNotEmpty)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryLight,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '${selected.length} selected',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: AppTheme.textSecondaryColor,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton(
+                      onPressed: () {
+                        onSave(selected);
+                        Navigator.pop(context);
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 12),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Confirm',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );

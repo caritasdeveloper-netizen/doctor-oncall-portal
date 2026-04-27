@@ -6,6 +6,7 @@ import 'package:oncall_doctor/core/theme/app_theme.dart';
 import 'package:oncall_doctor/features/departments/application/department_provider.dart';
 import 'package:oncall_doctor/features/doctors/application/doctor_provider.dart';
 import 'package:oncall_doctor/features/scheduling/application/scheduling_controller.dart';
+import 'package:oncall_doctor/features/scheduling/application/scheduling_ui_providers.dart';
 import 'package:oncall_doctor/features/scheduling/presentation/widgets/department_accordion_card.dart';
 
 class DayByDayView extends ConsumerWidget {
@@ -26,19 +27,51 @@ class DayByDayView extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
           child: Column(
             children: [
-              // Month label + prev/next arrows
+              // Header Row: Swaps between Date Info and Search Bar
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: ref.watch(schedulingSearchExpandedProvider)
+                    ? _ExpandedSearchBar(state: state, ref: ref)
+                    : Row(
+                        key: const ValueKey('date_header'),
+                        children: [
+                          Text(
+                            DateFormat('MMMM yyyy').format(state.selectedDate),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                              color: AppTheme.textColor,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const Spacer(),
+                          // Search trigger icon
+                          _NavArrowButton(
+                            icon: Icons.search_rounded,
+                            tooltip: 'Search departments',
+                            onTap: () => ref
+                                .read(schedulingSearchExpandedProvider.notifier)
+                                .setExpanded(true),
+                          ),
+                          const SizedBox(width: 8),
+                          // Today button
+                          _TodayButton(
+                            isToday: DateUtils.isSameDay(
+                              state.selectedDate,
+                              DateTime.now(),
+                            ),
+                            onTap: () => ref
+                                .read(schedulingControllerProvider.notifier)
+                                .setDate(DateTime.now()),
+                          ),
+                        ],
+                      ),
+              ),
+              const SizedBox(height: 16),
+
+              // 7-day pill strip with arrows
               Row(
                 children: [
-                  Text(
-                    DateFormat('MMMM yyyy').format(state.selectedDate),
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 18,
-                      color: AppTheme.textColor,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const Spacer(),
                   _NavArrowButton(
                     icon: Icons.chevron_left_rounded,
                     tooltip: 'Previous day',
@@ -50,43 +83,30 @@ class DayByDayView extends ConsumerWidget {
                           .setDate(prev);
                     },
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: SizedBox(
+                      height: 72,
+                      child: _DateStrip(state: state, ref: ref),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   _NavArrowButton(
                     icon: Icons.chevron_right_rounded,
                     tooltip: 'Next day',
                     onTap: () {
-                      final next =
-                          state.selectedDate.add(const Duration(days: 1));
+                      final next = state.selectedDate
+                          .add(const Duration(days: 1));
                       ref
                           .read(schedulingControllerProvider.notifier)
                           .setDate(next);
                     },
                   ),
-                  const SizedBox(width: 8),
-                  // Today button
-                  _TodayButton(
-                    isToday: DateUtils.isSameDay(
-                      state.selectedDate,
-                      DateTime.now(),
-                    ),
-                    onTap: () => ref
-                        .read(schedulingControllerProvider.notifier)
-                        .setDate(DateTime.now()),
-                  ),
                 ],
               ),
               const SizedBox(height: 16),
 
-              // 7-day pill strip
-              SizedBox(
-                height: 72,
-                child: _DateStrip(state: state, ref: ref),
-              ),
-              const SizedBox(height: 16),
 
-              // Stats row
-              _StatsBar(state: state, deptsAsync: departmentsAsync),
-              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -108,77 +128,7 @@ class DayByDayView extends ConsumerWidget {
 
         const SizedBox(height: 20),
 
-        // Search bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppTheme.borderColor),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.search_rounded,
-                  color: AppTheme.textSecondaryColor,
-                  size: 18,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    onChanged: (v) => ref
-                        .read(schedulingControllerProvider.notifier)
-                        .setSearchQuery(v),
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
-                      color: AppTheme.textColor,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Search department…',
-                      hintStyle: GoogleFonts.plusJakartaSans(
-                        color: AppTheme.textSecondaryColor,
-                        fontSize: 14,
-                      ),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                      fillColor: Colors.transparent,
-                    ),
-                  ),
-                ),
-                if (state.searchQuery.isNotEmpty)
-                  GestureDetector(
-                    onTap: () => ref
-                        .read(schedulingControllerProvider.notifier)
-                        .setSearchQuery(''),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: AppTheme.backgroundColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.clear_rounded,
-                        size: 14,
-                        color: AppTheme.textSecondaryColor,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
+
 
         // Department list
         Expanded(
@@ -347,141 +297,7 @@ class _DateStrip extends StatelessWidget {
   }
 }
 
-// ── Stats Bar ─────────────────────────────────────────────────────────────────
 
-class _StatsBar extends StatelessWidget {
-  final SchedulingState state;
-  final AsyncValue<List<dynamic>> deptsAsync;
-
-  const _StatsBar({required this.state, required this.deptsAsync});
-
-  @override
-  Widget build(BuildContext context) {
-    return deptsAsync.when(
-      data: (depts) {
-        int staffed = 0;
-        int partial = 0;
-        for (final dept in depts) {
-          final draft = state.draftSchedules[dept.id];
-          final isDayStaffed =
-              (draft?.dayFirstOnCallDoctorIds.isNotEmpty ?? false) &&
-              (draft?.daySecondOnCallDoctorIds.isNotEmpty ?? false);
-          final isNightStaffed =
-              (draft?.nightFirstOnCallDoctorIds.isNotEmpty ?? false) &&
-              (draft?.nightSecondOnCallDoctorIds.isNotEmpty ?? false);
-          if (isDayStaffed && isNightStaffed) {
-            staffed++;
-          } else if (isDayStaffed || isNightStaffed) {
-            partial++;
-          }
-        }
-        final needs = depts.length - staffed - partial;
-
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppTheme.backgroundColor,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppTheme.borderColor),
-          ),
-          child: Row(
-            children: [
-              _StatChip(
-                label: 'Total',
-                value: depts.length.toString(),
-                color: AppTheme.textColor,
-                icon: Icons.domain_rounded,
-              ),
-              _StatDivider(),
-              _StatChip(
-                label: 'Staffed',
-                value: staffed.toString(),
-                color: const Color(0xFF16A34A),
-                icon: Icons.check_circle_rounded,
-              ),
-              _StatDivider(),
-              _StatChip(
-                label: 'Partial',
-                value: partial.toString(),
-                color: Colors.orange.shade700,
-                icon: Icons.warning_amber_rounded,
-              ),
-              _StatDivider(),
-              _StatChip(
-                label: 'Empty',
-                value: needs.toString(),
-                color: Colors.red.shade500,
-                icon: Icons.radio_button_unchecked_rounded,
-              ),
-            ],
-          ),
-        );
-      },
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final IconData icon;
-
-  const _StatChip({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 14, color: color.withOpacity(0.7)),
-          const SizedBox(width: 6),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                  color: color,
-                ),
-              ),
-              Text(
-                label,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textSecondaryColor,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatDivider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 28,
-      color: AppTheme.borderColor,
-    );
-  }
-}
 
 // ── Nav Arrow Button ──────────────────────────────────────────────────────────
 
@@ -551,6 +367,75 @@ class _TodayButton extends StatelessWidget {
             color: isToday ? AppTheme.primaryColor : AppTheme.textSecondaryColor,
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── Expanded Search Bar ──────────────────────────────────────────────────────
+
+class _ExpandedSearchBar extends StatelessWidget {
+  final SchedulingState state;
+  final WidgetRef ref;
+
+  const _ExpandedSearchBar({required this.state, required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const ValueKey('search_header'),
+      height: 42,
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 12),
+          const Icon(
+            Icons.search_rounded,
+            color: AppTheme.primaryColor,
+            size: 20,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: TextField(
+              autofocus: true,
+              onChanged: (v) => ref
+                  .read(schedulingControllerProvider.notifier)
+                  .setSearchQuery(v),
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14,
+                color: AppTheme.textColor,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Search department…',
+                hintStyle: GoogleFonts.plusJakartaSans(
+                  color: AppTheme.textSecondaryColor,
+                  fontSize: 14,
+                ),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+          // Close/Clear button
+          IconButton(
+            onPressed: () {
+              ref.read(schedulingControllerProvider.notifier).setSearchQuery('');
+              ref.read(schedulingSearchExpandedProvider.notifier).setExpanded(false);
+            },
+            icon: const Icon(Icons.close_rounded),
+            color: AppTheme.textSecondaryColor,
+            iconSize: 20,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+          const SizedBox(width: 12),
+        ],
       ),
     );
   }

@@ -195,3 +195,62 @@ abstract class _$DoctorPickerSearch extends $Notifier<Map<String, String>> {
     element.handleCreate(ref, build);
   }
 }
+
+/// Tracks if the main scheduling search bar is expanded or just an icon.
+
+@ProviderFor(SchedulingSearchExpanded)
+final schedulingSearchExpandedProvider = SchedulingSearchExpandedProvider._();
+
+/// Tracks if the main scheduling search bar is expanded or just an icon.
+final class SchedulingSearchExpandedProvider
+    extends $NotifierProvider<SchedulingSearchExpanded, bool> {
+  /// Tracks if the main scheduling search bar is expanded or just an icon.
+  SchedulingSearchExpandedProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'schedulingSearchExpandedProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$schedulingSearchExpandedHash();
+
+  @$internal
+  @override
+  SchedulingSearchExpanded create() => SchedulingSearchExpanded();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$schedulingSearchExpandedHash() =>
+    r'32bb1e57b0747c841576f22d6930fa494a7a74a2';
+
+/// Tracks if the main scheduling search bar is expanded or just an icon.
+
+abstract class _$SchedulingSearchExpanded extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}

@@ -28,7 +28,7 @@ class MainLayout extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    _Header(currentRoute: currentRoute),
+
                     Expanded(
                       child: ClipRRect(
                         child: child,
@@ -258,118 +258,5 @@ class _SidebarItemState extends State<_SidebarItem> {
   }
 }
 
-class _Header extends StatelessWidget {
-  final String currentRoute;
-  const _Header({required this.currentRoute});
 
-  @override
-  Widget build(BuildContext context) {
-    String title = 'Dashboard';
-    if (currentRoute == '/doctors') title = 'Medical Staff';
-    if (currentRoute == '/create-doctor') title = 'Register Doctor';
-    if (currentRoute == '/departments') title = 'Departments';
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 28,
-                    color: AppTheme.textColor,
-                    letterSpacing: -1,
-                  ),
-                ),
-                Text(
-                  'Optimizing hospital workflow with intelligent on-call management.',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: AppTheme.textSecondaryColor,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Simplified Search Bar (Performance Focus)
-          Container(
-            width: 340,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.borderColor),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search staff or departments...',
-                hintStyle: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor, fontSize: 13),
-                prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.textSecondaryColor, size: 20),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                fillColor: Colors.transparent,
-              ),
-            ),
-          ),
-          const SizedBox(width: 24),
-          _HeaderAction(icon: Icons.notifications_none_rounded, hasBadge: true),
-          const SizedBox(width: 12),
-          _HeaderAction(icon: Icons.settings_rounded),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeaderAction extends StatelessWidget {
-  final IconData icon;
-  final bool hasBadge;
-  const _HeaderAction({required this.icon, this.hasBadge = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.borderColor),
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Icon(icon, color: AppTheme.textColor, size: 20),
-          if (hasBadge)
-            Positioned(
-              top: 14,
-              right: 14,
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: Colors.redAccent,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
 

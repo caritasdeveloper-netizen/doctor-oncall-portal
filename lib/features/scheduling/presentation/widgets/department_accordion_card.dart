@@ -502,16 +502,14 @@ class _UnsavedChangesBar extends ConsumerWidget {
                           .read(schedulingControllerProvider.notifier)
                           .resetChanges(),
             style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             ),
             child: Text(
               'Discard',
               style: GoogleFonts.plusJakartaSans(
                 color: AppTheme.textSecondaryColor,
                 fontWeight: FontWeight.w700,
-                fontSize: 12,
+                fontSize: 13,
               ),
             ),
           ),
@@ -533,20 +531,19 @@ class _UnsavedChangesBar extends ConsumerWidget {
                   )
                 : const Icon(Icons.save_rounded, size: 14),
             label: Text(
-              'Save',
+              'Save Changes',
               style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w800,
-                fontSize: 12,
+                fontSize: 13,
               ),
             ),
             style: FilledButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
+              elevation: 0,
             ),
           ),
         ],

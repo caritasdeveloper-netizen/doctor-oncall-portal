@@ -63,3 +63,13 @@ class DoctorPickerSearch extends _$DoctorPickerSearch {
 
   String getQuery(String key) => state[key] ?? '';
 }
+
+/// Tracks if the main scheduling search bar is expanded or just an icon.
+@riverpod
+class SchedulingSearchExpanded extends _$SchedulingSearchExpanded {
+  @override
+  bool build() => false;
+
+  void setExpanded(bool expanded) => state = expanded;
+  void toggle() => state = !state;
+}

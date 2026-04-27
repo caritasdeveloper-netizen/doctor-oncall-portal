@@ -671,10 +671,15 @@ class BulkAssignmentView extends ConsumerWidget {
                       onChanged(selectionNotifier.value);
                       Navigator.pop(context);
                     },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                    ),
                     child: Text(
                       'Done',
                       style: GoogleFonts.plusJakartaSans(
                         fontWeight: FontWeight.w800,
+                        fontSize: 14,
                       ),
                     ),
                   ),
