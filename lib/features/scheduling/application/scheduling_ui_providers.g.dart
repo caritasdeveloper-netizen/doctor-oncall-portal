@@ -254,3 +254,62 @@ abstract class _$SchedulingSearchExpanded extends $Notifier<bool> {
     element.handleCreate(ref, build);
   }
 }
+
+/// Tracks the current view index in the scheduling page (0 = Daily, 1 = Bulk).
+
+@ProviderFor(SchedulingViewIndex)
+final schedulingViewIndexProvider = SchedulingViewIndexProvider._();
+
+/// Tracks the current view index in the scheduling page (0 = Daily, 1 = Bulk).
+final class SchedulingViewIndexProvider
+    extends $NotifierProvider<SchedulingViewIndex, int> {
+  /// Tracks the current view index in the scheduling page (0 = Daily, 1 = Bulk).
+  SchedulingViewIndexProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'schedulingViewIndexProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$schedulingViewIndexHash();
+
+  @$internal
+  @override
+  SchedulingViewIndex create() => SchedulingViewIndex();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
+    );
+  }
+}
+
+String _$schedulingViewIndexHash() =>
+    r'0de745488cfa08898b95888a3f0139fc2b2e2d46';
+
+/// Tracks the current view index in the scheduling page (0 = Daily, 1 = Bulk).
+
+abstract class _$SchedulingViewIndex extends $Notifier<int> {
+  int build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<int, int>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<int, int>,
+              int,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}

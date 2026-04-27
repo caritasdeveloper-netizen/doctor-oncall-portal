@@ -85,3 +85,12 @@ class SchedulingSearchExpanded extends _$SchedulingSearchExpanded {
   void setExpanded(bool expanded) => state = expanded;
   void toggle() => state = !state;
 }
+
+/// Tracks the current view index in the scheduling page (0 = Daily, 1 = Bulk).
+@riverpod
+class SchedulingViewIndex extends _$SchedulingViewIndex {
+  @override
+  int build() => 0;
+
+  void setIndex(int index) => state = index;
+}

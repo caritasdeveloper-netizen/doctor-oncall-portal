@@ -6,6 +6,7 @@ import 'package:oncall_doctor/core/theme/app_theme.dart';
 import 'package:oncall_doctor/features/scheduling/application/scheduling_controller.dart';
 import 'package:oncall_doctor/features/scheduling/presentation/widgets/bulk_assignment_view.dart';
 import 'package:oncall_doctor/features/scheduling/presentation/widgets/day_by_day_view.dart';
+import 'package:oncall_doctor/features/scheduling/application/scheduling_ui_providers.dart';
 
 class SchedulingPage extends ConsumerWidget {
   const SchedulingPage({super.key});
@@ -13,130 +14,73 @@ class SchedulingPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(schedulingControllerProvider);
+    final viewIndex = ref.watch(schedulingViewIndexProvider);
 
-
-    return DefaultTabController(
-      length: 2,
-      child: PopScope(
-        canPop: !state.hasUnsavedChanges,
-        onPopInvoked: (didPop) async {
-          if (didPop) return;
-          final shouldPop = await _showExitConfirmation(context);
-          if (shouldPop && context.mounted) {
-            context.pop();
-          }
-        },
-        child: Stack(
+    return PopScope(
+      canPop: !state.hasUnsavedChanges,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        final shouldPop = await _showExitConfirmation(context);
+        if (shouldPop && context.mounted) {
+          context.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFFBFDFF),
+        body: Column(
           children: [
-            Positioned.fill(
-              child: Column(
+            // ── Custom Header ──────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+              child: Row(
                 children: [
-                  const SizedBox(height: 24),
-                  // Modern Pill TabBar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Container(
-                      height: 52,
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppTheme.borderColor),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: TabBar(
-                        dividerColor: Colors.transparent,
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        indicator: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: AppTheme.primaryColor,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.primaryColor.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                  // Left side: New Heading
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Schedule Management',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.textColor,
+                          letterSpacing: -0.5,
                         ),
-                        labelColor: Colors.white,
-                        unselectedLabelColor: AppTheme.textSecondaryColor,
-                        labelStyle: GoogleFonts.plusJakartaSans(
+                      ),
+                      Text(
+                        viewIndex == 0 ? 'Daily Roster' : 'Bulk Configuration',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
+                          color: AppTheme.primaryColor,
+                          letterSpacing: 0.5,
                         ),
-                        unselectedLabelStyle: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                        tabs: const [
-                          Tab(text: 'Day-by-Day View'),
-                          Tab(text: 'Bulk Assignment'),
-                        ],
                       ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(height: 24),
-                  const Expanded(
-                    child: TabBarView(
-                      children: [
-                        DayByDayView(),
-                        BulkAssignmentView(),
-                      ],
-                    ),
+                  const Spacer(),
+                  // Right side: View Toggle Button
+                  _ViewToggleButton(
+                    index: viewIndex,
+                    onTap: () {
+                      ref.read(schedulingViewIndexProvider.notifier).setIndex(
+                          viewIndex == 0 ? 1 : 0);
+                    },
                   ),
                 ],
               ),
             ),
-            // if (state.hasUnsavedChanges)
-            //   Positioned(
-            //     right: 24,
-            //     bottom: 24,
-            //     child: FloatingActionButton.extended(
-            //       onPressed: () async {
-            //         await ref.read(schedulingControllerProvider.notifier).saveChanges();
-            //         if (context.mounted) {
-            //           ScaffoldMessenger.of(context).showSnackBar(
-            //             SnackBar(
-            //               content: Row(
-            //                 children: [
-            //                   const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
-            //                   const SizedBox(width: 12),
-            //                   Text(
-            //                     'Changes saved successfully',
-            //                     style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
-            //                   ),
-            //                 ],
-            //               ),
-            //               behavior: SnackBarBehavior.floating,
-            //               backgroundColor: AppTheme.textColor,
-            //               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            //               margin: const EdgeInsets.all(24),
-            //             ),
-            //           );
-            //         }
-            //       },
-            //       backgroundColor: AppTheme.primaryColor,
-            //       elevation: 8,
-            //       label: Text(
-            //         'Save Changes',
-            //         style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w700),
-            //       ),
-            //       icon: state.isSaving
-            //           ? const SizedBox(
-            //               width: 18,
-            //               height: 18,
-            //               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-            //             )
-            //           : const Icon(Icons.save_rounded, color: Colors.white),
-            //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            //     ),
-            //   ),
+            const SizedBox(height: 24),
+
+            // ── Main Content ───────────────────────────────────────────
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: viewIndex == 0 
+                    ? const DayByDayView() 
+                    : const BulkAssignmentView(),
+              ),
+            ),
           ],
         ),
       ),
@@ -188,3 +132,55 @@ class SchedulingPage extends ConsumerWidget {
   }
 }
 
+class _ViewToggleButton extends StatelessWidget {
+  final int index;
+  final VoidCallback onTap;
+
+  const _ViewToggleButton({required this.index, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final isBulk = index == 1;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isBulk ? AppTheme.textColor : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isBulk ? AppTheme.textColor : AppTheme.borderColor,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isBulk ? Icons.calendar_today_rounded : Icons.auto_awesome_rounded,
+              size: 18,
+              color: isBulk ? Colors.white : AppTheme.primaryColor,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              isBulk ? 'Back to Daily View' : 'Bulk Assignment',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: isBulk ? Colors.white : AppTheme.textColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
