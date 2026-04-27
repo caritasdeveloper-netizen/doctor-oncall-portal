@@ -99,22 +99,10 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                             ),
                             child: Row(
                               children: [
-                                Expanded(
-                                  flex: 3,
+                                 Expanded(
+                                  flex: 5,
                                   child: Text(
                                     'DEPARTMENT NAME',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12,
-                                      color: AppTheme.textSecondaryColor,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    'SYSTEM ID',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 12,
@@ -167,8 +155,10 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
   }
 
   Widget _buildInlineAddForm(AsyncValue<void> controllerState) {
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isMobile ? 16 : 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -181,96 +171,94 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryLight,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.add_business_rounded, color: AppTheme.primaryColor, size: 22),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Quick Add Department',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: AppTheme.textColor,
-                  ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryLight,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _nameController,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    hintText: 'Enter department name...',
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppTheme.borderColor),
+                child: const Icon(Icons.add_business_rounded, color: AppTheme.primaryColor, size: 22),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Quick Add Department',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        color: AppTheme.textColor,
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppTheme.primaryColor, width: 1.5),
-                    ),
+                    if (!isMobile) const SizedBox(height: 8),
+                  ],
+                ),
+              ),
+              if (!isMobile) ...[
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _isAdding = false;
+                      _nameController.clear();
+                    });
+                  },
+                  child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor, fontWeight: FontWeight.w600)),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: controllerState.isLoading ? null : _saveDepartment,
+                  child: controllerState.isLoading
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Text('Save'),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _nameController,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Enter department name...',
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.borderColor)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.primaryColor, width: 1.5)),
+            ),
+            onSubmitted: (_) => _saveDepartment(),
+          ),
+          if (isMobile) ...[
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _isAdding = false;
+                      _nameController.clear();
+                    });
+                  },
+                  child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor, fontWeight: FontWeight.w600)),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: controllerState.isLoading ? null : _saveDepartment,
+                    child: controllerState.isLoading
+                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : const Text('Save'),
                   ),
-                  onSubmitted: (_) => _saveDepartment(),
                 ),
               ],
             ),
-          ),
-          const SizedBox(width: 20),
-          Column(
-            children: [
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _isAdding = false;
-                        _nameController.clear();
-                      });
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    child: Text(
-                      'Cancel',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: AppTheme.textSecondaryColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: controllerState.isLoading ? null : _saveDepartment,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    child: controllerState.isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                          )
-                        : Text(
-                            'Save',
-                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
-                          ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          ],
         ],
       ),
     );
@@ -328,7 +316,7 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
           child: Row(
             children: [
               Expanded(
-                flex: 3,
+                flex: 5,
                 child: Row(
                   children: [
                     Container(
@@ -352,26 +340,6 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                       ),
                     ),
                   ],
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.backgroundColor,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: AppTheme.borderColor),
-                  ),
-                  child: Text(
-                    dept.id.toUpperCase(),
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      color: AppTheme.textSecondaryColor,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
                 ),
               ),
               SizedBox(
@@ -589,12 +557,15 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                     child: Icon(Icons.delete_sweep_rounded, color: Colors.red.shade600, size: 24),
                   ),
                   const SizedBox(width: 16),
-                  Text(
-                    'Delete Department?',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 24,
-                      color: AppTheme.textColor,
+                  Expanded(
+                    child: Text(
+                      'Delete Department?',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
+                        color: AppTheme.textColor,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -618,13 +589,16 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                 ),
               ),
               const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              Wrap(
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                runSpacing: 12,
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context, false),
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
@@ -635,11 +609,10 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
                   FilledButton(
                     onPressed: () => Navigator.pop(context, true),
                     style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       backgroundColor: Colors.red.shade600,
                       elevation: 0,
@@ -648,7 +621,7 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                       'Delete Department',
                       style: GoogleFonts.plusJakartaSans(
                         fontWeight: FontWeight.w700,
-                        fontSize: 15,
+                        fontSize: 14,
                       ),
                     ),
                   ),

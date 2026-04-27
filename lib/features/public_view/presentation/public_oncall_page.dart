@@ -109,24 +109,42 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
             ),
           ),
           const SizedBox(width: 12),
-          Text('CARITAS', style: GoogleFonts.plusJakartaSans(color: AppTheme.primaryColor, fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 18)),
-          Text('Doctor OnCall', style: GoogleFonts.plusJakartaSans(color: const Color(0xFF1A1C1E), fontWeight: FontWeight.w600, letterSpacing: 1.5, fontSize: 18)),
+          Flexible(
+            child: RichText(
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                style: GoogleFonts.plusJakartaSans(fontSize: 16, letterSpacing: 0.5),
+                children: [
+                  TextSpan(text: 'CARITAS', style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.w900)),
+                  TextSpan(text: ' Doctor OnCall', style: TextStyle(color: const Color(0xFF1A1C1E), fontWeight: FontWeight.w600)),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 24),
-          child: FilledButton.icon(
+          padding: const EdgeInsets.only(right: 16),
+          child: FilledButton(
             onPressed: () => context.goNamed('login'),
-            icon: const Icon(Icons.lock_outline_rounded, size: 16),
-            label: const Text('Admin Portal'),
             style: FilledButton.styleFrom(
               backgroundColor: const Color(0xFF1A1C1E),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, letterSpacing: 0.3),
+              textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 12, letterSpacing: 0.3),
               elevation: 0,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.lock_outline_rounded, size: 14),
+                if (MediaQuery.of(context).size.width > 600) ...[
+                  const SizedBox(width: 8),
+                  const Text('Admin Portal'),
+                ],
+              ],
             ),
           ),
         ),
@@ -136,6 +154,8 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
 
 
   Widget _buildFiltersCard(AsyncValue<List<Department>> departmentsAsync) {
+    final bool isMobile = MediaQuery.of(context).size.width < 768;
+
     return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -146,41 +166,54 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
             BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 8)),
           ],
         ),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Search Department', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF8E9199), letterSpacing: 0.8)),
-                  const SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F7FA),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE8ECF0)),
-                    ),
-                    child: TextField(
-                      onChanged: (value) => setState(() => _searchQuery = value),
-                      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF1A1C1E)),
-                      decoration: InputDecoration(
-                        hintText: 'Type ward or specialty...',
-                        hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFFBBC1CC), fontSize: 14, fontWeight: FontWeight.w500),
-                        prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF8E9199), size: 20),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+        child: isMobile 
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSearchField(),
+                const SizedBox(height: 24),
+                _buildDateSelector(),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: _buildSearchField(),
+                ),
+                Container(width: 1, height: 72, margin: const EdgeInsets.symmetric(horizontal: 24), color: const Color(0xFFE8ECF0)),
+                Expanded(flex: 3, child: _buildDateSelector()),
+              ],
             ),
-            Container(width: 1, height: 72, margin: const EdgeInsets.symmetric(horizontal: 24), color: const Color(0xFFE8ECF0)),
-            Expanded(flex: 3, child: _buildDateSelector()),
-          ],
+    );
+  }
+
+  Widget _buildSearchField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Search Department', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF8E9199), letterSpacing: 0.8)),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F7FA),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE8ECF0)),
+          ),
+          child: TextField(
+            onChanged: (value) => setState(() => _searchQuery = value),
+            style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF1A1C1E)),
+            decoration: InputDecoration(
+              hintText: 'Type ward or specialty...',
+              hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFFBBC1CC), fontSize: 14, fontWeight: FontWeight.w500),
+              prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF8E9199), size: 20),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+            ),
+          ),
         ),
+      ],
     );
   }
 
@@ -203,17 +236,17 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
           children: [
             _buildDateNavButton(Icons.chevron_left_rounded, () => setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)))),
             const SizedBox(width: 8),
-            SizedBox(
-              height: 80,
-              width: 450,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                itemCount: 7,
-                itemBuilder: (context, index) {
-                  final firstDayOfWeek = _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
-                  final date = firstDayOfWeek.add(Duration(days: index));
-                  final isSelected = DateUtils.isSameDay(date, _selectedDate);
+            Expanded(
+              child: SizedBox(
+                height: 80,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: 7,
+                  itemBuilder: (context, index) {
+                    final firstDayOfWeek = _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
+                    final date = firstDayOfWeek.add(Duration(days: index));
+                    final isSelected = DateUtils.isSameDay(date, _selectedDate);
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -270,6 +303,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
                 },
               ),
             ),
+          ),
             const SizedBox(width: 8),
             _buildDateNavButton(Icons.chevron_right_rounded, () => setState(() => _selectedDate = _selectedDate.add(const Duration(days: 1)))),
           ],
@@ -377,13 +411,26 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
           childrenPadding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
           children: [
             Container(height: 1, color: const Color(0xFFF0F4F8), margin: const EdgeInsets.only(bottom: 16)),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _buildShiftColumn('Day Shift', Icons.wb_sunny_rounded, const Color(0xFFFF8C00), dayDoctors)),
-                const SizedBox(width: 16),
-                Expanded(child: _buildShiftColumn('Night Shift', Icons.nightlight_round, const Color(0xFF5C6BC0), nightDoctors)),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                if (constraints.maxWidth < 600) {
+                  return Column(
+                    children: [
+                      _buildShiftColumn('Day Shift', Icons.wb_sunny_rounded, const Color(0xFFFF8C00), dayDoctors),
+                      const SizedBox(height: 20),
+                      _buildShiftColumn('Night Shift', Icons.nightlight_round, const Color(0xFF5C6BC0), nightDoctors),
+                    ],
+                  );
+                }
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildShiftColumn('Day Shift', Icons.wb_sunny_rounded, const Color(0xFFFF8C00), dayDoctors)),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildShiftColumn('Night Shift', Icons.nightlight_round, const Color(0xFF5C6BC0), nightDoctors)),
+                  ],
+                );
+              },
             ),
           ],
         ),

@@ -12,11 +12,12 @@ class DoctorsListPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final doctorsAsync = ref.watch(doctorsProvider);
+    final bool isMobile = MediaQuery.of(context).size.width < 768;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 32, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -30,7 +31,7 @@ class DoctorsListPage extends ConsumerWidget {
                   label: const Text('Add New Doctor'),
                   style: FilledButton.styleFrom(
                     backgroundColor: AppTheme.primaryColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24, vertical: isMobile ? 12 : 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 0,
                   ),
@@ -60,6 +61,18 @@ class DoctorsListPage extends ConsumerWidget {
                     data: (doctors) {
                       if (doctors.isEmpty) {
                         return _buildEmptyState(context);
+                      }
+
+                      if (isMobile) {
+                        return ListView.separated(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: doctors.length,
+                          separatorBuilder: (context, index) => const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            final doctor = doctors[index];
+                            return _buildMobileDoctorCard(context, ref, doctor);
+                          },
+                        );
                       }
 
                       return Column(
@@ -137,6 +150,102 @@ class DoctorsListPage extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileDoctorCard(BuildContext context, WidgetRef ref, Doctor doctor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.borderColor),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: AppTheme.primaryLight,
+                child: Text(
+                  doctor.name[0].toUpperCase(),
+                  style: GoogleFonts.plusJakartaSans(
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      doctor.name,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textColor,
+                        fontSize: 15,
+                      ),
+                    ),
+                    Text(
+                      'ID: ${doctor.employeeId}',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        color: AppTheme.textSecondaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                    color: AppTheme.textSecondaryColor,
+                    onPressed: () => context.pushNamed('create-doctor', extra: doctor),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                  const SizedBox(width: 12),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                    color: Colors.red.shade400,
+                    onPressed: () => _confirmDelete(context, ref, doctor),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.backgroundColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.phone_rounded, size: 14, color: AppTheme.textSecondaryColor),
+                const SizedBox(width: 8),
+                Text(
+                  doctor.phoneNumber,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    color: AppTheme.textColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

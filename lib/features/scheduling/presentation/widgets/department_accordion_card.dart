@@ -135,14 +135,15 @@ class DepartmentAccordionCard extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 5),
-                          Row(
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
                             children: [
                               _StatusBadge(
                                 label: statusLabel,
                                 color: statusColor,
                                 bg: statusBg,
                               ),
-                              const SizedBox(width: 8),
                               _ShiftCountBadge(
                                 label: 'Day',
                                 count:
@@ -153,7 +154,6 @@ class DepartmentAccordionCard extends ConsumerWidget {
                                 icon: Icons.wb_sunny_rounded,
                                 color: Colors.orange.shade600,
                               ),
-                              const SizedBox(width: 6),
                               _ShiftCountBadge(
                                 label: 'Night',
                                 count:
@@ -213,35 +213,65 @@ class DepartmentAccordionCard extends ConsumerWidget {
             const Divider(height: 1, thickness: 1, color: AppTheme.borderColor),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Day Shift
-                  Expanded(
-                    child: _ShiftPanel(
-                      label: 'Day Shift',
-                      icon: Icons.wb_sunny_rounded,
-                      shiftColor: Colors.orange.shade600,
-                      department: department,
-                      draft: draft,
-                      doctorsAsync: doctorsAsync,
-                      isNight: false,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Night Shift
-                  Expanded(
-                    child: _ShiftPanel(
-                      label: 'Night Shift',
-                      icon: Icons.nightlight_round,
-                      shiftColor: Colors.indigo.shade500,
-                      department: department,
-                      draft: draft,
-                      doctorsAsync: doctorsAsync,
-                      isNight: true,
-                    ),
-                  ),
-                ],
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final bool isSmall = constraints.maxWidth < 600;
+                  if (isSmall) {
+                    return Column(
+                      children: [
+                        _ShiftPanel(
+                          label: 'Day Shift',
+                          icon: Icons.wb_sunny_rounded,
+                          shiftColor: Colors.orange.shade600,
+                          department: department,
+                          draft: draft,
+                          doctorsAsync: doctorsAsync,
+                          isNight: false,
+                        ),
+                        const SizedBox(height: 24),
+                        _ShiftPanel(
+                          label: 'Night Shift',
+                          icon: Icons.nightlight_round,
+                          shiftColor: Colors.indigo.shade500,
+                          department: department,
+                          draft: draft,
+                          doctorsAsync: doctorsAsync,
+                          isNight: true,
+                        ),
+                      ],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Day Shift
+                      Expanded(
+                        child: _ShiftPanel(
+                          label: 'Day Shift',
+                          icon: Icons.wb_sunny_rounded,
+                          shiftColor: Colors.orange.shade600,
+                          department: department,
+                          draft: draft,
+                          doctorsAsync: doctorsAsync,
+                          isNight: false,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      // Night Shift
+                      Expanded(
+                        child: _ShiftPanel(
+                          label: 'Night Shift',
+                          icon: Icons.nightlight_round,
+                          shiftColor: Colors.indigo.shade500,
+                          department: department,
+                          draft: draft,
+                          doctorsAsync: doctorsAsync,
+                          isNight: true,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
 
@@ -475,78 +505,84 @@ class _UnsavedChangesBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.only(top: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: const BoxDecoration(
         color: Color(0xFFFFFBEB),
         border: Border(top: BorderSide(color: Color(0xFFFEF08A))),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
       ),
-      child: Row(
-        children: [
-          const Icon(Icons.edit_note_rounded, size: 24, color: Colors.amber),
-          const SizedBox(width: 12),
-          Text(
-            'Unsaved changes',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 15,
-              color: const Color(0xFF92400E),
-              fontWeight: FontWeight.w700,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isSmall = constraints.maxWidth < 500;
+          
+          final content = [
+            Row(
+              children: [
+                const Icon(Icons.edit_note_rounded, size: 24, color: Colors.amber),
+                const SizedBox(width: 12),
+                Text(
+                  'Unsaved changes',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    color: const Color(0xFF92400E),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
-          ),
-          const Spacer(),
-          TextButton(
-            onPressed: isSaving
-                ? null
-                : () =>
-                      ref
-                          .read(schedulingControllerProvider.notifier)
-                          .resetChanges(),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            ),
-            child: Text(
-              'Discard',
-              style: GoogleFonts.plusJakartaSans(
-                color: AppTheme.textSecondaryColor,
-                fontWeight: FontWeight.w700,
-                fontSize: 15,
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          FilledButton.icon(
-            onPressed: isSaving
-                ? null
-                : () => ref
-                      .read(schedulingControllerProvider.notifier)
-                      .saveChanges(),
-            icon: isSaving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2.5,
+            if (isSmall) const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: isSmall ? MainAxisAlignment.end : MainAxisAlignment.start,
+              children: [
+                if (!isSmall) const Spacer(),
+                TextButton(
+                  onPressed: isSaving
+                      ? null
+                      : () => ref.read(schedulingControllerProvider.notifier).resetChanges(),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                  child: Text(
+                    'Discard',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: AppTheme.textSecondaryColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
                     ),
-                  )
-                : const Icon(Icons.save_rounded, size: 18),
-            label: Text(
-              'Save Changes',
-              style: GoogleFonts.plusJakartaSans(
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
-              ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                FilledButton.icon(
+                  onPressed: isSaving
+                      ? null
+                      : () => ref.read(schedulingControllerProvider.notifier).saveChanges(),
+                  icon: isSaving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save_rounded, size: 16),
+                  label: Text(
+                    'Save Changes',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    elevation: 0,
+                  ),
+                ),
+              ],
             ),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 26),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
-            ),
-          ),
-        ],
+          ];
+
+          return isSmall ? Column(children: content) : Row(children: content);
+        },
       ),
     );
   }

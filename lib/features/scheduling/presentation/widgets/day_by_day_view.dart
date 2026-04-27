@@ -50,54 +50,68 @@ class DayByDayView extends ConsumerWidget {
               const SizedBox(height: 16),
 
               // 7-day pill strip with arrows
-              Row(
-                children: [
-                  _NavArrowButton(
-                    icon: Icons.chevron_left_rounded,
-                    tooltip: 'Previous day',
-                    onTap: () {
-                      final prev = state.selectedDate
-                          .subtract(const Duration(days: 1));
-                      ref
-                          .read(schedulingControllerProvider.notifier)
-                          .setDate(prev);
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  _DateStrip(state: state, ref: ref),
-                  const SizedBox(width: 12),
-                  _NavArrowButton(
-                    icon: Icons.chevron_right_rounded,
-                    tooltip: 'Next day',
-                    onTap: () {
-                      final next = state.selectedDate
-                          .add(const Duration(days: 1));
-                      ref
-                          .read(schedulingControllerProvider.notifier)
-                          .setDate(next);
-                    },
-                  ),
-                  const Spacer(),
-                  // Search trigger icon
-                  _NavArrowButton(
-                    icon: Icons.search_rounded,
-                    tooltip: 'Search departments',
-                    onTap: () => ref
-                        .read(schedulingSearchExpandedProvider.notifier)
-                        .setExpanded(true),
-                  ),
-                  const SizedBox(width: 8),
-                  // Today button
-                  _TodayButton(
-                    isToday: DateUtils.isSameDay(
-                      state.selectedDate,
-                      DateTime.now(),
-                    ),
-                    onTap: () => ref
-                        .read(schedulingControllerProvider.notifier)
-                        .setDate(DateTime.now()),
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isSmall = constraints.maxWidth < 600;
+                  return Column(
+                    children: [
+                      Row(
+                        children: [
+                          _NavArrowButton(
+                            icon: Icons.chevron_left_rounded,
+                            tooltip: 'Previous day',
+                            onTap: () {
+                              final prev = state.selectedDate.subtract(const Duration(days: 1));
+                              ref.read(schedulingControllerProvider.notifier).setDate(prev);
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(child: _DateStrip(state: state, ref: ref)),
+                          const SizedBox(width: 12),
+                          _NavArrowButton(
+                            icon: Icons.chevron_right_rounded,
+                            tooltip: 'Next day',
+                            onTap: () {
+                              final next = state.selectedDate.add(const Duration(days: 1));
+                              ref.read(schedulingControllerProvider.notifier).setDate(next);
+                            },
+                          ),
+                          if (!isSmall) ...[
+                            const Spacer(),
+                            _NavArrowButton(
+                              icon: Icons.search_rounded,
+                              tooltip: 'Search departments',
+                              onTap: () => ref.read(schedulingSearchExpandedProvider.notifier).setExpanded(true),
+                            ),
+                            const SizedBox(width: 8),
+                            _TodayButton(
+                              isToday: DateUtils.isSameDay(state.selectedDate, DateTime.now()),
+                              onTap: () => ref.read(schedulingControllerProvider.notifier).setDate(DateTime.now()),
+                            ),
+                          ],
+                        ],
+                      ),
+                      if (isSmall) ...[
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            const Spacer(),
+                            _NavArrowButton(
+                              icon: Icons.search_rounded,
+                              tooltip: 'Search departments',
+                              onTap: () => ref.read(schedulingSearchExpandedProvider.notifier).setExpanded(true),
+                            ),
+                            const SizedBox(width: 8),
+                            _TodayButton(
+                              isToday: DateUtils.isSameDay(state.selectedDate, DateTime.now()),
+                              onTap: () => ref.read(schedulingControllerProvider.notifier).setDate(DateTime.now()),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: 16),
 
@@ -214,81 +228,88 @@ class _DateStrip extends StatelessWidget {
       return start.add(Duration(days: i));
     });
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: dates.map((date) {
-        final isSelected = DateUtils.isSameDay(date, state.selectedDate);
-        final isToday = DateUtils.isSameDay(date, DateTime.now());
+    return SizedBox(
+      height: 72,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: dates.map((date) {
+            final isSelected = DateUtils.isSameDay(date, state.selectedDate);
+            final isToday = DateUtils.isSameDay(date, DateTime.now());
 
-        return Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: GestureDetector(
-            onTap: () =>
-                ref.read(schedulingControllerProvider.notifier).setDate(date),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 52,
-              height: 72,
-              decoration: BoxDecoration(
-                color: isSelected ? AppTheme.primaryColor : Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: isSelected
-                      ? AppTheme.primaryColor
-                      : isToday
-                          ? AppTheme.primaryColor.withOpacity(0.4)
-                          : AppTheme.borderColor,
-                  width: isSelected ? 0 : 1,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: AppTheme.primaryColor.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    DateFormat('E').format(date).toUpperCase(),
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800,
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: GestureDetector(
+                onTap: () =>
+                    ref.read(schedulingControllerProvider.notifier).setDate(date),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 52,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppTheme.primaryColor : Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
                       color: isSelected
-                          ? Colors.white.withOpacity(0.7)
-                          : AppTheme.textSecondaryColor,
-                      letterSpacing: 0.5,
+                          ? AppTheme.primaryColor
+                          : isToday
+                              ? AppTheme.primaryColor.withOpacity(0.4)
+                              : AppTheme.borderColor,
+                      width: isSelected ? 0 : 1,
                     ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.primaryColor.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : null,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    date.day.toString(),
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: isSelected ? Colors.white : AppTheme.textColor,
-                    ),
-                  ),
-                  if (isToday && !isSelected)
-                    Container(
-                      margin: const EdgeInsets.only(top: 3),
-                      width: 5,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor,
-                        shape: BoxShape.circle,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        DateFormat('E').format(date).toUpperCase(),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: isSelected
+                              ? Colors.white.withOpacity(0.7)
+                              : AppTheme.textSecondaryColor,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
-                ],
+                      const SizedBox(height: 4),
+                      Text(
+                        date.day.toString(),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: isSelected ? Colors.white : AppTheme.textColor,
+                        ),
+                      ),
+                      if (isToday && !isSelected)
+                        Container(
+                          margin: const EdgeInsets.only(top: 3),
+                          width: 5,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }

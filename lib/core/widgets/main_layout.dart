@@ -19,11 +19,40 @@ class MainLayout extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool isMobile = MediaQuery.of(context).size.width < 1024;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
+      appBar: isMobile
+          ? AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              title: Text(
+                'CARITAS Doctor OnCall',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.textColor,
+                  fontSize: 16,
+                ),
+              ),
+              leading: Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.menu_rounded, color: AppTheme.textColor),
+                  onPressed: () => Scaffold.of(context).openDrawer(),
+                ),
+              ),
+            )
+          : null,
+      drawer: isMobile
+          ? Drawer(
+              width: 280,
+              backgroundColor: Colors.white,
+              child: _Sidebar(currentRoute: currentRoute, isDrawer: true),
+            )
+          : null,
       body: Row(
         children: [
-          _Sidebar(currentRoute: currentRoute),
+          if (!isMobile) _Sidebar(currentRoute: currentRoute),
           Expanded(
             child: ClipRRect(
               child: child,
@@ -37,7 +66,8 @@ class MainLayout extends ConsumerWidget {
 
 class _Sidebar extends ConsumerWidget {
   final String currentRoute;
-  const _Sidebar({required this.currentRoute});
+  final bool isDrawer;
+  const _Sidebar({required this.currentRoute, this.isDrawer = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,8 +76,8 @@ class _Sidebar extends ConsumerWidget {
     final initials = email.isNotEmpty ? email.substring(0, 2).toUpperCase() : 'U';
 
     return Container(
-      width: 260,
-      margin: const EdgeInsets.fromLTRB(16, 16, 0, 16),
+      width: isDrawer ? null : 260,
+      margin: isDrawer ? EdgeInsets.zero : const EdgeInsets.fromLTRB(16, 16, 0, 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -80,11 +110,12 @@ class _Sidebar extends ConsumerWidget {
                 ),
                 const SizedBox(width: 14),
                 Text(
-                  'OnCall\nAdmin',
+                  'CARITAS\nDoctor OnCall',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w800,
                     color: AppTheme.textColor,
-                    fontSize: 20,
+                    fontSize: 16,
+                    height: 1.1,
                     letterSpacing: -0.5,
                   ),
                 ),

@@ -116,28 +116,53 @@ class CreateDoctorPage extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildInputField(
-                                  label: 'Employee ID',
-                                  hint: 'e.g. DOC-001',
-                                  icon: Icons.badge_outlined,
-                                  initialValue: employeeIdController.value,
-                                  onChanged: (v) => employeeIdController.value = v,
-                                ),
-                              ),
-                              const SizedBox(width: 24),
-                              Expanded(
-                                child: _buildInputField(
-                                  label: 'Doctor Name',
-                                  hint: 'e.g. Dr. John Doe',
-                                  icon: Icons.person_outline_rounded,
-                                  initialValue: nameController.value,
-                                  onChanged: (v) => nameController.value = v,
-                                ),
-                              ),
-                            ],
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              if (constraints.maxWidth < 600) {
+                                return Column(
+                                  children: [
+                                    _buildInputField(
+                                      label: 'Employee ID',
+                                      hint: 'e.g. DOC-001',
+                                      icon: Icons.badge_outlined,
+                                      initialValue: employeeIdController.value,
+                                      onChanged: (v) => employeeIdController.value = v,
+                                    ),
+                                    const SizedBox(height: 24),
+                                    _buildInputField(
+                                      label: 'Doctor Name',
+                                      hint: 'e.g. Dr. John Doe',
+                                      icon: Icons.person_outline_rounded,
+                                      initialValue: nameController.value,
+                                      onChanged: (v) => nameController.value = v,
+                                    ),
+                                  ],
+                                );
+                              }
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildInputField(
+                                      label: 'Employee ID',
+                                      hint: 'e.g. DOC-001',
+                                      icon: Icons.badge_outlined,
+                                      initialValue: employeeIdController.value,
+                                      onChanged: (v) => employeeIdController.value = v,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 24),
+                                  Expanded(
+                                    child: _buildInputField(
+                                      label: 'Doctor Name',
+                                      hint: 'e.g. Dr. John Doe',
+                                      icon: Icons.person_outline_rounded,
+                                      initialValue: nameController.value,
+                                      onChanged: (v) => nameController.value = v,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                           const SizedBox(height: 24),
                           _buildInputField(
@@ -361,6 +386,8 @@ class CreateDoctorPage extends ConsumerWidget {
         ),
         const SizedBox(height: 10),
         SearchAnchor(
+          viewBackgroundColor: Colors.white,
+          viewSurfaceTintColor: Colors.white,
           builder: (context, controller) {
             return TextField(
               controller: controller,
