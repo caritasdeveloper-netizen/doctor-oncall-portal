@@ -230,11 +230,7 @@ class _ViewToggleButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isBulk ? Icons.calendar_today_rounded : Icons.auto_awesome_rounded,
-              size: 18,
-              color: isBulk ? Colors.white : AppTheme.primaryColor,
-            ),
+           
             const SizedBox(width: 10),
             Text(
               isBulk ? 'Back to Daily View' : 'Bulk Assignment',

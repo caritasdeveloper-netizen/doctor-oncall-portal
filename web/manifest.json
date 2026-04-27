@@ -1,6 +1,6 @@
 {
-    "name": "oncall_doctor",
-    "short_name": "oncall_doctor",
+    "name": "Caritas Doctor OnCall",
+    "short_name": "Caritas OnCall",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",

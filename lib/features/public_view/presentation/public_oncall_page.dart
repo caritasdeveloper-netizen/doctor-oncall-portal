@@ -91,21 +91,26 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
       ),
       title: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0056D2), Color(0xFF0084FF)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          Image.asset(
+            'assets/logo.webp',
+            height: 32,
+            fit: BoxFit.fitHeight,
+            errorBuilder: (context, error, stackTrace) => Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0056D2), Color(0xFF0084FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
               ),
-              borderRadius: BorderRadius.circular(12),
+              child: const Icon(Icons.medical_services_rounded, color: Colors.white, size: 22),
             ),
-            child: const Icon(Icons.medical_services_rounded, color: Colors.white, size: 22),
           ),
           const SizedBox(width: 12),
-          Text('CARITAS', style: GoogleFonts.plusJakartaSans(color: AppTheme.primaryColor, fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 20)),
-          Text('CONNECT', style: GoogleFonts.plusJakartaSans(color: const Color(0xFF1A1C1E), fontWeight: FontWeight.w600, letterSpacing: 1.5, fontSize: 20)),
+          Text('CARITAS', style: GoogleFonts.plusJakartaSans(color: AppTheme.primaryColor, fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 18)),
+          Text('Doctor OnCall', style: GoogleFonts.plusJakartaSans(color: const Color(0xFF1A1C1E), fontWeight: FontWeight.w600, letterSpacing: 1.5, fontSize: 18)),
         ],
       ),
       actions: [

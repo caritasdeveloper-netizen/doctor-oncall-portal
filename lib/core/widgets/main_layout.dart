@@ -70,24 +70,17 @@ class _Sidebar extends ConsumerWidget {
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primaryColor.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 22),
+
+                  child:  Center(
+                    child:  Image.asset(
+              'assets/logo.webp',
+              height: 40,
+            ),
                   ),
                 ),
                 const SizedBox(width: 14),
                 Text(
-                  'OnCall',
+                  'OnCall\nAdmin',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w800,
                     color: AppTheme.textColor,

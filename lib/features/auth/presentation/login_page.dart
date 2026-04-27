@@ -76,16 +76,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Logo / Header
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.medical_services_rounded,
-                      size: 64,
-                      color: theme.colorScheme.primary,
+                  Image.asset(
+                    'assets/logo.webp',
+                    height: 80,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.medical_services_rounded,
+                        size: 64,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),

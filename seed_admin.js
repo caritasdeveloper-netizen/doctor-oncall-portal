@@ -21,7 +21,7 @@ admin.initializeApp({
 
 const seedAdmin = async () => {
   const username = "admin";
-  const email = `${username}@doctor-oncall.app`;
+  const email = `${username}@caritas-oncall.app`;
   const password = "admin12345";
   const role = "admin";
 
