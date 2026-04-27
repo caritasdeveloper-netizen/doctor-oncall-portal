@@ -57,8 +57,8 @@ abstract class _$AuthState extends $StreamNotifier<User?> {
 final isAuthenticatedProvider = IsAuthenticatedProvider._();
 
 final class IsAuthenticatedProvider
-    extends $FunctionalProvider<bool, bool, bool>
-    with $Provider<bool> {
+    extends $FunctionalProvider<bool?, bool?, bool?>
+    with $Provider<bool?> {
   IsAuthenticatedProvider._()
     : super(
         from: null,
@@ -75,21 +75,21 @@ final class IsAuthenticatedProvider
 
   @$internal
   @override
-  $ProviderElement<bool> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<bool?> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  bool create(Ref ref) {
+  bool? create(Ref ref) {
     return isAuthenticated(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(bool value) {
+  Override overrideWithValue(bool? value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<bool>(value),
+      providerOverride: $SyncValueProvider<bool?>(value),
     );
   }
 }
 
-String _$isAuthenticatedHash() => r'05bc9969c3d6f5519cf728d8bf009c0878b86b00';
+String _$isAuthenticatedHash() => r'ed83084f14257c561db375d68b3e27e1bfc8b788';

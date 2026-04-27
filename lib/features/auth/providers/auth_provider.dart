@@ -26,7 +26,8 @@ class AuthState extends _$AuthState {
 }
 
 @riverpod
-bool isAuthenticated(Ref ref) {
-  final user = ref.watch(authStateProvider).value;
-  return user != null;
+bool? isAuthenticated(Ref ref) {
+  final authState = ref.watch(authStateProvider);
+  if (authState.isLoading && !authState.hasValue) return null;
+  return authState.value != null;
 }

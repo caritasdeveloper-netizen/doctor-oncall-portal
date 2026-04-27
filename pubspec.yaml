@@ -61,6 +61,7 @@ dev_dependencies:
   riverpod_generator: ^4.0.3
   freezed: ^3.2.5
   json_serializable: ^6.13.0
+  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -103,3 +104,16 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.webp"
+  web:
+    generate: true
+    image_path: "assets/logo.webp"
+    background_color: "#ffffff"
+    theme_color: "#0D47A1"
+  windows:
+    generate: true
+    image_path: "assets/logo.webp"

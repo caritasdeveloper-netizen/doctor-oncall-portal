@@ -183,48 +183,80 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(DateFormat('MMMM yyyy').format(_selectedDate), style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF8E9199), letterSpacing: 0.8)),
-        const SizedBox(height: 8),
+        Text(
+          DateFormat('MMMM yyyy').format(_selectedDate),
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF8E9199),
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             _buildDateNavButton(Icons.chevron_left_rounded, () => setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)))),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             SizedBox(
-              height: 64,
+              height: 80,
               width: 450,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                physics: const NeverScrollableScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 itemCount: 7,
                 itemBuilder: (context, index) {
                   final firstDayOfWeek = _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
                   final date = firstDayOfWeek.add(Duration(days: index));
-                  final isSelected = date.day == _selectedDate.day && date.month == _selectedDate.month && date.year == _selectedDate.year;
+                  final isSelected = DateUtils.isSameDay(date, _selectedDate);
+
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: InkWell(
                       onTap: () => setState(() => _selectedDate = date),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 220),
-                        width: 58,
-                        curve: Curves.easeInOut,
+                        duration: const Duration(milliseconds: 200),
+                        width: 60,
                         decoration: BoxDecoration(
-                          gradient: isSelected
-                              ? const LinearGradient(colors: [Color(0xFF0056D2), Color(0xFF1E88E5)], begin: Alignment.topLeft, end: Alignment.bottomRight)
-                              : null,
-                          color: isSelected ? null : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isSelected ? const Color(0xFF0056D2) : const Color(0xFFE8ECF0)),
-                          boxShadow: isSelected ? [BoxShadow(color: const Color(0xFF0056D2).withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))] : [],
+                          color: isSelected ? const Color(0xFF0056D2) : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFF0056D2) : const Color(0xFFE8ECF0),
+                            width: 1.5,
+                          ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: const Color(0xFF0056D2).withOpacity(0.25),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 6),
+                                  )
+                                ]
+                              : [],
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(DateFormat('E').format(date).toUpperCase(), style: GoogleFonts.plusJakartaSans(fontSize: 9, fontWeight: FontWeight.w700, color: isSelected ? Colors.white.withOpacity(0.85) : const Color(0xFF8E9199), letterSpacing: 0.3)),
-                            const SizedBox(height: 2),
-                            Text(date.day.toString(), style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w900, color: isSelected ? Colors.white : const Color(0xFF1A1C1E), height: 1.1)),
+                            Text(
+                              DateFormat('E').format(date).toUpperCase(),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: isSelected ? Colors.white.withOpacity(0.9) : const Color(0xFF8E9199),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              date.day.toString(),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: isSelected ? Colors.white : const Color(0xFF1A1C1E),
+                                height: 1,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -233,7 +265,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
                 },
               ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             _buildDateNavButton(Icons.chevron_right_rounded, () => setState(() => _selectedDate = _selectedDate.add(const Duration(days: 1)))),
           ],
         ),

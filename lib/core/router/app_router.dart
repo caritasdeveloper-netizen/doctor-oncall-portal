@@ -17,7 +17,7 @@ GoRouter appRouter(Ref ref) {
   final isAuth = ref.watch(isAuthenticatedProvider);
 
   return GoRouter(
-    initialLocation: '/oncall',
+    initialLocation: '/',
     routes: [
       GoRoute(
         path: '/login',
@@ -70,6 +70,8 @@ GoRouter appRouter(Ref ref) {
       ),
     ],
     redirect: (context, state) {
+      if (isAuth == null) return null;
+
       final isLoggingIn = state.uri.path == '/login';
       final isPublicPage = state.uri.path == '/oncall';
 
@@ -78,7 +80,7 @@ GoRouter appRouter(Ref ref) {
         return '/oncall';
       }
 
-      if (isLoggingIn) {
+      if (isLoggingIn || isPublicPage) {
         return '/';
       }
 

@@ -90,42 +90,108 @@ class SchedulingPage extends ConsumerWidget {
   Future<bool> _showExitConfirmation(BuildContext context) async {
     return await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (context) => Dialog(
             backgroundColor: Colors.white,
-            surfaceTintColor: Colors.transparent,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            title: Text(
-              'Unsaved Changes',
-              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
-            ),
-            content: Text(
-              'You have unsaved changes in the schedule. Are you sure you want to discard them?',
-              style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(
-                  'Continue Editing',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textSecondaryColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            elevation: 0,
+            child: Container(
+              width: 450,
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
                   ),
-                ),
+                ],
               ),
-              FilledButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.red.shade600,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: Text(
-                  'Discard Changes',
-                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700),
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.amber.shade50,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(Icons.warning_amber_rounded, color: Colors.amber.shade700, size: 24),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Unsaved Changes',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 24,
+                          color: AppTheme.textColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'You have unsaved changes in the schedule. Are you sure you want to discard them and exit?',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      color: AppTheme.textColor,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Any progress made on the current schedule will be lost. This action cannot be undone.',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      color: AppTheme.textSecondaryColor,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: Text(
+                          'Continue Editing',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: AppTheme.textSecondaryColor,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          backgroundColor: Colors.red.shade600,
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Discard Changes',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-            actionsPadding: const EdgeInsets.all(24),
+            ),
           ),
         ) ??
         false;

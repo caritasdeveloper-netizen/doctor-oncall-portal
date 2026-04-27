@@ -405,31 +405,123 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
     final editController = TextEditingController(text: dept.name);
     final newName = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Edit Department',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 0,
+        child: Container(
+          width: 450,
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryLight,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.edit_document, color: AppTheme.primaryColor, size: 24),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    'Edit Department',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 24,
+                      color: AppTheme.textColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Department Name',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: AppTheme.textSecondaryColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: editController,
+                autofocus: true,
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textColor,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Enter department name',
+                  hintStyle: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor.withOpacity(0.5)),
+                  prefixIcon: const Icon(Icons.business_rounded, color: AppTheme.textSecondaryColor, size: 20),
+                  filled: true,
+                  fillColor: AppTheme.backgroundColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
+                  ),
+                ),
+                onSubmitted: (value) => Navigator.pop(context, value),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppTheme.textSecondaryColor,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(context, editController.text),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      backgroundColor: AppTheme.primaryColor,
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Save Changes',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        content: TextField(
-          controller: editController,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: 'Department Name',
-            hintText: 'Enter new name',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          onSubmitted: (value) => Navigator.pop(context, value),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor)),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, editController.text),
-            child: Text('Save Changes', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
-          ),
-        ],
       ),
     );
 
@@ -441,9 +533,20 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Department updated successfully'),
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  'Department updated successfully',
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
             behavior: SnackBarBehavior.floating,
             backgroundColor: AppTheme.textColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(24),
           ),
         );
       }
@@ -453,26 +556,107 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref, Department dept) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Delete Department?',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
-        ),
-        content: Text(
-          'Are you sure you want to delete ${dept.name}? All doctors assigned to this department will lose this assignment.',
-          style: GoogleFonts.plusJakartaSans(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor)),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 0,
+        child: Container(
+          width: 450,
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 30,
+                offset: const Offset(0, 15),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red.shade400),
-            child: Text('Delete', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(Icons.delete_sweep_rounded, color: Colors.red.shade600, size: 24),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    'Delete Department?',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 24,
+                      color: AppTheme.textColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Are you sure you want to delete "${dept.name}"?',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                  color: AppTheme.textColor,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'All doctors assigned to this department will lose this assignment. This action cannot be undone.',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  color: AppTheme.textSecondaryColor,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppTheme.textSecondaryColor,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      backgroundColor: Colors.red.shade600,
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Delete Department',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
 
@@ -481,9 +665,20 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${dept.name} deleted successfully'),
+            content: Row(
+              children: [
+                const Icon(Icons.delete_outline_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  '${dept.name} deleted successfully',
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: AppTheme.textColor,
+            backgroundColor: Colors.red.shade600,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(24),
           ),
         );
       }
