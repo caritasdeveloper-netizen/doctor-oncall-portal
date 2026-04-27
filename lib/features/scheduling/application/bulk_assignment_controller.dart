@@ -9,7 +9,7 @@ part 'bulk_assignment_controller.g.dart';
 @freezed
 abstract class BulkAssignmentState with _$BulkAssignmentState {
   const factory BulkAssignmentState({
-    @Default([]) List<String> selectedDepartmentIds,
+    String? selectedDepartmentId,
     @Default([]) List<DateTime> selectedDates,
     @Default([]) List<String> dayFirstOnCallDoctorIds,
     @Default([]) List<String> daySecondOnCallDoctorIds,
@@ -24,7 +24,7 @@ class BulkAssignmentController extends _$BulkAssignmentController {
   @override
   BulkAssignmentState build() => const BulkAssignmentState();
 
-  void updateDepartments(List<String> ids) => state = state.copyWith(selectedDepartmentIds: ids);
+  void updateDepartment(String? id) => state = state.copyWith(selectedDepartmentId: id);
   void updateDates(List<DateTime> dates) => state = state.copyWith(selectedDates: dates);
   
   void updateDayFirstOnCall(List<String> ids) => state = state.copyWith(dayFirstOnCallDoctorIds: ids);
@@ -33,10 +33,13 @@ class BulkAssignmentController extends _$BulkAssignmentController {
   void updateNightSecondOnCall(List<String> ids) => state = state.copyWith(nightSecondOnCallDoctorIds: ids);
 
   Future<void> apply() async {
+    final deptId = state.selectedDepartmentId;
+    if (deptId == null) return;
+
     state = state.copyWith(isApplying: true);
     try {
       final request = BulkAssignmentRequest(
-        departmentIds: state.selectedDepartmentIds,
+        departmentIds: [deptId],
         dates: state.selectedDates,
         dayFirstOnCallDoctorIds: state.dayFirstOnCallDoctorIds,
         daySecondOnCallDoctorIds: state.daySecondOnCallDoctorIds,

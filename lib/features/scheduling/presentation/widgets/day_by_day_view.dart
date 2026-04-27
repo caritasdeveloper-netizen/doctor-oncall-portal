@@ -32,7 +32,7 @@ class DayByDayView extends ConsumerWidget {
                 duration: const Duration(milliseconds: 250),
                 child: ref.watch(schedulingSearchExpandedProvider)
                     ? _ExpandedSearchBar(state: state, ref: ref)
-                    : Row(
+                      : Row(
                         key: const ValueKey('date_header'),
                         children: [
                           Text(
@@ -43,26 +43,6 @@ class DayByDayView extends ConsumerWidget {
                               color: AppTheme.textColor,
                               letterSpacing: -0.5,
                             ),
-                          ),
-                          const Spacer(),
-                          // Search trigger icon
-                          _NavArrowButton(
-                            icon: Icons.search_rounded,
-                            tooltip: 'Search departments',
-                            onTap: () => ref
-                                .read(schedulingSearchExpandedProvider.notifier)
-                                .setExpanded(true),
-                          ),
-                          const SizedBox(width: 8),
-                          // Today button
-                          _TodayButton(
-                            isToday: DateUtils.isSameDay(
-                              state.selectedDate,
-                              DateTime.now(),
-                            ),
-                            onTap: () => ref
-                                .read(schedulingControllerProvider.notifier)
-                                .setDate(DateTime.now()),
                           ),
                         ],
                       ),
@@ -84,12 +64,7 @@ class DayByDayView extends ConsumerWidget {
                     },
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: SizedBox(
-                      height: 72,
-                      child: _DateStrip(state: state, ref: ref),
-                    ),
-                  ),
+                  _DateStrip(state: state, ref: ref),
                   const SizedBox(width: 12),
                   _NavArrowButton(
                     icon: Icons.chevron_right_rounded,
@@ -101,6 +76,26 @@ class DayByDayView extends ConsumerWidget {
                           .read(schedulingControllerProvider.notifier)
                           .setDate(next);
                     },
+                  ),
+                  const Spacer(),
+                  // Search trigger icon
+                  _NavArrowButton(
+                    icon: Icons.search_rounded,
+                    tooltip: 'Search departments',
+                    onTap: () => ref
+                        .read(schedulingSearchExpandedProvider.notifier)
+                        .setExpanded(true),
+                  ),
+                  const SizedBox(width: 8),
+                  // Today button
+                  _TodayButton(
+                    isToday: DateUtils.isSameDay(
+                      state.selectedDate,
+                      DateTime.now(),
+                    ),
+                    onTap: () => ref
+                        .read(schedulingControllerProvider.notifier)
+                        .setDate(DateTime.now()),
                   ),
                 ],
               ),
@@ -219,80 +214,81 @@ class _DateStrip extends StatelessWidget {
       return start.add(Duration(days: i));
     });
 
-    return ListView.separated(
-      scrollDirection: Axis.horizontal,
-      itemCount: dates.length,
-      separatorBuilder: (_, __) => const SizedBox(width: 8),
-      itemBuilder: (context, index) {
-        final date = dates[index];
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: dates.map((date) {
         final isSelected = DateUtils.isSameDay(date, state.selectedDate);
         final isToday = DateUtils.isSameDay(date, DateTime.now());
 
-        return GestureDetector(
-          onTap: () =>
-              ref.read(schedulingControllerProvider.notifier).setDate(date),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 52,
-            decoration: BoxDecoration(
-              color: isSelected ? AppTheme.primaryColor : Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isSelected
-                    ? AppTheme.primaryColor
-                    : isToday
-                    ? AppTheme.primaryColor.withOpacity(0.4)
-                    : AppTheme.borderColor,
-                width: isSelected ? 0 : 1,
+        return Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: GestureDetector(
+            onTap: () =>
+                ref.read(schedulingControllerProvider.notifier).setDate(date),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 52,
+              height: 72,
+              decoration: BoxDecoration(
+                color: isSelected ? AppTheme.primaryColor : Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isSelected
+                      ? AppTheme.primaryColor
+                      : isToday
+                          ? AppTheme.primaryColor.withOpacity(0.4)
+                          : AppTheme.borderColor,
+                  width: isSelected ? 0 : 1,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: AppTheme.primaryColor.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
               ),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: AppTheme.primaryColor.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  DateFormat('E').format(date).toUpperCase(),
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: isSelected
-                        ? Colors.white.withOpacity(0.7)
-                        : AppTheme.textSecondaryColor,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  date.day.toString(),
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: isSelected ? Colors.white : AppTheme.textColor,
-                  ),
-                ),
-                if (isToday && !isSelected)
-                  Container(
-                    margin: const EdgeInsets.only(top: 3),
-                    width: 5,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor,
-                      shape: BoxShape.circle,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    DateFormat('E').format(date).toUpperCase(),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      color: isSelected
+                          ? Colors.white.withOpacity(0.7)
+                          : AppTheme.textSecondaryColor,
+                      letterSpacing: 0.5,
                     ),
                   ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    date.day.toString(),
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: isSelected ? Colors.white : AppTheme.textColor,
+                    ),
+                  ),
+                  if (isToday && !isSelected)
+                    Container(
+                      margin: const EdgeInsets.only(top: 3),
+                      width: 5,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         );
-      },
+      }).toList(),
     );
   }
 }
@@ -384,21 +380,28 @@ class _ExpandedSearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       key: const ValueKey('search_header'),
-      height: 42,
+      height: 65,
       decoration: BoxDecoration(
-        color: AppTheme.backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.primaryColor.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          const SizedBox(width: 12),
+          const SizedBox(width: 20),
           const Icon(
             Icons.search_rounded,
             color: AppTheme.primaryColor,
-            size: 20,
+            size: 26,
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 14),
           Expanded(
             child: TextField(
               autofocus: true,
@@ -406,7 +409,7 @@ class _ExpandedSearchBar extends StatelessWidget {
                   .read(schedulingControllerProvider.notifier)
                   .setSearchQuery(v),
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
+                fontSize: 16,
                 color: AppTheme.textColor,
                 fontWeight: FontWeight.w600,
               ),
@@ -414,11 +417,12 @@ class _ExpandedSearchBar extends StatelessWidget {
                 hintText: 'Search department…',
                 hintStyle: GoogleFonts.plusJakartaSans(
                   color: AppTheme.textSecondaryColor,
-                  fontSize: 14,
+                  fontSize: 16,
                 ),
                 border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 22),
               ),
             ),
           ),
@@ -430,11 +434,11 @@ class _ExpandedSearchBar extends StatelessWidget {
             },
             icon: const Icon(Icons.close_rounded),
             color: AppTheme.textSecondaryColor,
-            iconSize: 20,
+            iconSize: 24,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
         ],
       ),
     );

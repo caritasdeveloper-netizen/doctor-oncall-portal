@@ -112,7 +112,7 @@ final class DoctorPickerSelectionProvider
 }
 
 String _$doctorPickerSelectionHash() =>
-    r'79ba60f4bbfd9623b10b59ed10ccbd9ca9884eaf';
+    r'f6c88dc7ae749b0275a49730b3e75dff724692e2';
 
 /// Tracks the temporary selected doctor IDs inside the picker modal.
 /// Key = a unique picker key (e.g. "${deptId}_day_primary") → selected IDs list.
@@ -174,7 +174,7 @@ final class DoctorPickerSearchProvider
 }
 
 String _$doctorPickerSearchHash() =>
-    r'163677f33e5774397aee1016c7c08490c199dc6c';
+    r'875e3dc80445bc8c4500e54721eedfaaf1cae8a3';
 
 /// Simple search query per picker instance.
 

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BulkAssignmentState {
 
- List<String> get selectedDepartmentIds; List<DateTime> get selectedDates; List<String> get dayFirstOnCallDoctorIds; List<String> get daySecondOnCallDoctorIds; List<String> get nightFirstOnCallDoctorIds; List<String> get nightSecondOnCallDoctorIds; bool get isApplying;
+ String? get selectedDepartmentId; List<DateTime> get selectedDates; Set<int> get selectedWeekdays; DateTime? get startDate; DateTime? get endDate; Set<DateTime> get manualDates; List<String> get dayFirstOnCallDoctorIds; List<String> get daySecondOnCallDoctorIds; List<String> get nightFirstOnCallDoctorIds; List<String> get nightSecondOnCallDoctorIds; bool get isApplying;
 /// Create a copy of BulkAssignmentState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $BulkAssignmentStateCopyWith<BulkAssignmentState> get copyWith => _$BulkAssignme
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkAssignmentState&&const DeepCollectionEquality().equals(other.selectedDepartmentIds, selectedDepartmentIds)&&const DeepCollectionEquality().equals(other.selectedDates, selectedDates)&&const DeepCollectionEquality().equals(other.dayFirstOnCallDoctorIds, dayFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.daySecondOnCallDoctorIds, daySecondOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.nightFirstOnCallDoctorIds, nightFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.nightSecondOnCallDoctorIds, nightSecondOnCallDoctorIds)&&(identical(other.isApplying, isApplying) || other.isApplying == isApplying));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BulkAssignmentState&&(identical(other.selectedDepartmentId, selectedDepartmentId) || other.selectedDepartmentId == selectedDepartmentId)&&const DeepCollectionEquality().equals(other.selectedDates, selectedDates)&&const DeepCollectionEquality().equals(other.selectedWeekdays, selectedWeekdays)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&const DeepCollectionEquality().equals(other.manualDates, manualDates)&&const DeepCollectionEquality().equals(other.dayFirstOnCallDoctorIds, dayFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.daySecondOnCallDoctorIds, daySecondOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.nightFirstOnCallDoctorIds, nightFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other.nightSecondOnCallDoctorIds, nightSecondOnCallDoctorIds)&&(identical(other.isApplying, isApplying) || other.isApplying == isApplying));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(selectedDepartmentIds),const DeepCollectionEquality().hash(selectedDates),const DeepCollectionEquality().hash(dayFirstOnCallDoctorIds),const DeepCollectionEquality().hash(daySecondOnCallDoctorIds),const DeepCollectionEquality().hash(nightFirstOnCallDoctorIds),const DeepCollectionEquality().hash(nightSecondOnCallDoctorIds),isApplying);
+int get hashCode => Object.hash(runtimeType,selectedDepartmentId,const DeepCollectionEquality().hash(selectedDates),const DeepCollectionEquality().hash(selectedWeekdays),startDate,endDate,const DeepCollectionEquality().hash(manualDates),const DeepCollectionEquality().hash(dayFirstOnCallDoctorIds),const DeepCollectionEquality().hash(daySecondOnCallDoctorIds),const DeepCollectionEquality().hash(nightFirstOnCallDoctorIds),const DeepCollectionEquality().hash(nightSecondOnCallDoctorIds),isApplying);
 
 @override
 String toString() {
-  return 'BulkAssignmentState(selectedDepartmentIds: $selectedDepartmentIds, selectedDates: $selectedDates, dayFirstOnCallDoctorIds: $dayFirstOnCallDoctorIds, daySecondOnCallDoctorIds: $daySecondOnCallDoctorIds, nightFirstOnCallDoctorIds: $nightFirstOnCallDoctorIds, nightSecondOnCallDoctorIds: $nightSecondOnCallDoctorIds, isApplying: $isApplying)';
+  return 'BulkAssignmentState(selectedDepartmentId: $selectedDepartmentId, selectedDates: $selectedDates, selectedWeekdays: $selectedWeekdays, startDate: $startDate, endDate: $endDate, manualDates: $manualDates, dayFirstOnCallDoctorIds: $dayFirstOnCallDoctorIds, daySecondOnCallDoctorIds: $daySecondOnCallDoctorIds, nightFirstOnCallDoctorIds: $nightFirstOnCallDoctorIds, nightSecondOnCallDoctorIds: $nightSecondOnCallDoctorIds, isApplying: $isApplying)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $BulkAssignmentStateCopyWith<$Res>  {
   factory $BulkAssignmentStateCopyWith(BulkAssignmentState value, $Res Function(BulkAssignmentState) _then) = _$BulkAssignmentStateCopyWithImpl;
 @useResult
 $Res call({
- List<String> selectedDepartmentIds, List<DateTime> selectedDates, List<String> dayFirstOnCallDoctorIds, List<String> daySecondOnCallDoctorIds, List<String> nightFirstOnCallDoctorIds, List<String> nightSecondOnCallDoctorIds, bool isApplying
+ String? selectedDepartmentId, List<DateTime> selectedDates, Set<int> selectedWeekdays, DateTime? startDate, DateTime? endDate, Set<DateTime> manualDates, List<String> dayFirstOnCallDoctorIds, List<String> daySecondOnCallDoctorIds, List<String> nightFirstOnCallDoctorIds, List<String> nightSecondOnCallDoctorIds, bool isApplying
 });
 
 
@@ -62,11 +62,15 @@ class _$BulkAssignmentStateCopyWithImpl<$Res>
 
 /// Create a copy of BulkAssignmentState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? selectedDepartmentIds = null,Object? selectedDates = null,Object? dayFirstOnCallDoctorIds = null,Object? daySecondOnCallDoctorIds = null,Object? nightFirstOnCallDoctorIds = null,Object? nightSecondOnCallDoctorIds = null,Object? isApplying = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? selectedDepartmentId = freezed,Object? selectedDates = null,Object? selectedWeekdays = null,Object? startDate = freezed,Object? endDate = freezed,Object? manualDates = null,Object? dayFirstOnCallDoctorIds = null,Object? daySecondOnCallDoctorIds = null,Object? nightFirstOnCallDoctorIds = null,Object? nightSecondOnCallDoctorIds = null,Object? isApplying = null,}) {
   return _then(_self.copyWith(
-selectedDepartmentIds: null == selectedDepartmentIds ? _self.selectedDepartmentIds : selectedDepartmentIds // ignore: cast_nullable_to_non_nullable
-as List<String>,selectedDates: null == selectedDates ? _self.selectedDates : selectedDates // ignore: cast_nullable_to_non_nullable
-as List<DateTime>,dayFirstOnCallDoctorIds: null == dayFirstOnCallDoctorIds ? _self.dayFirstOnCallDoctorIds : dayFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+selectedDepartmentId: freezed == selectedDepartmentId ? _self.selectedDepartmentId : selectedDepartmentId // ignore: cast_nullable_to_non_nullable
+as String?,selectedDates: null == selectedDates ? _self.selectedDates : selectedDates // ignore: cast_nullable_to_non_nullable
+as List<DateTime>,selectedWeekdays: null == selectedWeekdays ? _self.selectedWeekdays : selectedWeekdays // ignore: cast_nullable_to_non_nullable
+as Set<int>,startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,endDate: freezed == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,manualDates: null == manualDates ? _self.manualDates : manualDates // ignore: cast_nullable_to_non_nullable
+as Set<DateTime>,dayFirstOnCallDoctorIds: null == dayFirstOnCallDoctorIds ? _self.dayFirstOnCallDoctorIds : dayFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,daySecondOnCallDoctorIds: null == daySecondOnCallDoctorIds ? _self.daySecondOnCallDoctorIds : daySecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,nightFirstOnCallDoctorIds: null == nightFirstOnCallDoctorIds ? _self.nightFirstOnCallDoctorIds : nightFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,nightSecondOnCallDoctorIds: null == nightSecondOnCallDoctorIds ? _self.nightSecondOnCallDoctorIds : nightSecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
@@ -156,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> selectedDepartmentIds,  List<DateTime> selectedDates,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  bool isApplying)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? selectedDepartmentId,  List<DateTime> selectedDates,  Set<int> selectedWeekdays,  DateTime? startDate,  DateTime? endDate,  Set<DateTime> manualDates,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  bool isApplying)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BulkAssignmentState() when $default != null:
-return $default(_that.selectedDepartmentIds,_that.selectedDates,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.isApplying);case _:
+return $default(_that.selectedDepartmentId,_that.selectedDates,_that.selectedWeekdays,_that.startDate,_that.endDate,_that.manualDates,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.isApplying);case _:
   return orElse();
 
 }
@@ -177,10 +181,10 @@ return $default(_that.selectedDepartmentIds,_that.selectedDates,_that.dayFirstOn
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> selectedDepartmentIds,  List<DateTime> selectedDates,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  bool isApplying)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? selectedDepartmentId,  List<DateTime> selectedDates,  Set<int> selectedWeekdays,  DateTime? startDate,  DateTime? endDate,  Set<DateTime> manualDates,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  bool isApplying)  $default,) {final _that = this;
 switch (_that) {
 case _BulkAssignmentState():
-return $default(_that.selectedDepartmentIds,_that.selectedDates,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.isApplying);case _:
+return $default(_that.selectedDepartmentId,_that.selectedDates,_that.selectedWeekdays,_that.startDate,_that.endDate,_that.manualDates,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.isApplying);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +201,10 @@ return $default(_that.selectedDepartmentIds,_that.selectedDates,_that.dayFirstOn
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> selectedDepartmentIds,  List<DateTime> selectedDates,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  bool isApplying)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? selectedDepartmentId,  List<DateTime> selectedDates,  Set<int> selectedWeekdays,  DateTime? startDate,  DateTime? endDate,  Set<DateTime> manualDates,  List<String> dayFirstOnCallDoctorIds,  List<String> daySecondOnCallDoctorIds,  List<String> nightFirstOnCallDoctorIds,  List<String> nightSecondOnCallDoctorIds,  bool isApplying)?  $default,) {final _that = this;
 switch (_that) {
 case _BulkAssignmentState() when $default != null:
-return $default(_that.selectedDepartmentIds,_that.selectedDates,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.isApplying);case _:
+return $default(_that.selectedDepartmentId,_that.selectedDates,_that.selectedWeekdays,_that.startDate,_that.endDate,_that.manualDates,_that.dayFirstOnCallDoctorIds,_that.daySecondOnCallDoctorIds,_that.nightFirstOnCallDoctorIds,_that.nightSecondOnCallDoctorIds,_that.isApplying);case _:
   return null;
 
 }
@@ -212,21 +216,31 @@ return $default(_that.selectedDepartmentIds,_that.selectedDates,_that.dayFirstOn
 
 
 class _BulkAssignmentState implements BulkAssignmentState {
-  const _BulkAssignmentState({final  List<String> selectedDepartmentIds = const [], final  List<DateTime> selectedDates = const [], final  List<String> dayFirstOnCallDoctorIds = const [], final  List<String> daySecondOnCallDoctorIds = const [], final  List<String> nightFirstOnCallDoctorIds = const [], final  List<String> nightSecondOnCallDoctorIds = const [], this.isApplying = false}): _selectedDepartmentIds = selectedDepartmentIds,_selectedDates = selectedDates,_dayFirstOnCallDoctorIds = dayFirstOnCallDoctorIds,_daySecondOnCallDoctorIds = daySecondOnCallDoctorIds,_nightFirstOnCallDoctorIds = nightFirstOnCallDoctorIds,_nightSecondOnCallDoctorIds = nightSecondOnCallDoctorIds;
+  const _BulkAssignmentState({this.selectedDepartmentId, final  List<DateTime> selectedDates = const [], final  Set<int> selectedWeekdays = const {}, this.startDate, this.endDate, final  Set<DateTime> manualDates = const {}, final  List<String> dayFirstOnCallDoctorIds = const [], final  List<String> daySecondOnCallDoctorIds = const [], final  List<String> nightFirstOnCallDoctorIds = const [], final  List<String> nightSecondOnCallDoctorIds = const [], this.isApplying = false}): _selectedDates = selectedDates,_selectedWeekdays = selectedWeekdays,_manualDates = manualDates,_dayFirstOnCallDoctorIds = dayFirstOnCallDoctorIds,_daySecondOnCallDoctorIds = daySecondOnCallDoctorIds,_nightFirstOnCallDoctorIds = nightFirstOnCallDoctorIds,_nightSecondOnCallDoctorIds = nightSecondOnCallDoctorIds;
   
 
- final  List<String> _selectedDepartmentIds;
-@override@JsonKey() List<String> get selectedDepartmentIds {
-  if (_selectedDepartmentIds is EqualUnmodifiableListView) return _selectedDepartmentIds;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_selectedDepartmentIds);
-}
-
+@override final  String? selectedDepartmentId;
  final  List<DateTime> _selectedDates;
 @override@JsonKey() List<DateTime> get selectedDates {
   if (_selectedDates is EqualUnmodifiableListView) return _selectedDates;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_selectedDates);
+}
+
+ final  Set<int> _selectedWeekdays;
+@override@JsonKey() Set<int> get selectedWeekdays {
+  if (_selectedWeekdays is EqualUnmodifiableSetView) return _selectedWeekdays;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableSetView(_selectedWeekdays);
+}
+
+@override final  DateTime? startDate;
+@override final  DateTime? endDate;
+ final  Set<DateTime> _manualDates;
+@override@JsonKey() Set<DateTime> get manualDates {
+  if (_manualDates is EqualUnmodifiableSetView) return _manualDates;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableSetView(_manualDates);
 }
 
  final  List<String> _dayFirstOnCallDoctorIds;
@@ -269,16 +283,16 @@ _$BulkAssignmentStateCopyWith<_BulkAssignmentState> get copyWith => __$BulkAssig
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkAssignmentState&&const DeepCollectionEquality().equals(other._selectedDepartmentIds, _selectedDepartmentIds)&&const DeepCollectionEquality().equals(other._selectedDates, _selectedDates)&&const DeepCollectionEquality().equals(other._dayFirstOnCallDoctorIds, _dayFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._daySecondOnCallDoctorIds, _daySecondOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._nightFirstOnCallDoctorIds, _nightFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._nightSecondOnCallDoctorIds, _nightSecondOnCallDoctorIds)&&(identical(other.isApplying, isApplying) || other.isApplying == isApplying));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BulkAssignmentState&&(identical(other.selectedDepartmentId, selectedDepartmentId) || other.selectedDepartmentId == selectedDepartmentId)&&const DeepCollectionEquality().equals(other._selectedDates, _selectedDates)&&const DeepCollectionEquality().equals(other._selectedWeekdays, _selectedWeekdays)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&const DeepCollectionEquality().equals(other._manualDates, _manualDates)&&const DeepCollectionEquality().equals(other._dayFirstOnCallDoctorIds, _dayFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._daySecondOnCallDoctorIds, _daySecondOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._nightFirstOnCallDoctorIds, _nightFirstOnCallDoctorIds)&&const DeepCollectionEquality().equals(other._nightSecondOnCallDoctorIds, _nightSecondOnCallDoctorIds)&&(identical(other.isApplying, isApplying) || other.isApplying == isApplying));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_selectedDepartmentIds),const DeepCollectionEquality().hash(_selectedDates),const DeepCollectionEquality().hash(_dayFirstOnCallDoctorIds),const DeepCollectionEquality().hash(_daySecondOnCallDoctorIds),const DeepCollectionEquality().hash(_nightFirstOnCallDoctorIds),const DeepCollectionEquality().hash(_nightSecondOnCallDoctorIds),isApplying);
+int get hashCode => Object.hash(runtimeType,selectedDepartmentId,const DeepCollectionEquality().hash(_selectedDates),const DeepCollectionEquality().hash(_selectedWeekdays),startDate,endDate,const DeepCollectionEquality().hash(_manualDates),const DeepCollectionEquality().hash(_dayFirstOnCallDoctorIds),const DeepCollectionEquality().hash(_daySecondOnCallDoctorIds),const DeepCollectionEquality().hash(_nightFirstOnCallDoctorIds),const DeepCollectionEquality().hash(_nightSecondOnCallDoctorIds),isApplying);
 
 @override
 String toString() {
-  return 'BulkAssignmentState(selectedDepartmentIds: $selectedDepartmentIds, selectedDates: $selectedDates, dayFirstOnCallDoctorIds: $dayFirstOnCallDoctorIds, daySecondOnCallDoctorIds: $daySecondOnCallDoctorIds, nightFirstOnCallDoctorIds: $nightFirstOnCallDoctorIds, nightSecondOnCallDoctorIds: $nightSecondOnCallDoctorIds, isApplying: $isApplying)';
+  return 'BulkAssignmentState(selectedDepartmentId: $selectedDepartmentId, selectedDates: $selectedDates, selectedWeekdays: $selectedWeekdays, startDate: $startDate, endDate: $endDate, manualDates: $manualDates, dayFirstOnCallDoctorIds: $dayFirstOnCallDoctorIds, daySecondOnCallDoctorIds: $daySecondOnCallDoctorIds, nightFirstOnCallDoctorIds: $nightFirstOnCallDoctorIds, nightSecondOnCallDoctorIds: $nightSecondOnCallDoctorIds, isApplying: $isApplying)';
 }
 
 
@@ -289,7 +303,7 @@ abstract mixin class _$BulkAssignmentStateCopyWith<$Res> implements $BulkAssignm
   factory _$BulkAssignmentStateCopyWith(_BulkAssignmentState value, $Res Function(_BulkAssignmentState) _then) = __$BulkAssignmentStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<String> selectedDepartmentIds, List<DateTime> selectedDates, List<String> dayFirstOnCallDoctorIds, List<String> daySecondOnCallDoctorIds, List<String> nightFirstOnCallDoctorIds, List<String> nightSecondOnCallDoctorIds, bool isApplying
+ String? selectedDepartmentId, List<DateTime> selectedDates, Set<int> selectedWeekdays, DateTime? startDate, DateTime? endDate, Set<DateTime> manualDates, List<String> dayFirstOnCallDoctorIds, List<String> daySecondOnCallDoctorIds, List<String> nightFirstOnCallDoctorIds, List<String> nightSecondOnCallDoctorIds, bool isApplying
 });
 
 
@@ -306,11 +320,15 @@ class __$BulkAssignmentStateCopyWithImpl<$Res>
 
 /// Create a copy of BulkAssignmentState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? selectedDepartmentIds = null,Object? selectedDates = null,Object? dayFirstOnCallDoctorIds = null,Object? daySecondOnCallDoctorIds = null,Object? nightFirstOnCallDoctorIds = null,Object? nightSecondOnCallDoctorIds = null,Object? isApplying = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? selectedDepartmentId = freezed,Object? selectedDates = null,Object? selectedWeekdays = null,Object? startDate = freezed,Object? endDate = freezed,Object? manualDates = null,Object? dayFirstOnCallDoctorIds = null,Object? daySecondOnCallDoctorIds = null,Object? nightFirstOnCallDoctorIds = null,Object? nightSecondOnCallDoctorIds = null,Object? isApplying = null,}) {
   return _then(_BulkAssignmentState(
-selectedDepartmentIds: null == selectedDepartmentIds ? _self._selectedDepartmentIds : selectedDepartmentIds // ignore: cast_nullable_to_non_nullable
-as List<String>,selectedDates: null == selectedDates ? _self._selectedDates : selectedDates // ignore: cast_nullable_to_non_nullable
-as List<DateTime>,dayFirstOnCallDoctorIds: null == dayFirstOnCallDoctorIds ? _self._dayFirstOnCallDoctorIds : dayFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
+selectedDepartmentId: freezed == selectedDepartmentId ? _self.selectedDepartmentId : selectedDepartmentId // ignore: cast_nullable_to_non_nullable
+as String?,selectedDates: null == selectedDates ? _self._selectedDates : selectedDates // ignore: cast_nullable_to_non_nullable
+as List<DateTime>,selectedWeekdays: null == selectedWeekdays ? _self._selectedWeekdays : selectedWeekdays // ignore: cast_nullable_to_non_nullable
+as Set<int>,startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,endDate: freezed == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,manualDates: null == manualDates ? _self._manualDates : manualDates // ignore: cast_nullable_to_non_nullable
+as Set<DateTime>,dayFirstOnCallDoctorIds: null == dayFirstOnCallDoctorIds ? _self._dayFirstOnCallDoctorIds : dayFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,daySecondOnCallDoctorIds: null == daySecondOnCallDoctorIds ? _self._daySecondOnCallDoctorIds : daySecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,nightFirstOnCallDoctorIds: null == nightFirstOnCallDoctorIds ? _self._nightFirstOnCallDoctorIds : nightFirstOnCallDoctorIds // ignore: cast_nullable_to_non_nullable
 as List<String>,nightSecondOnCallDoctorIds: null == nightSecondOnCallDoctorIds ? _self._nightSecondOnCallDoctorIds : nightSecondOnCallDoctorIds // ignore: cast_nullable_to_non_nullable

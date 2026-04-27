@@ -260,11 +260,9 @@ class _DoctorPickerDialogState extends ConsumerState<_DoctorPickerDialog> {
   @override
   void dispose() {
     final key = _pickerKey;
-    // Clean up state in a microtask to avoid issues during widget tree disposal
-    Future.microtask(() {
-      ref.read(doctorPickerSelectionProvider.notifier).remove(key);
-      ref.read(doctorPickerSearchProvider.notifier).remove(key);
-    });
+    // Clean up state synchronously to avoid accessing 'ref' after unmounting
+    ref.read(doctorPickerSelectionProvider.notifier).remove(key);
+    ref.read(doctorPickerSearchProvider.notifier).remove(key);
     super.dispose();
   }
 
