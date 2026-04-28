@@ -15,6 +15,7 @@ class SchedulingPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(schedulingControllerProvider);
     final viewIndex = ref.watch(schedulingViewIndexProvider);
+    final isSearchExpanded = ref.watch(schedulingSearchExpandedProvider);
 
     return PopScope(
       canPop: !state.hasUnsavedChanges,
@@ -27,40 +28,81 @@ class SchedulingPage extends ConsumerWidget {
       },
       child: Scaffold(
         backgroundColor: const Color(0xFFFBFDFF),
-        body: Column(
-          children: [
-            // ── Custom Header ──────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final bool isSmall = constraints.maxWidth < 600;
-                  return isSmall
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Schedule Management',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.textColor,
-                                letterSpacing: -0.5,
-                                height: 1.1,
-                              ),
-                            ),
-                            const SizedBox(height: 1),
-                            Row(
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final bool isSmall = constraints.maxWidth < 600;
+            return NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  // ── Scrollable Page Header ────────────────────────────────
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+                      child: isSmall
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  viewIndex == 0 ? 'Daily Roster' : 'Bulk Configuration',
+                                  'Schedule Management',
                                   style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.primaryColor,
-                                    letterSpacing: 0.5,
-                                    height: 1.0,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.textColor,
+                                    letterSpacing: -0.5,
+                                    height: 1.1,
                                   ),
+                                ),
+                                const SizedBox(height: 1),
+                                Row(
+                                  children: [
+                                    Text(
+                                      viewIndex == 0 ? 'Daily Roster' : 'Bulk Configuration',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppTheme.primaryColor,
+                                        letterSpacing: 0.5,
+                                        height: 1.0,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    _ViewToggleButton(
+                                      index: viewIndex,
+                                      onTap: () {
+                                        ref.read(schedulingViewIndexProvider.notifier).setIndex(viewIndex == 0 ? 1 : 0);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Schedule Management',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppTheme.textColor,
+                                        letterSpacing: -0.5,
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 1),
+                                    Text(
+                                      viewIndex == 0 ? 'Daily Roster' : 'Bulk Configuration',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppTheme.primaryColor,
+                                        letterSpacing: 0.5,
+                                        height: 1.0,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const Spacer(),
                                 _ViewToggleButton(
@@ -71,60 +113,34 @@ class SchedulingPage extends ConsumerWidget {
                                 ),
                               ],
                             ),
-                          ],
-                        )
-                      : Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Schedule Management',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppTheme.textColor,
-                                    letterSpacing: -0.5,
-                                    height: 1.1,
-                                  ),
-                                ),
-                                const SizedBox(height: 1),
-                                Text(
-                                  viewIndex == 0 ? 'Daily Roster' : 'Bulk Configuration',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.primaryColor,
-                                    letterSpacing: 0.5,
-                                    height: 1.0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            _ViewToggleButton(
-                              index: viewIndex,
-                              onTap: () {
-                                ref.read(schedulingViewIndexProvider.notifier).setIndex(viewIndex == 0 ? 1 : 0);
-                              },
-                            ),
-                          ],
-                        );
-                },
-              ),
-            ),
-            const SizedBox(height: 24),
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
-            // ── Main Content ───────────────────────────────────────────
-            Expanded(
-              child: AnimatedSwitcher(
+                  // ── Sticky View Header (only for Daily View) ──────────────────
+                  if (viewIndex == 0)
+                    SliverOverlapAbsorber(
+                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                      sliver: SliverPersistentHeader(
+                        pinned: true,
+                        delegate: DayByDayHeaderDelegate(
+                          state: state,
+                          ref: ref,
+                          isSmall: isSmall,
+                          isSearchExpanded: isSearchExpanded,
+                        ),
+                      ),
+                    ),
+                ];
+              },
+              body: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: viewIndex == 0 
-                    ? const DayByDayView() 
+                    ? const DayByDayView(onlyList: true, useOverlapInjector: true) 
                     : const BulkAssignmentView(),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -273,7 +289,6 @@ class _ViewToggleButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-           
             const SizedBox(width: 10),
             Text(
               isBulk ? 'Back to Daily View' : 'Bulk Assignment',

@@ -1409,11 +1409,14 @@ class _CustomRangePickerState extends State<_CustomRangePicker> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isFrom) async {
+    final now = DateUtils.dateOnly(DateTime.now());
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isFrom ? (_fromDate ?? DateTime.now()) : (_toDate ?? _fromDate ?? DateTime.now()),
-      firstDate: DateTime.now().subtract(const Duration(days: 30)),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDate: isFrom 
+          ? (_fromDate != null && _fromDate!.isBefore(now) ? now : (_fromDate ?? now)) 
+          : (_toDate != null && _toDate!.isBefore(now) ? now : (_toDate ?? _fromDate ?? now)),
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
       builder: (context, child) => Theme(
         data: Theme.of(context).copyWith(
           colorScheme: const ColorScheme.light(

@@ -29,7 +29,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
   void initState() {
     super.initState();
     _dateScrollController = ScrollController();
-    _startDate = _selectedDate.subtract(const Duration(days: 365));
+    _startDate = _selectedDate;
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelectedDate(animate: false));
   }
 
@@ -69,7 +69,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
       context: context,
       initialDate: _selectedDate,
       firstDate: _startDate,
-      lastDate: _startDate.add(const Duration(days: 729)),
+      lastDate: _startDate.add(const Duration(days: 730)),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -327,7 +327,11 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
         const SizedBox(height: 12),
         Row(
           children: [
-            _buildDateNavButton(Icons.chevron_left_rounded, () => _updateSelectedDate(_selectedDate.subtract(const Duration(days: 1)))),
+            _buildDateNavButton(Icons.chevron_left_rounded, () {
+              final newDate = _selectedDate.subtract(const Duration(days: 1));
+              if (newDate.isBefore(_startDate)) return;
+              _updateSelectedDate(newDate);
+            }),
             const SizedBox(width: 8),
             Expanded(
               child: SizedBox(

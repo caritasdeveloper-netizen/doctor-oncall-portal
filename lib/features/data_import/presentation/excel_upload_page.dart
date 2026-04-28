@@ -240,7 +240,7 @@ class ExcelUploadPage extends ConsumerWidget {
         html.Url.revokeObjectUrl(url);
       } else {
         // For mobile/desktop, use file_picker to save the file
-        final result = await fp.FilePicker.platform.saveFile(
+        final result = await fp.FilePicker.saveFile(
           fileName: "doctor_upload_template.xlsx",
           bytes: bytes,
           type: fp.FileType.custom,
