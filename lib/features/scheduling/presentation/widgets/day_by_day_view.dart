@@ -79,7 +79,7 @@ class DayByDayView extends ConsumerWidget {
                 handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
               ),
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 120),
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -153,8 +153,11 @@ class _DayByDayHeader extends StatelessWidget {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-      child: Column(
-        children: [
+      child: ClipRect(
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(
+            children: [
           // Header Row: Swaps between Date Info and Search Bar
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
@@ -243,6 +246,8 @@ class _DayByDayHeader extends StatelessWidget {
           ),
         ],
       ),
+    ),
+    ),
     );
   }
 }
@@ -280,10 +285,14 @@ class DayByDayHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => isSmall ? 240 : 190;
+  double get maxExtent => isSmall 
+      ? (isSearchExpanded ? 245 : 205) 
+      : (isSearchExpanded ? 195 : 170);
 
   @override
-  double get minExtent => isSmall ? 240 : 190;
+  double get minExtent => isSmall 
+      ? (isSearchExpanded ? 245 : 205) 
+      : (isSearchExpanded ? 195 : 170);
 
   @override
   bool shouldRebuild(covariant DayByDayHeaderDelegate oldDelegate) {
