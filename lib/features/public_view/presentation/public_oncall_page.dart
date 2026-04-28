@@ -20,8 +20,76 @@ class PublicOnCallPage extends ConsumerStatefulWidget {
 }
 
 class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
-  DateTime _selectedDate = DateTime.now();
+  DateTime _selectedDate = DateUtils.dateOnly(DateTime.now());
   String _searchQuery = '';
+  late final ScrollController _dateScrollController;
+  late final DateTime _startDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _dateScrollController = ScrollController();
+    _startDate = _selectedDate.subtract(const Duration(days: 365));
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelectedDate(animate: false));
+  }
+
+  @override
+  void dispose() {
+    _dateScrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToSelectedDate({bool animate = true}) {
+    if (!_dateScrollController.hasClients) return;
+    
+    final index = _selectedDate.difference(_startDate).inDays;
+    const itemWidth = 68.0; // 60 width + 4 padding each side
+    final viewportWidth = _dateScrollController.position.viewportDimension;
+    
+    final targetOffset = (index * itemWidth) + (itemWidth / 2) - (viewportWidth / 2);
+    
+    if (animate) {
+      _dateScrollController.animateTo(
+        targetOffset,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutBack,
+      );
+    } else {
+      _dateScrollController.jumpTo(targetOffset);
+    }
+  }
+
+  void _updateSelectedDate(DateTime date) {
+    setState(() => _selectedDate = DateUtils.dateOnly(date));
+    _scrollToSelectedDate();
+  }
+
+  Future<void> _showCalendarPicker() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: _startDate,
+      lastDate: _startDate.add(const Duration(days: 729)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF0056D2),
+              onPrimary: Colors.white,
+              onSurface: Color(0xFF1A1C1E),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: const Color(0xFF0056D2)),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      _updateSelectedDate(picked);
+    }
+  }
 
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
@@ -221,90 +289,112 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(
-          DateFormat('MMMM yyyy').format(_selectedDate),
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF8E9199),
-            letterSpacing: 0.8,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              DateFormat('MMMM yyyy').format(_selectedDate),
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF8E9199),
+                letterSpacing: 0.8,
+              ),
+            ),
+            const SizedBox(width: 8),
+            TextButton.icon(
+              onPressed: _showCalendarPicker,
+              icon: const Icon(Icons.calendar_month_rounded, size: 14),
+              label: const Text('Pick'),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF0056D2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                textStyle: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            _buildDateNavButton(Icons.chevron_left_rounded, () => setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)))),
+            _buildDateNavButton(Icons.chevron_left_rounded, () => _updateSelectedDate(_selectedDate.subtract(const Duration(days: 1)))),
             const SizedBox(width: 12),
-            SizedBox(
-              height: 80,
-              width: 476, // 7 items * 68px (60 width + 8 total padding)
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                itemCount: 7,
-                itemBuilder: (context, index) {
-                  final firstDayOfWeek = _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
-                  final date = firstDayOfWeek.add(Duration(days: index));
-                  final isSelected = DateUtils.isSameDay(date, _selectedDate);
+            Flexible(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 476),
+                child: SizedBox(
+                  height: 80,
+                  child: ListView.builder(
+                    controller: _dateScrollController,
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: 730, // 2 years range
+                    itemBuilder: (context, index) {
+                      final date = _startDate.add(Duration(days: index));
+                      final isSelected = DateUtils.isSameDay(date, _selectedDate);
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: InkWell(
-                      onTap: () => setState(() => _selectedDate = date),
-                      borderRadius: BorderRadius.circular(16),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 60,
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF0056D2) : Colors.white,
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: InkWell(
+                          onTap: () => _updateSelectedDate(date),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected ? const Color(0xFF0056D2) : const Color(0xFFE8ECF0),
-                            width: 1.5,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 60,
+                            decoration: BoxDecoration(
+                              color: isSelected ? const Color(0xFF0056D2) : Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isSelected ? const Color(0xFF0056D2) : const Color(0xFFE8ECF0),
+                                width: 1.5,
+                              ),
+                              boxShadow: isSelected
+                                  ? [
+                                      BoxShadow(
+                                        color: const Color(0xFF0056D2).withOpacity(0.25),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 6),
+                                      )
+                                    ]
+                                  : [],
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  DateFormat('E').format(date).toUpperCase(),
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: isSelected ? Colors.white.withOpacity(0.9) : const Color(0xFF8E9199),
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  date.day.toString(),
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w800,
+                                    color: isSelected ? Colors.white : const Color(0xFF1A1C1E),
+                                    height: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: const Color(0xFF0056D2).withOpacity(0.25),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 6),
-                                  )
-                                ]
-                              : [],
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              DateFormat('E').format(date).toUpperCase(),
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: isSelected ? Colors.white.withOpacity(0.9) : const Color(0xFF8E9199),
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              date.day.toString(),
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
-                                color: isSelected ? Colors.white : const Color(0xFF1A1C1E),
-                                height: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 12),
-            _buildDateNavButton(Icons.chevron_right_rounded, () => setState(() => _selectedDate = _selectedDate.add(const Duration(days: 1)))),
+            _buildDateNavButton(Icons.chevron_right_rounded, () => _updateSelectedDate(_selectedDate.add(const Duration(days: 1)))),
           ],
         ),
       ],
