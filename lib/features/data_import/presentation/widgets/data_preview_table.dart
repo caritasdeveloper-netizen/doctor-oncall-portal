@@ -66,12 +66,12 @@ class DataPreviewTable extends ConsumerWidget {
     final valid = rows.where((r) => r.isValid).length;
     final failed = total - valid;
 
-    return Row(
+    return Wrap(
+      spacing: 16,
+      runSpacing: 8,
       children: [
         _buildSummaryItem('Total: $total', Colors.grey[700]!),
-        const SizedBox(width: 16),
         _buildSummaryItem('Valid: $valid', Colors.green[700]!),
-        const SizedBox(width: 16),
         _buildSummaryItem('Errors: $failed', Colors.red[700]!),
       ],
     );

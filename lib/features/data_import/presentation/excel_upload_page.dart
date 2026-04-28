@@ -9,6 +9,7 @@ import 'package:oncall_doctor/features/data_import/presentation/widgets/new_depa
 import 'package:oncall_doctor/features/data_import/application/excel_import_service.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:file_picker/file_picker.dart' as fp;
 
 class ExcelUploadPage extends ConsumerWidget {
   const ExcelUploadPage({super.key});
@@ -18,13 +19,15 @@ class ExcelUploadPage extends ConsumerWidget {
     final state = ref.watch(excelImportProvider);
     final notifier = ref.read(excelImportProvider.notifier);
     
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    
     return Container(
       width: double.infinity,
       height: double.infinity,
       color: AppTheme.backgroundColor,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(32.0),
+        padding: EdgeInsets.all(isMobile ? 16.0 : 32.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -68,7 +71,7 @@ class ExcelUploadPage extends ConsumerWidget {
           ],
         ),
         ElevatedButton.icon(
-          onPressed: kIsWeb ? _downloadTemplate : null, // Template download typically needs Web Blob
+          onPressed: _downloadTemplate,
           icon: const Icon(Icons.download, size: 20),
           label: const Text('Download Template'),
           style: ElevatedButton.styleFrom(
@@ -87,9 +90,11 @@ class ExcelUploadPage extends ConsumerWidget {
   }
 
   Widget _buildMainCard(BuildContext context, WidgetRef ref, ExcelImportState state, ExcelImportNotifier notifier) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(isMobile ? 16 : 32),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -221,16 +226,31 @@ class ExcelUploadPage extends ConsumerWidget {
     }
   }
 
-  void _downloadTemplate() {
+  void _downloadTemplate() async {
     try {
       final service = ExcelImportService();
       final bytes = service.generateTemplate();
-      final blob = html.Blob([bytes]);
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement(href: url)
-        ..setAttribute("download", "doctor_upload_template.xlsx")
-        ..click();
-      html.Url.revokeObjectUrl(url);
+      
+      if (kIsWeb) {
+        final blob = html.Blob([bytes]);
+        final url = html.Url.createObjectUrlFromBlob(blob);
+        final anchor = html.AnchorElement(href: url)
+          ..setAttribute("download", "doctor_upload_template.xlsx")
+          ..click();
+        html.Url.revokeObjectUrl(url);
+      } else {
+        // For mobile/desktop, use file_picker to save the file
+        final result = await fp.FilePicker.platform.saveFile(
+          fileName: "doctor_upload_template.xlsx",
+          bytes: bytes,
+          type: fp.FileType.custom,
+          allowedExtensions: ['xlsx'],
+        );
+        
+        if (result != null) {
+          debugPrint('Template saved to: $result');
+        }
+      }
     } catch (e) {
       debugPrint('Template download error: $e');
     }

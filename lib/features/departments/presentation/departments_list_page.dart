@@ -28,10 +28,12 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
     final departmentsAsync = ref.watch(departmentsProvider);
     final controllerState = ref.watch(departmentControllerProvider);
 
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 32, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -378,8 +380,8 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         elevation: 0,
         child: Container(
-          width: 450,
-          padding: const EdgeInsets.all(32),
+          constraints: const BoxConstraints(maxWidth: 450),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width < 600 ? 20 : 32),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
@@ -529,8 +531,8 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         elevation: 0,
         child: Container(
-          width: 450,
-          padding: const EdgeInsets.all(32),
+          constraints: const BoxConstraints(maxWidth: 450),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width < 600 ? 20 : 32),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),

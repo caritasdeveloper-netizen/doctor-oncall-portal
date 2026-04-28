@@ -22,11 +22,13 @@ class CreateDoctorPage extends ConsumerWidget {
     final departmentsAsync = ref.watch(departmentsProvider);
     final doctorControllerState = ref.watch(doctorControllerProvider);
 
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 32, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -86,7 +88,7 @@ class CreateDoctorPage extends ConsumerWidget {
                   children: [
                     // Form Header
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(32, 32, 32, 24),
+                      padding: EdgeInsets.fromLTRB(isMobile ? 20 : 32, isMobile ? 20 : 32, isMobile ? 20 : 32, 24),
                       child: Row(
                         children: [
                           Container(
@@ -112,7 +114,7 @@ class CreateDoctorPage extends ConsumerWidget {
                     const Divider(height: 1, color: AppTheme.borderColor),
 
                     Padding(
-                      padding: const EdgeInsets.all(32),
+                      padding: EdgeInsets.all(isMobile ? 20 : 32),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

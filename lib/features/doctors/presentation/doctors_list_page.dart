@@ -362,8 +362,8 @@ class DoctorsListPage extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         elevation: 0,
         child: Container(
-          width: 450,
-          padding: const EdgeInsets.all(32),
+          constraints: const BoxConstraints(maxWidth: 450),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.width < 600 ? 20 : 32),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
