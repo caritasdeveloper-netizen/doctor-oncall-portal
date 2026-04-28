@@ -23,6 +23,7 @@ class MainLayout extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
+      resizeToAvoidBottomInset: false,
       appBar: isMobile
           ? AppBar(
               backgroundColor: Colors.white,
@@ -101,11 +102,14 @@ class _Sidebar extends ConsumerWidget {
                   width: 44,
                   height: 44,
 
-                  child:  Center(
-                    child:  Image.asset(
-              'assets/logo.webp',
-              height: 40,
-            ),
+                  child: Center(
+                    child: RepaintBoundary(
+                      child: Image.asset(
+                        'assets/logo.webp',
+                        height: 40,
+                        cacheHeight: 80,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 14),

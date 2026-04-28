@@ -18,10 +18,12 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="description" content="Caritas Doctor OnCall Portal">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0054A6">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="oncall_doctor">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
@@ -32,59 +34,77 @@
   <title>Caritas Doctor OnCall</title>
   <link rel="manifest" href="manifest.json">
 
+  <!-- Preload logo to avoid flicker -->
+  <link rel="preload" href="logo.webp" as="image" type="image/webp">
+
   <style>
+    * { box-sizing: border-box; }
+    html {
+      height: 100%;
+      -webkit-text-size-adjust: 100%;
+    }
     body {
-      inset: 0; overflow: hidden; 
-      margin: 0; padding: 0; 
-      position: fixed; 
-      user-select: none; 
-      touch-action: none; 
-      -webkit-user-select: none; 
-      -webkit-touch-callout: none; 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      /* Allow touch scrolling — Flutter handles its own touch events */
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      /* Match app background to avoid any white flash */
+      background-color: #F8FAFC;
     }
     #loading-screen {
+      position: fixed;
+      inset: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      width: 100vw;
-      transition: opacity 0.5s ease-out;
+      background: #F8FAFC;
+      z-index: 9999;
+      transition: opacity 0.4s ease-out;
+      will-change: opacity;
+    }
+    #loading-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
     .logo-container {
-      margin-bottom: 40px;
-      animation: fadeInScale 0.8s ease-out;
+      margin-bottom: 36px;
+      animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
     .logo {
-      width: 180px;
+      width: clamp(120px, 25vw, 180px);
       height: auto;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08));
+      display: block;
+      filter: drop-shadow(0 4px 16px rgba(0,84,166,0.15));
     }
     .loader-wrapper {
-      width: 240px;
+      width: clamp(180px, 40vw, 240px);
       height: 4px;
-      background-color: #f0f2f5;
+      background-color: #e2e8f0;
       border-radius: 8px;
       overflow: hidden;
-      position: relative;
     }
     .progress-bar {
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+      background: linear-gradient(90deg, #0054A6, #3b82f6);
       transform-origin: 0% 50%;
-      animation: indeterminate 1.8s infinite cubic-bezier(0.65, 0.815, 0.735, 0.395);
+      animation: indeterminate 1.6s infinite cubic-bezier(0.65, 0.815, 0.735, 0.395);
     }
     @keyframes indeterminate {
-      0% { transform: translateX(-100%) scaleX(0.2); }
-      50% { transform: translateX(0%) scaleX(0.5); }
+      0%   { transform: translateX(-100%) scaleX(0.2); }
+      50%  { transform: translateX(0%)    scaleX(0.6); }
       100% { transform: translateX(100%) scaleX(0.2); }
     }
     @keyframes fadeInScale {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
+      from { opacity: 0; transform: scale(0.93); }
+      to   { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
@@ -98,24 +118,34 @@
     </div>
   </div>
   <script>
-    // Smoothly remove the loading screen once Flutter is ready
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.addedNodes) {
+    // Smoothly remove the loading screen once Flutter canvas is ready
+    (function () {
+      const loader = document.getElementById('loading-screen');
+      if (!loader) return;
+
+      function hideLoader() {
+        loader.classList.add('hidden');
+        setTimeout(() => { if (loader.parentNode) loader.parentNode.removeChild(loader); }, 450);
+      }
+
+      // Primary: watch for Flutter's canvas element
+      const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
           for (const node of mutation.addedNodes) {
-            if (node.tagName === 'FLT-GLASS-PANE') {
-              const loader = document.getElementById('loading-screen');
-              if (loader) {
-                loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 500);
-              }
+            if (node.tagName === 'FLT-GLASS-PANE' || node.tagName === 'FLUTTER-VIEW') {
               observer.disconnect();
+              // Small delay to let first frame paint
+              requestAnimationFrame(() => requestAnimationFrame(hideLoader));
+              return;
             }
           }
         }
-      }
-    });
-    observer.observe(document.body, { childList: true });
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      // Fallback: hide after 8 seconds regardless
+      setTimeout(hideLoader, 8000);
+    })();
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

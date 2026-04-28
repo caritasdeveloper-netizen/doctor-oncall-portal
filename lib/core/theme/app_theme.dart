@@ -49,11 +49,11 @@ class AppTheme {
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: NoAnimationPageTransitionsBuilder(),
-          TargetPlatform.iOS: NoAnimationPageTransitionsBuilder(),
-          TargetPlatform.windows: NoAnimationPageTransitionsBuilder(),
-          TargetPlatform.macOS: NoAnimationPageTransitionsBuilder(),
-          TargetPlatform.linux: NoAnimationPageTransitionsBuilder(),
+          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.macOS: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
         },
       ),
       cardTheme: const CardThemeData(

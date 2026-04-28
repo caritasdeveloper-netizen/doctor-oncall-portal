@@ -112,6 +112,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(),
@@ -150,7 +151,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      shadowColor: Colors.black.withOpacity(0.08),
+      shadowColor: const Color(0x14000000),
       centerTitle: false,
       toolbarHeight: 64,
       bottom: PreferredSize(
@@ -159,21 +160,24 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
       ),
       title: Row(
         children: [
-          Image.asset(
-            'assets/logo.webp',
-            height: 32,
-            fit: BoxFit.fitHeight,
-            errorBuilder: (context, error, stackTrace) => Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0056D2), Color(0xFF0084FF)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          RepaintBoundary(
+            child: Image.asset(
+              'assets/logo.webp',
+              height: 32,
+              fit: BoxFit.fitHeight,
+              cacheHeight: 64,
+              errorBuilder: (context, error, stackTrace) => Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0056D2), Color(0xFF0084FF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                borderRadius: BorderRadius.circular(12),
+                child: const Icon(Icons.medical_services_rounded, color: Colors.white, size: 22),
               ),
-              child: const Icon(Icons.medical_services_rounded, color: Colors.white, size: 22),
             ),
           ),
           const SizedBox(width: 12),
@@ -222,7 +226,8 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
 
 
   Widget _buildFiltersCard(AsyncValue<List<Department>> departmentsAsync) {
-    final bool isMobile = MediaQuery.of(context).size.width < 768;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 768;
 
     return Container(
         padding: const EdgeInsets.all(20),
@@ -230,8 +235,8 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: const Color(0xFFE8ECF0)),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 20, offset: const Offset(0, 8)),
+          boxShadow: const [
+            BoxShadow(color: Color(0x0F000000), blurRadius: 20, offset: Offset(0, 8)),
           ],
         ),
         child: isMobile 
@@ -240,7 +245,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
               children: [
                 _buildSearchField(),
                 const SizedBox(height: 24),
-                _buildDateSelector(),
+                _buildDateSelector(isMobile: true),
               ],
             )
           : Row(
@@ -250,7 +255,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
                   child: _buildSearchField(),
                 ),
                 Container(width: 1, height: 72, margin: const EdgeInsets.symmetric(horizontal: 24), color: const Color(0xFFE8ECF0)),
-                Expanded(flex: 3, child: _buildDateSelector()),
+                Expanded(flex: 3, child: _buildDateSelector(isMobile: false)),
               ],
             ),
     );
@@ -285,20 +290,23 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
     );
   }
 
-  Widget _buildDateSelector() {
+  Widget _buildDateSelector({bool isMobile = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Text(
-              DateFormat('MMMM yyyy').format(_selectedDate),
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF8E9199),
-                letterSpacing: 0.8,
+            Flexible(
+              child: Text(
+                DateFormat('MMMM yyyy').format(_selectedDate),
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF8E9199),
+                  letterSpacing: 0.8,
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -318,31 +326,29 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
         ),
         const SizedBox(height: 12),
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             _buildDateNavButton(Icons.chevron_left_rounded, () => _updateSelectedDate(_selectedDate.subtract(const Duration(days: 1)))),
-            const SizedBox(width: 12),
-            Flexible(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 476),
-                child: SizedBox(
-                  height: 80,
-                  child: ListView.builder(
-                    controller: _dateScrollController,
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: 730, // 2 years range
-                    itemBuilder: (context, index) {
-                      final date = _startDate.add(Duration(days: index));
-                      final isSelected = DateUtils.isSameDay(date, _selectedDate);
-
-                      return Padding(
+            const SizedBox(width: 8),
+            Expanded(
+              child: SizedBox(
+                height: 80,
+                child: ListView.builder(
+                  controller: _dateScrollController,
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  itemCount: 730,
+                  itemExtent: 68,
+                  itemBuilder: (context, index) {
+                    final date = _startDate.add(Duration(days: index));
+                    final isSelected = DateUtils.isSameDay(date, _selectedDate);
+                    return RepaintBoundary(
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: InkWell(
+                        child: GestureDetector(
                           onTap: () => _updateSelectedDate(date),
-                          borderRadius: BorderRadius.circular(16),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeOut,
                             width: 60,
                             decoration: BoxDecoration(
                               color: isSelected ? const Color(0xFF0056D2) : Colors.white,
@@ -352,14 +358,14 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
                                 width: 1.5,
                               ),
                               boxShadow: isSelected
-                                  ? [
+                                  ? const [
                                       BoxShadow(
-                                        color: const Color(0xFF0056D2).withOpacity(0.25),
+                                        color: Color(0x400056D2),
                                         blurRadius: 12,
-                                        offset: const Offset(0, 6),
+                                        offset: Offset(0, 6),
                                       )
                                     ]
-                                  : [],
+                                  : const [],
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -369,7 +375,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
-                                    color: isSelected ? Colors.white.withOpacity(0.9) : const Color(0xFF8E9199),
+                                    color: isSelected ? const Color(0xE6FFFFFF) : const Color(0xFF8E9199),
                                     letterSpacing: 0.5,
                                   ),
                                 ),
@@ -387,13 +393,13 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             _buildDateNavButton(Icons.chevron_right_rounded, () => _updateSelectedDate(_selectedDate.add(const Duration(days: 1)))),
           ],
         ),
@@ -454,13 +460,14 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
     final nightDoctors = doctors.where((d) => nightDoctorIds.contains(d.id)).toList();
     final total = dayDoctors.length + nightDoctors.length;
 
-    return Container(
+    return RepaintBoundary(
+      child: Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFE8ECF0)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 12, offset: const Offset(0, 4))],
+        boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 12, offset: Offset(0, 4))],
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
@@ -476,14 +483,15 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(colors: [Color(0xFFFFF3E8), Color(0xFFFFE8CC)], begin: Alignment.topLeft, end: Alignment.bottomRight),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFFFD199).withOpacity(0.5)),
+                  border: Border.all(color: const Color(0x80FFD199)),
                 ),
                 child: const Icon(Icons.business_rounded, color: Color(0xFFFF6B00), size: 18),
               ),
               const SizedBox(width: 14),
               Expanded(
-                child: Text(dept.name, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A1C1E))),
+                child: Text(dept.name, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A1C1E))),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
@@ -502,7 +510,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
             Container(height: 1, color: const Color(0xFFF0F4F8), margin: const EdgeInsets.only(bottom: 16)),
             LayoutBuilder(
               builder: (context, constraints) {
-                if (constraints.maxWidth < 600) {
+                if (constraints.maxWidth < 560) {
                   return Column(
                     children: [
                       _buildShiftColumn('Day Shift', Icons.wb_sunny_rounded, const Color(0xFFFF8C00), dayDoctors),
@@ -524,7 +532,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
           ],
         ),
       ),
-    );
+     );
   }
 
   Widget _buildShiftColumn(String title, IconData icon, Color color, List<Doctor> doctors) {
@@ -577,6 +585,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
 
   Widget _buildDoctorCard(Doctor doctor, Color accentColor) {
     final initials = doctor.name.trim().split(' ').take(2).map((w) => w.isNotEmpty ? w[0] : '').join().toUpperCase();
+    final avatarBg = Color.alphaBlend(accentColor.withValues(alpha: 0.18), Colors.white);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
@@ -584,7 +593,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE8ECF0)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 3))],
+        boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 8, offset: Offset(0, 3))],
       ),
       child: Row(
         children: [
@@ -592,9 +601,9 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [accentColor.withOpacity(0.15), accentColor.withOpacity(0.25)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+              color: avatarBg,
               shape: BoxShape.circle,
-              border: Border.all(color: accentColor.withOpacity(0.25)),
+              border: Border.all(color: accentColor.withValues(alpha: 0.25)),
             ),
             child: Center(child: Text(initials, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: accentColor))),
           ),
