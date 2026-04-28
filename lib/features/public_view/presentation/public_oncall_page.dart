@@ -462,77 +462,78 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
 
     return RepaintBoundary(
       child: Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE8ECF0)),
-        boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 12, offset: Offset(0, 4))],
-      ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          iconColor: const Color(0xFF0056D2),
-          collapsedIconColor: const Color(0xFF8E9199),
-          title: Row(
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFE8ECF0)),
+          boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 12, offset: Offset(0, 4))],
+        ),
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            iconColor: const Color(0xFF0056D2),
+            collapsedIconColor: const Color(0xFF8E9199),
+            title: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(colors: [Color(0xFFFFF3E8), Color(0xFFFFE8CC)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0x80FFD199)),
+                  ),
+                  child: const Icon(Icons.business_rounded, color: Color(0xFFFF6B00), size: 18),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(dept.name, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A1C1E))),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: total > 0 ? const Color(0xFFE7F3FF) : const Color(0xFFF5F7FA),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '$total on call',
+                    style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700, color: total > 0 ? const Color(0xFF0056D2) : const Color(0xFF8E9199)),
+                  ),
+                ),
+              ],
+            ),
+            childrenPadding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
             children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [Color(0xFFFFF3E8), Color(0xFFFFE8CC)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0x80FFD199)),
-                ),
-                child: const Icon(Icons.business_rounded, color: Color(0xFFFF6B00), size: 18),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(dept.name, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A1C1E))),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: total > 0 ? const Color(0xFFE7F3FF) : const Color(0xFFF5F7FA),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '$total on call',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700, color: total > 0 ? const Color(0xFF0056D2) : const Color(0xFF8E9199)),
-                ),
+              Container(height: 1, color: const Color(0xFFF0F4F8), margin: const EdgeInsets.only(bottom: 16)),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth < 560) {
+                    return Column(
+                      children: [
+                        _buildShiftColumn('Day Shift', Icons.wb_sunny_rounded, const Color(0xFFFF8C00), dayDoctors),
+                        const SizedBox(height: 20),
+                        _buildShiftColumn('Night Shift', Icons.nightlight_round, const Color(0xFF5C6BC0), nightDoctors),
+                      ],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: _buildShiftColumn('Day Shift', Icons.wb_sunny_rounded, const Color(0xFFFF8C00), dayDoctors)),
+                      const SizedBox(width: 16),
+                      Expanded(child: _buildShiftColumn('Night Shift', Icons.nightlight_round, const Color(0xFF5C6BC0), nightDoctors)),
+                    ],
+                  );
+                },
               ),
             ],
           ),
-          childrenPadding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-          children: [
-            Container(height: 1, color: const Color(0xFFF0F4F8), margin: const EdgeInsets.only(bottom: 16)),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                if (constraints.maxWidth < 560) {
-                  return Column(
-                    children: [
-                      _buildShiftColumn('Day Shift', Icons.wb_sunny_rounded, const Color(0xFFFF8C00), dayDoctors),
-                      const SizedBox(height: 20),
-                      _buildShiftColumn('Night Shift', Icons.nightlight_round, const Color(0xFF5C6BC0), nightDoctors),
-                    ],
-                  );
-                }
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _buildShiftColumn('Day Shift', Icons.wb_sunny_rounded, const Color(0xFFFF8C00), dayDoctors)),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildShiftColumn('Night Shift', Icons.nightlight_round, const Color(0xFF5C6BC0), nightDoctors)),
-                  ],
-                );
-              },
-            ),
-          ],
         ),
       ),
-     );
+    );
   }
 
   Widget _buildShiftColumn(String title, IconData icon, Color color, List<Doctor> doctors) {
