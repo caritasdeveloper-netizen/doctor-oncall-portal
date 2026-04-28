@@ -116,7 +116,7 @@ class SchedulingController extends _$SchedulingController {
         final scheduleMap = <String, DailySchedule>{for (var s in schedules) s.departmentId: s};
         state = state.copyWith(
           originalSchedules: scheduleMap,
-          draftSchedules: state.hasUnsavedChanges ? state.draftSchedules : scheduleMap,
+          draftSchedules: scheduleMap,
         );
       });
     });
@@ -126,11 +126,11 @@ class SchedulingController extends _$SchedulingController {
     state = state.copyWith(searchQuery: query);
   }
 
-  void updateAssignment(String departmentId, {
+  Future<void> saveAssignment(String departmentId, {
     List<String>? firstOnCall, 
     List<String>? secondOnCall,
     bool isNight = false,
-  }) {
+  }) async {
     final currentDraft = state.draftSchedules[departmentId] ??
         DailySchedule(
           id: '',
@@ -148,9 +148,22 @@ class SchedulingController extends _$SchedulingController {
           daySecondOnCallDoctorIds: secondOnCall ?? currentDraft.daySecondOnCallDoctorIds,
         );
 
+    // Update draft immediately for UI responsiveness
     final newDrafts = Map<String, DailySchedule>.from(state.draftSchedules);
     newDrafts[departmentId] = updatedDraft;
-    state = state.copyWith(draftSchedules: newDrafts);
+    state = state.copyWith(draftSchedules: newDrafts, isSaving: true);
+
+    try {
+      // Save directly to backend
+      await ref.read(scheduleRepositoryProvider).saveSchedules([updatedDraft]);
+      
+      // Update original so it matches draft
+      final newOriginals = Map<String, DailySchedule>.from(state.originalSchedules);
+      newOriginals[departmentId] = updatedDraft;
+      state = state.copyWith(originalSchedules: newOriginals);
+    } finally {
+      state = state.copyWith(isSaving: false);
+    }
   }
 
   void resetChanges() {

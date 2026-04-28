@@ -12,6 +12,8 @@ class DoctorChipSelector extends StatelessWidget {
   final Function(List<String>) onChanged;
   final AsyncValue<List<Doctor>> doctorsAsync;
   final String departmentId;
+  final String departmentName;
+  final bool requireConfirmation;
 
   const DoctorChipSelector({
     super.key,
@@ -19,6 +21,8 @@ class DoctorChipSelector extends StatelessWidget {
     required this.onChanged,
     required this.doctorsAsync,
     required this.departmentId,
+    this.departmentName = '',
+    this.requireConfirmation = true,
   });
 
   @override
@@ -41,6 +45,8 @@ class DoctorChipSelector extends StatelessWidget {
                 (doctor) => _AssignedDoctorRow(
                   doctor: doctor,
                   selectedIds: selectedIds,
+                  departmentName: departmentName,
+                  requireConfirmation: requireConfirmation,
                   onChanged: onChanged,
                 ),
               ),
@@ -71,7 +77,78 @@ class DoctorChipSelector extends StatelessWidget {
         child: _DoctorPickerDialog(
           availableDoctors: availableDoctors,
           initialSelectedIds: selectedIds,
-          onSave: onChanged,
+          onSave: (newIds) async {
+            if (!requireConfirmation) {
+              onChanged(newIds);
+              return;
+            }
+
+            final addedIds = newIds.where((id) => !selectedIds.contains(id)).toList();
+            final removedIds = selectedIds.where((id) => !newIds.contains(id)).toList();
+
+            if (addedIds.isEmpty && removedIds.isEmpty) return;
+
+            final addedDocs = availableDoctors.where((d) => addedIds.contains(d.id)).map((d) => d.name).toList();
+            final removedDocs = availableDoctors.where((d) => removedIds.contains(d.id)).map((d) => d.name).toList();
+
+            final confirm = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                title: Text(
+                  'Confirm Schedule Update',
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppTheme.textColor),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Are you sure you want to update the schedule for $departmentName?',
+                      style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor, fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    if (addedDocs.isNotEmpty) ...[
+                      Text(
+                        'Adding Doctors:',
+                        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: Colors.green.shade700),
+                      ),
+                      const SizedBox(height: 4),
+                      ...addedDocs.map((name) => Text('• $name', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600))),
+                    ],
+                    if (addedDocs.isNotEmpty && removedDocs.isNotEmpty) const SizedBox(height: 12),
+                    if (removedDocs.isNotEmpty) ...[
+                      Text(
+                        'Removing Doctors:',
+                        style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700, fontSize: 13, color: Colors.red.shade700),
+                      ),
+                      const SizedBox(height: 4),
+                      ...removedDocs.map((name) => Text('• $name', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600))),
+                    ],
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor, fontWeight: FontWeight.w700)),
+                  ),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: Text('Confirm & Save', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
+                  ),
+                ],
+              ),
+            );
+
+            if (confirm == true) {
+              onChanged(newIds);
+            }
+          },
         ),
       ),
     );
@@ -83,11 +160,15 @@ class DoctorChipSelector extends StatelessWidget {
 class _AssignedDoctorRow extends StatelessWidget {
   final Doctor doctor;
   final List<String> selectedIds;
+  final String departmentName;
+  final bool requireConfirmation;
   final Function(List<String>) onChanged;
 
   const _AssignedDoctorRow({
     required this.doctor,
     required this.selectedIds,
+    required this.departmentName,
+    this.requireConfirmation = true,
     required this.onChanged,
   });
 
@@ -149,9 +230,47 @@ class _AssignedDoctorRow extends StatelessWidget {
           ),
           // Remove button
           InkWell(
-            onTap: () {
-              final newIds = List<String>.from(selectedIds)..remove(doctor.id);
-              onChanged(newIds);
+            onTap: () async {
+              if (!requireConfirmation) {
+                final newIds = List<String>.from(selectedIds)..remove(doctor.id);
+                onChanged(newIds);
+                return;
+              }
+
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  title: Text(
+                    'Remove Doctor',
+                    style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppTheme.textColor),
+                  ),
+                  content: Text(
+                    'Remove ${doctor.name} from $departmentName schedule?',
+                    style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor, fontSize: 14),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor, fontWeight: FontWeight.w700)),
+                    ),
+                    FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.red.shade600,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      child: Text('Remove & Save', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w700)),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true) {
+                final newIds = List<String>.from(selectedIds)..remove(doctor.id);
+                onChanged(newIds);
+              }
             },
             borderRadius: BorderRadius.circular(20),
             child: Container(
@@ -446,74 +565,98 @@ class _DoctorPickerDialogState extends ConsumerState<_DoctorPickerDialog> {
                 ),
 
               // ── Footer action bar ────────────────────────────────────
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: AppTheme.borderColor),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    // Selected count chip
-                    if (selected.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryLight,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '${selected.length} selected',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 12,
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isSmall = constraints.maxWidth < 320;
+                  
+                  final selectedChip = selected.isNotEmpty
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryLight,
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        ),
-                      ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                      ),
-                      child: Text(
-                        'Cancel',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: AppTheme.textSecondaryColor,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                        ),
+                          child: Text(
+                            '${selected.length} selected',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink();
+
+                  final cancelButton = TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppTheme.textSecondaryColor,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    FilledButton(
-                      onPressed: () {
-                        widget.onSave(selected);
-                        Navigator.pop(context);
-                      },
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 32, vertical: 12),
-                        elevation: 0,
+                  );
+
+                  final confirmButton = FilledButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      widget.onSave(selected);
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        'Confirm',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                        ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Confirm',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
                       ),
                     ),
-                  ],
-                ),
+                  );
+
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      border: Border(top: BorderSide(color: AppTheme.borderColor)),
+                    ),
+                    child: isSmall
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (selected.isNotEmpty) ...[
+                                Center(child: selectedChip),
+                                const SizedBox(height: 12),
+                              ],
+                              Row(
+                                children: [
+                                  Expanded(child: cancelButton),
+                                  const SizedBox(width: 8),
+                                  Expanded(child: confirmButton),
+                                ],
+                              ),
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              if (selected.isNotEmpty) selectedChip,
+                              const Spacer(),
+                              cancelButton,
+                              const SizedBox(width: 8),
+                              confirmButton,
+                            ],
+                          ),
+                  );
+                },
               ),
             ],
           ),

@@ -428,6 +428,26 @@ class _DateConfigCardState extends ConsumerState<_DateConfigCard> {
     _calendarMonth = DateTime(DateTime.now().year, DateTime.now().month);
   }
 
+  @override
+  void didUpdateWidget(covariant _DateConfigCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.state.selectedDepartmentId == null && widget.state.selectedDates.isEmpty) {
+      if (_selectedWeekdays.isNotEmpty ||
+          _fromDate != null ||
+          _toDate != null ||
+          _explicitlyIncluded.isNotEmpty ||
+          _explicitlyExcluded.isNotEmpty) {
+        setState(() {
+          _selectedWeekdays.clear();
+          _fromDate = null;
+          _toDate = null;
+          _explicitlyIncluded.clear();
+          _explicitlyExcluded.clear();
+        });
+      }
+    }
+  }
+
   void _updateDates() {
     List<DateTime> dates = [];
     if (_fromDate != null && _toDate != null) {
@@ -875,6 +895,9 @@ class _DateConfigCardState extends ConsumerState<_DateConfigCard> {
   }
 
   Widget _buildCalendar() {
+    final now = DateTime.now();
+    final currentMonthStart = DateTime(now.year, now.month, 1);
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -890,12 +913,19 @@ class _DateConfigCardState extends ConsumerState<_DateConfigCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.chevron_left_rounded),
-                  onPressed: () {
-                    setState(() {
-                      _calendarMonth = DateTime(_calendarMonth.year, _calendarMonth.month - 1);
-                    });
-                  },
+                  icon: Icon(
+                    Icons.chevron_left_rounded,
+                    color: _calendarMonth.isAfter(currentMonthStart) 
+                        ? AppTheme.textColor 
+                        : AppTheme.textSecondaryColor.withOpacity(0.3),
+                  ),
+                  onPressed: _calendarMonth.isAfter(currentMonthStart)
+                      ? () {
+                          setState(() {
+                            _calendarMonth = DateTime(_calendarMonth.year, _calendarMonth.month - 1);
+                          });
+                        }
+                      : null,
                 ),
                 Text(
                   DateFormat('MMMM yyyy').format(_calendarMonth),
@@ -954,6 +984,9 @@ class _DateConfigCardState extends ConsumerState<_DateConfigCard> {
     final totalCells = leadingEmpty + lastDayOfMonth.day;
     final rows = (totalCells / 7).ceil();
 
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
@@ -969,13 +1002,14 @@ class _DateConfigCardState extends ConsumerState<_DateConfigCard> {
               }
               
               final date = DateTime(_calendarMonth.year, _calendarMonth.month, day);
-              final isSelected = _isDateSelected(date);
+              final isPast = date.isBefore(today);
+              final isSelected = !isPast && _isDateSelected(date);
               
               return Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(2.0),
                   child: InkWell(
-                    onTap: () => _toggleSpecificDate(date),
+                    onTap: isPast ? null : () => _toggleSpecificDate(date),
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       height: 32,
@@ -988,7 +1022,9 @@ class _DateConfigCardState extends ConsumerState<_DateConfigCard> {
                           day.toString(),
                           style: GoogleFonts.plusJakartaSans(
                             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                            color: isSelected ? Colors.white : AppTheme.textColor,
+                            color: isPast
+                                ? AppTheme.textSecondaryColor.withOpacity(0.4)
+                                : isSelected ? Colors.white : AppTheme.textColor,
                             fontSize: 13,
                           ),
                         ),
@@ -1290,6 +1326,7 @@ class _StaffingSlot extends StatelessWidget {
             onChanged: onChanged,
             doctorsAsync: AsyncValue.data(allDoctors),
             departmentId: departmentId,
+            requireConfirmation: false,
           ),
         ],
       ),

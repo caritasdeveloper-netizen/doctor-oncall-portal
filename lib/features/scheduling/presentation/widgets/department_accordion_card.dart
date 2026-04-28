@@ -170,17 +170,6 @@ class DepartmentAccordionCard extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    // Unsaved dot indicator
-                    if (hasChanges)
-                      Container(
-                        width: 8,
-                        height: 8,
-                        margin: const EdgeInsets.only(right: 10),
-                        decoration: const BoxDecoration(
-                          color: Colors.amber,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
                     // Chevron
                     AnimatedRotation(
                       turns: isExpanded ? 0.5 : 0,
@@ -211,13 +200,9 @@ class DepartmentAccordionCard extends ConsumerWidget {
           // ── Expanded Content ─────────────────────────────────────────
           if (isExpanded) ...[
             const Divider(height: 1, thickness: 1, color: AppTheme.borderColor),
-            
-            // Unsaved changes bar (moved to top)
-            if (hasChanges)
-              _UnsavedChangesBar(isSaving: isSaving),
 
             Padding(
-              padding: EdgeInsets.fromLTRB(20, hasChanges ? 4 : 20, 20, 0),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final bool isSmall = constraints.maxWidth < 600;
@@ -353,9 +338,10 @@ class _ShiftPanel extends ConsumerWidget {
           ids: primaryIds,
           doctorsAsync: doctorsAsync,
           departmentId: department.id,
+          departmentName: department.name,
           onChanged: (ids) => ref
               .read(schedulingControllerProvider.notifier)
-              .updateAssignment(
+              .saveAssignment(
                 department.id,
                 firstOnCall: ids,
                 isNight: isNight,
@@ -372,9 +358,10 @@ class _ShiftPanel extends ConsumerWidget {
           ids: secondaryIds,
           doctorsAsync: doctorsAsync,
           departmentId: department.id,
+          departmentName: department.name,
           onChanged: (ids) => ref
               .read(schedulingControllerProvider.notifier)
-              .updateAssignment(
+              .saveAssignment(
                 department.id,
                 secondOnCall: ids,
                 isNight: isNight,
@@ -396,6 +383,7 @@ class _AssignmentSlot extends StatelessWidget {
   final List<String> ids;
   final AsyncValue<List<Doctor>> doctorsAsync;
   final String departmentId;
+  final String departmentName;
   final ValueChanged<List<String>> onChanged;
 
   const _AssignmentSlot({
@@ -406,6 +394,7 @@ class _AssignmentSlot extends StatelessWidget {
     required this.ids,
     required this.doctorsAsync,
     required this.departmentId,
+    required this.departmentName,
     required this.onChanged,
   });
 
@@ -488,160 +477,9 @@ class _AssignmentSlot extends StatelessWidget {
             onChanged: onChanged,
             doctorsAsync: doctorsAsync,
             departmentId: departmentId,
+            departmentName: departmentName,
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ── Unsaved Changes Bar ────────────────────────────────────────────────────────
-
-class _UnsavedChangesBar extends ConsumerWidget {
-  final bool isSaving;
-  const _UnsavedChangesBar({required this.isSaving});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: const BoxDecoration(
-        color: Color(0xFFFFFBEB),
-        border: Border(bottom: BorderSide(color: Color(0xFFFEF08A))),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final bool isSmall = constraints.maxWidth < 500;
-          
-          if (isSmall) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.edit_note_rounded, size: 24, color: Colors.amber),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Unsaved changes',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
-                        color: const Color(0xFF92400E),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: isSaving
-                          ? null
-                          : () => ref.read(schedulingControllerProvider.notifier).resetChanges(),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      ),
-                      child: Text(
-                        'Discard',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: AppTheme.textSecondaryColor,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    FilledButton.icon(
-                      onPressed: isSaving
-                          ? null
-                          : () => ref.read(schedulingControllerProvider.notifier).saveChanges(),
-                      icon: isSaving
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                            )
-                          : const Icon(Icons.save_rounded, size: 18),
-                      label: Text(
-                        'Save Changes',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 15,
-                        ),
-                      ),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        elevation: 0,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          }
-
-          return Row(
-            children: [
-              const Icon(Icons.edit_note_rounded, size: 24, color: Colors.amber),
-              const SizedBox(width: 12),
-              Text(
-                'Unsaved changes',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  color: const Color(0xFF92400E),
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: isSaving
-                    ? null
-                    : () => ref.read(schedulingControllerProvider.notifier).resetChanges(),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-                child: Text(
-                  'Discard',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: AppTheme.textSecondaryColor,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              FilledButton.icon(
-                onPressed: isSaving
-                    ? null
-                    : () => ref.read(schedulingControllerProvider.notifier).saveChanges(),
-                icon: isSaving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                      )
-                    : const Icon(Icons.save_rounded, size: 18),
-                label: Text(
-                  'Save Changes',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                  ),
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  elevation: 0,
-                ),
-              ),
-            ],
-          );
-        },
       ),
     );
   }
