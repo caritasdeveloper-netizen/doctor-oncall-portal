@@ -141,6 +141,12 @@ class _Sidebar extends ConsumerWidget {
             isActive: currentRoute == '/departments',
             onTap: () => context.goNamed('departments'),
           ),
+          _SidebarItem(
+            icon: Icons.upload_file_rounded,
+            label: 'Upload Data',
+            isActive: currentRoute == '/upload-data',
+            onTap: () => context.goNamed('upload-data'),
+          ),
           const Spacer(),
           
           // Logout Button

@@ -7,6 +7,7 @@ import 'package:oncall_doctor/features/auth/presentation/login_page.dart';
 import 'package:oncall_doctor/features/auth/providers/auth_provider.dart';
 import 'package:oncall_doctor/core/widgets/main_layout.dart';
 import 'package:oncall_doctor/features/public_view/presentation/public_oncall_page.dart';
+import 'package:oncall_doctor/features/data_import/presentation/excel_upload_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:oncall_doctor/features/doctors/domain/doctor.dart';
 
@@ -64,6 +65,13 @@ GoRouter appRouter(Ref ref) {
             name: 'departments',
             pageBuilder: (context, state) => const NoTransitionPage(
               child: DepartmentsListPage(),
+            ),
+          ),
+          GoRoute(
+            path: '/upload-data',
+            name: 'upload-data',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: ExcelUploadPage(),
             ),
           ),
         ],

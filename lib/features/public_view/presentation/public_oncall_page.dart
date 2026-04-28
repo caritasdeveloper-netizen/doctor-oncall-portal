@@ -235,18 +235,18 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             _buildDateNavButton(Icons.chevron_left_rounded, () => setState(() => _selectedDate = _selectedDate.subtract(const Duration(days: 1)))),
-            const SizedBox(width: 8),
-            Expanded(
-              child: SizedBox(
-                height: 80,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: 7,
-                  itemBuilder: (context, index) {
-                    final firstDayOfWeek = _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
-                    final date = firstDayOfWeek.add(Duration(days: index));
-                    final isSelected = DateUtils.isSameDay(date, _selectedDate);
+            const SizedBox(width: 12),
+            SizedBox(
+              height: 80,
+              width: 476, // 7 items * 68px (60 width + 8 total padding)
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: 7,
+                itemBuilder: (context, index) {
+                  final firstDayOfWeek = _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
+                  final date = firstDayOfWeek.add(Duration(days: index));
+                  final isSelected = DateUtils.isSameDay(date, _selectedDate);
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -303,8 +303,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
                 },
               ),
             ),
-          ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             _buildDateNavButton(Icons.chevron_right_rounded, () => setState(() => _selectedDate = _selectedDate.add(const Duration(days: 1)))),
           ],
         ),
