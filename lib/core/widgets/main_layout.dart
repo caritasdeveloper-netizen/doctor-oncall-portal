@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:oncall_doctor/core/config/app_config.dart';
 import 'package:oncall_doctor/core/theme/app_theme.dart';
 import 'package:oncall_doctor/features/auth/providers/auth_provider.dart';
 
@@ -82,7 +81,7 @@ class _Sidebar extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppTheme.borderColor),
+        // border: Border.all(color: AppTheme.borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),

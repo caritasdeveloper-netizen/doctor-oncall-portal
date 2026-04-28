@@ -153,12 +153,10 @@ class _DayByDayHeader extends StatelessWidget {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-      child: ClipRect(
-        child: SingleChildScrollView(
-          physics: const NeverScrollableScrollPhysics(),
-          child: Column(
-            children: [
-          // Header Row: Swaps between Date Info and Search Bar
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header Row: Month/Year + Actions
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 250),
             child: ref.watch(schedulingSearchExpandedProvider)
@@ -166,14 +164,71 @@ class _DayByDayHeader extends StatelessWidget {
                 : Row(
                     key: const ValueKey('date_header'),
                     children: [
-                      Text(
-                        DateFormat('MMMM yyyy').format(state.selectedDate),
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 18,
-                          color: AppTheme.textColor,
-                          letterSpacing: -0.5,
+                      InkWell(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: state.selectedDate.isBefore(DateUtils.dateOnly(DateTime.now())) 
+                                ? DateUtils.dateOnly(DateTime.now()) 
+                                : state.selectedDate,
+                            firstDate: DateUtils.dateOnly(DateTime.now()),
+                            lastDate: DateTime(2100),
+                            builder: (context, child) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: const ColorScheme.light(
+                                    primary: AppTheme.primaryColor,
+                                    onPrimary: Colors.white,
+                                    onSurface: AppTheme.textColor,
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: AppTheme.primaryColor,
+                                    ),
+                                  ),
+                                ),
+                                child: child!,
+                              );
+                            },
+                          );
+                          if (picked != null) {
+                            ref.read(schedulingControllerProvider.notifier).setDate(picked);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_month_rounded,
+                                color: AppTheme.primaryColor,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                DateFormat('MMMM yyyy').format(state.selectedDate),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 18,
+                                  color: AppTheme.textColor,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                      ),
+                      const Spacer(),
+                      _NavArrowButton(
+                        icon: Icons.search_rounded,
+                        tooltip: 'Search departments',
+                        onTap: () => ref.read(schedulingSearchExpandedProvider.notifier).setExpanded(true),
+                      ),
+                      const SizedBox(width: 8),
+                      _TodayButton(
+                        isToday: DateUtils.isSameDay(state.selectedDate, DateTime.now()),
+                        onTap: () => ref.read(schedulingControllerProvider.notifier).setDate(DateTime.now()),
                       ),
                     ],
                   ),
@@ -181,73 +236,33 @@ class _DayByDayHeader extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 7-day pill strip with arrows
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isSmall = constraints.maxWidth < 600;
-              return Column(
-                children: [
-                  Row(
-                    children: [
-                      _NavArrowButton(
-                        icon: Icons.chevron_left_rounded,
-                        tooltip: 'Previous day',
-                        onTap: () {
-                          final prev = state.selectedDate.subtract(const Duration(days: 1));
-                          ref.read(schedulingControllerProvider.notifier).setDate(prev);
-                        },
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(child: _DateStrip(state: state, ref: ref)),
-                      const SizedBox(width: 12),
-                      _NavArrowButton(
-                        icon: Icons.chevron_right_rounded,
-                        tooltip: 'Next day',
-                        onTap: () {
-                          final next = state.selectedDate.add(const Duration(days: 1));
-                          ref.read(schedulingControllerProvider.notifier).setDate(next);
-                        },
-                      ),
-                      if (!isSmall) ...[
-                        const Spacer(),
-                        _NavArrowButton(
-                          icon: Icons.search_rounded,
-                          tooltip: 'Search departments',
-                          onTap: () => ref.read(schedulingSearchExpandedProvider.notifier).setExpanded(true),
-                        ),
-                        const SizedBox(width: 8),
-                        _TodayButton(
-                          isToday: DateUtils.isSameDay(state.selectedDate, DateTime.now()),
-                          onTap: () => ref.read(schedulingControllerProvider.notifier).setDate(DateTime.now()),
-                        ),
-                      ],
-                    ],
-                  ),
-                  if (isSmall) ...[
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        const Spacer(),
-                        _NavArrowButton(
-                          icon: Icons.search_rounded,
-                          tooltip: 'Search departments',
-                          onTap: () => ref.read(schedulingSearchExpandedProvider.notifier).setExpanded(true),
-                        ),
-                        const SizedBox(width: 8),
-                        _TodayButton(
-                          isToday: DateUtils.isSameDay(state.selectedDate, DateTime.now()),
-                          onTap: () => ref.read(schedulingControllerProvider.notifier).setDate(DateTime.now()),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              );
-            },
+          Row(
+            children: [
+              _NavArrowButton(
+                icon: Icons.chevron_left_rounded,
+                tooltip: 'Previous day',
+                onTap: DateUtils.isSameDay(state.selectedDate, DateTime.now()) || state.selectedDate.isBefore(DateTime.now())
+                    ? null
+                    : () {
+                        final prev = state.selectedDate.subtract(const Duration(days: 1));
+                        ref.read(schedulingControllerProvider.notifier).setDate(prev);
+                      },
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: _DateStrip(state: state)),
+              const SizedBox(width: 12),
+              _NavArrowButton(
+                icon: Icons.chevron_right_rounded,
+                tooltip: 'Next day',
+                onTap: () {
+                  final next = state.selectedDate.add(const Duration(days: 1));
+                  ref.read(schedulingControllerProvider.notifier).setDate(next);
+                },
+              ),
+            ],
           ),
         ],
       ),
-    ),
-    ),
     );
   }
 }
@@ -257,13 +272,11 @@ class _DayByDayHeader extends StatelessWidget {
 class DayByDayHeaderDelegate extends SliverPersistentHeaderDelegate {
   final SchedulingState state;
   final WidgetRef ref;
-  final bool isSmall;
   final bool isSearchExpanded;
 
   DayByDayHeaderDelegate({
     required this.state,
     required this.ref,
-    required this.isSmall,
     required this.isSearchExpanded,
   });
 
@@ -285,120 +298,174 @@ class DayByDayHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => isSmall 
-      ? (isSearchExpanded ? 245 : 205) 
-      : (isSearchExpanded ? 195 : 170);
+  double get maxExtent => isSearchExpanded ? 180 : 150;
 
   @override
-  double get minExtent => isSmall 
-      ? (isSearchExpanded ? 245 : 205) 
-      : (isSearchExpanded ? 195 : 170);
+  double get minExtent => isSearchExpanded ? 180 : 150;
 
   @override
   bool shouldRebuild(covariant DayByDayHeaderDelegate oldDelegate) {
     return oldDelegate.state != state || 
-           oldDelegate.isSmall != isSmall || 
            oldDelegate.isSearchExpanded != isSearchExpanded;
   }
 }
 
 // ── Date Strip ────────────────────────────────────────────────────────────────
 
-class _DateStrip extends StatelessWidget {
+class _DateStrip extends ConsumerStatefulWidget {
   final SchedulingState state;
-  final WidgetRef ref;
 
-  const _DateStrip({required this.state, required this.ref});
+  const _DateStrip({super.key, required this.state});
+
+  @override
+  ConsumerState<_DateStrip> createState() => _DateStripState();
+}
+
+class _DateStripState extends ConsumerState<_DateStrip> {
+  late ScrollController _scrollController;
+  final double _itemWidth = 60.0; // 52 width + 8 padding
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected(animate: false));
+  }
+
+  @override
+  void didUpdateWidget(_DateStrip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.state.selectedDate != widget.state.selectedDate) {
+      _scrollToSelected();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToSelected({bool animate = true}) {
+    if (!_scrollController.hasClients) return;
+
+    final today = DateUtils.dateOnly(DateTime.now());
+    final baseDate = today.subtract(const Duration(days: 30));
+    final index = widget.state.selectedDate.difference(baseDate).inDays;
+    if (index < 0) return;
+
+    final targetOffset = index * _itemWidth;
+
+    if (animate) {
+      _scrollController.animateTo(
+        targetOffset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      _scrollController.jumpTo(targetOffset);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final dates = List.generate(7, (i) {
-      final start = state.selectedDate.subtract(const Duration(days: 3));
-      return start.add(Duration(days: i));
-    });
+    final today = DateUtils.dateOnly(DateTime.now());
+    final baseDate = today.subtract(const Duration(days: 30));
+    
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final horizontalPadding = (constraints.maxWidth - 52) / 2;
+        
+        return SizedBox(
+          height: 65,
+          child: ListView.builder(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            physics: const BouncingScrollPhysics(),
+            itemCount: 730 + 30, // 2 years + 30 days past
+            itemBuilder: (context, index) {
+              final date = baseDate.add(Duration(days: index));
+              final isSelected = DateUtils.isSameDay(date, widget.state.selectedDate);
+              final isToday = DateUtils.isSameDay(date, today);
+              final isPast = date.isBefore(today);
 
-    return SizedBox(
-      height: 72,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: dates.map((date) {
-            final isSelected = DateUtils.isSameDay(date, state.selectedDate);
-            final isToday = DateUtils.isSameDay(date, DateTime.now());
-
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: GestureDetector(
-                onTap: () =>
-                    ref.read(schedulingControllerProvider.notifier).setDate(date),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 52,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.primaryColor : Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: isSelected
-                          ? AppTheme.primaryColor
-                          : isToday
-                              ? AppTheme.primaryColor.withOpacity(0.4)
-                              : AppTheme.borderColor,
-                      width: isSelected ? 0 : 1,
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: GestureDetector(
+                  onTap: isPast ? null : () => ref.read(schedulingControllerProvider.notifier).setDate(date),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 52,
+                    height: 65,
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppTheme.primaryColor : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppTheme.primaryColor
+                            : isToday
+                                ? AppTheme.primaryColor.withOpacity(0.4)
+                                : isPast
+                                    ? AppTheme.borderColor.withOpacity(0.3)
+                                    : AppTheme.borderColor,
+                        width: isSelected ? 0 : 1,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: AppTheme.primaryColor.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : null,
                     ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: AppTheme.primaryColor.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
+                    child: Opacity(
+                      opacity: isPast ? 0.4 : 1.0,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            DateFormat('E').format(date).toUpperCase(),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              color: isSelected
+                                  ? Colors.white.withOpacity(0.7)
+                                  : AppTheme.textSecondaryColor,
+                              letterSpacing: 0.5,
                             ),
-                          ]
-                        : null,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        DateFormat('E').format(date).toUpperCase(),
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
-                          color: isSelected
-                              ? Colors.white.withOpacity(0.7)
-                              : AppTheme.textSecondaryColor,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        date.day.toString(),
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: isSelected ? Colors.white : AppTheme.textColor,
-                        ),
-                      ),
-                      if (isToday && !isSelected)
-                        Container(
-                          margin: const EdgeInsets.only(top: 3),
-                          width: 5,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor,
-                            shape: BoxShape.circle,
                           ),
-                        ),
-                    ],
+                          const SizedBox(height: 4),
+                          Text(
+                            date.day.toString(),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: isSelected ? Colors.white : AppTheme.textColor,
+                            ),
+                          ),
+                          if (isToday && !isSelected)
+                            Container(
+                              margin: const EdgeInsets.only(top: 3),
+                              width: 5,
+                              height: 5,
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -408,29 +475,30 @@ class _DateStrip extends StatelessWidget {
 class _NavArrowButton extends StatelessWidget {
   final IconData icon;
   final String tooltip;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _NavArrowButton({
     required this.icon,
     required this.tooltip,
-    required this.onTap,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool isDisabled = onTap == null;
     return Tooltip(
-      message: tooltip,
+      message: isDisabled ? '' : tooltip,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: AppTheme.backgroundColor,
+            color: isDisabled ? Colors.transparent : AppTheme.backgroundColor,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppTheme.borderColor),
+            border: Border.all(color: isDisabled ? AppTheme.borderColor.withOpacity(0.3) : AppTheme.borderColor),
           ),
-          child: Icon(icon, size: 18, color: AppTheme.textSecondaryColor),
+          child: Icon(icon, size: 16, color: isDisabled ? AppTheme.textSecondaryColor.withOpacity(0.2) : AppTheme.textSecondaryColor),
         ),
       ),
     );

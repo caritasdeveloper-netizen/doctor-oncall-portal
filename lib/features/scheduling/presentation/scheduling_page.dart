@@ -38,81 +38,39 @@ class SchedulingPage extends ConsumerWidget {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-                      child: isSmall
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Schedule Management',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppTheme.textColor,
-                                    letterSpacing: -0.5,
-                                    height: 1.1,
-                                  ),
-                                ),
-                                const SizedBox(height: 1),
-                                Row(
-                                  children: [
-                                    Text(
-                                      viewIndex == 0 ? 'Daily Roster' : 'Bulk Configuration',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppTheme.primaryColor,
-                                        letterSpacing: 0.5,
-                                        height: 1.0,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    _ViewToggleButton(
-                                      index: viewIndex,
-                                      onTap: () {
-                                        ref.read(schedulingViewIndexProvider.notifier).setIndex(viewIndex == 0 ? 1 : 0);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            )
-                          : Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Schedule Management',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppTheme.textColor,
-                                        letterSpacing: -0.5,
-                                        height: 1.1,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 1),
-                                    Text(
-                                      viewIndex == 0 ? 'Daily Roster' : 'Bulk Configuration',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppTheme.primaryColor,
-                                        letterSpacing: 0.5,
-                                        height: 1.0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const Spacer(),
-                                _ViewToggleButton(
-                                  index: viewIndex,
-                                  onTap: () {
-                                    ref.read(schedulingViewIndexProvider.notifier).setIndex(viewIndex == 0 ? 1 : 0);
-                                  },
-                                ),
-                              ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            viewIndex == 0 ? 'Daily Roster' : 'Bulk Assignment',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: isSmall ? 20 : 22,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.textColor,
+                              letterSpacing: -0.5,
+                              height: 1.1,
                             ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Schedule Management',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.primaryColor,
+                              letterSpacing: 0.5,
+                              height: 1.0,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          _ViewToggleButton(
+                            index: viewIndex,
+                            onTap: () {
+                              ref.read(schedulingViewIndexProvider.notifier).setIndex(viewIndex == 0 ? 1 : 0);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -126,7 +84,6 @@ class SchedulingPage extends ConsumerWidget {
                         delegate: DayByDayHeaderDelegate(
                           state: state,
                           ref: ref,
-                          isSmall: isSmall,
                           isSearchExpanded: isSearchExpanded,
                         ),
                       ),

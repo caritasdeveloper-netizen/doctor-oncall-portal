@@ -408,12 +408,15 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                     child: const Icon(Icons.edit_document, color: AppTheme.primaryColor, size: 24),
                   ),
                   const SizedBox(width: 16),
-                  Text(
-                    'Edit Department',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 24,
-                      color: AppTheme.textColor,
+                  Expanded(
+                    child: Text(
+                      'Edit Department',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 24,
+                        color: AppTheme.textColor,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
@@ -459,7 +462,7 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
@@ -470,11 +473,11 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   FilledButton(
                     onPressed: () => Navigator.pop(context, editController.text),
                     style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       backgroundColor: AppTheme.primaryColor,
                       elevation: 0,
@@ -483,7 +486,7 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                       'Save Changes',
                       style: GoogleFonts.plusJakartaSans(
                         fontWeight: FontWeight.w700,
-                        fontSize: 15,
+                        fontSize: 14,
                       ),
                     ),
                   ),
@@ -591,16 +594,13 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                 ),
               ),
               const SizedBox(height: 32),
-              Wrap(
-                alignment: WrapAlignment.end,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 12,
-                runSpacing: 12,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context, false),
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
@@ -611,16 +611,17 @@ class _DepartmentsListPageState extends ConsumerState<DepartmentsListPage> {
                       ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   FilledButton(
                     onPressed: () => Navigator.pop(context, true),
                     style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       backgroundColor: Colors.red.shade600,
                       elevation: 0,
                     ),
                     child: Text(
-                      'Delete Department',
+                      'Delete',
                       style: GoogleFonts.plusJakartaSans(
                         fontWeight: FontWeight.w700,
                         fontSize: 14,

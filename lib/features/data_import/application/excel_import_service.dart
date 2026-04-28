@@ -5,12 +5,12 @@ import 'package:oncall_doctor/features/doctors/domain/doctor.dart';
 import 'package:oncall_doctor/features/departments/domain/department.dart';
 
 class ExcelImportService {
-  static const List<String> requiredColumns = [
-    'Doctor Name',
-    'Employee ID',
-    'Phone Number',
-    'Department'
-  ];
+  static const Map<String, List<String>> headerAliases = {
+    'Doctor Name': ['doctor name', 'name', 'dr name', 'doctor'],
+    'Employee ID': ['employee id', 'emp id', 'id', 'employeeid', 'empid', 'staff id'],
+    'Phone Number': ['phone number', 'phone', 'contact', 'mobile', 'mobile number', 'phone no'],
+    'Department': ['department', 'dept'],
+  };
 
   /// Parses Excel bytes and returns a list of rows with validation results.
   List<ExcelImportRow> parseExcel(Uint8List bytes, List<Doctor> existingDoctors) {
@@ -20,10 +20,29 @@ class ExcelImportService {
       throw Exception('The Excel file is empty.');
     }
 
-    // 1. Column Validation
-    final headers = sheet.rows.first.map((cell) => cell?.value?.toString().trim() ?? '').toList();
+    // 1. Column Validation & Mapping
+    final rawHeaders = sheet.rows.first.map((cell) => cell?.value?.toString().trim().toLowerCase() ?? '').toList();
     
-    _validateHeaders(headers);
+    final Map<String, int> columnIndices = {};
+    final List<String> missingColumns = [];
+
+    headerAliases.forEach((requiredCol, aliases) {
+      int index = -1;
+      for (var alias in aliases) {
+        index = rawHeaders.indexOf(alias.toLowerCase());
+        if (index != -1) break;
+      }
+      
+      if (index != -1) {
+        columnIndices[requiredCol] = index;
+      } else {
+        missingColumns.add(requiredCol);
+      }
+    });
+
+    if (missingColumns.isNotEmpty) {
+      throw Exception('Missing required columns: ${missingColumns.join(", ")}. Please ensure your Excel file has these headers.');
+    }
 
     final List<ExcelImportRow> rows = [];
     final Set<String> seenEmployeeIds = {};
@@ -33,10 +52,10 @@ class ExcelImportService {
       final rowData = sheet.rows[i];
       if (rowData.isEmpty || rowData.every((cell) => cell == null || cell.value == null)) continue;
 
-      final doctorName = rowData[headers.indexOf('Doctor Name')]?.value?.toString().trim() ?? '';
-      final employeeId = rowData[headers.indexOf('Employee ID')]?.value?.toString().trim() ?? '';
-      final phoneNumber = rowData[headers.indexOf('Phone Number')]?.value?.toString().trim() ?? '';
-      final department = rowData[headers.indexOf('Department')]?.value?.toString().trim() ?? '';
+      final doctorName = _getCellValue(rowData, columnIndices['Doctor Name']!);
+      final employeeId = _getCellValue(rowData, columnIndices['Employee ID']!);
+      final phoneNumber = _getCellValue(rowData, columnIndices['Phone Number']!);
+      final department = _getCellValue(rowData, columnIndices['Department']!);
 
       final List<String> errors = [];
 
@@ -73,18 +92,17 @@ class ExcelImportService {
     return rows;
   }
 
-  void _validateHeaders(List<String> headers) {
-    final missing = requiredColumns.where((col) => !headers.contains(col)).toList();
-    final extra = headers.where((col) => !requiredColumns.contains(col) && col.isNotEmpty).toList();
-
-    if (missing.isNotEmpty || extra.isNotEmpty) {
-      String message = '';
-      if (missing.isNotEmpty) message += 'Missing columns: ${missing.join(", ")}. ';
-      if (extra.isNotEmpty) message += 'Extra columns: ${extra.join(", ")}. ';
-      message += 'Column names must match exactly: ${requiredColumns.join(", ")}';
-      throw Exception(message);
-    }
+  String _getCellValue(List<Data?> row, int index) {
+    if (index >= row.length) return '';
+    return row[index]?.value?.toString().trim() ?? '';
   }
+
+  static const List<String> requiredColumns = [
+    'Doctor Name',
+    'Employee ID',
+    'Phone Number',
+    'Department'
+  ];
 
   /// Generates the Excel template bytes.
   Uint8List generateTemplate() {

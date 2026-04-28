@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:oncall_doctor/core/theme/app_theme.dart';
 import 'package:oncall_doctor/features/data_import/application/excel_import_provider.dart';
 import 'package:oncall_doctor/features/data_import/domain/excel_import_row.dart';
 
@@ -19,14 +20,18 @@ class DataPreviewTable extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Divider(height: 48),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Wrap(
+          spacing: 16,
+          runSpacing: 12,
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            const Text(
+            Text(
               'Data Preview',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: AppTheme.textColor,
               ),
             ),
             _buildSummary(rows),
@@ -43,7 +48,10 @@ class DataPreviewTable extends ConsumerWidget {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-                headingRowColor: WidgetStateProperty.all(Colors.grey[50]),
+                headingTextStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textColor,
+                ),
                 columns: const [
                   DataColumn(label: Text('Status')),
                   DataColumn(label: Text('Doctor Name')),
@@ -128,7 +136,7 @@ class DataPreviewTable extends ConsumerWidget {
 
   TextStyle _cellStyle(bool isValid) {
     return TextStyle(
-      color: isValid ? Colors.black87 : Colors.red[900],
+      color: isValid ? AppTheme.textColor : Colors.red[900],
       fontSize: 13,
     );
   }

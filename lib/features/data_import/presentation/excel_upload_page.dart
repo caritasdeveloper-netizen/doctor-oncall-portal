@@ -116,6 +116,37 @@ class ExcelUploadPage extends ConsumerWidget {
               padding: EdgeInsets.symmetric(vertical: 32),
               child: Center(child: CircularProgressIndicator()),
             ),
+          if (state.errorMessage != null)
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 24),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.red[100]!),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      state.errorMessage!,
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.red[900],
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: notifier.clearError,
+                    color: Colors.red[900],
+                  ),
+                ],
+              ),
+            ),
           if (state.rows.isNotEmpty) ...[
             const DataPreviewTable(),
             const SizedBox(height: 32),
@@ -151,6 +182,7 @@ class ExcelUploadPage extends ConsumerWidget {
                 style: GoogleFonts.plusJakartaSans(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
+                  color: AppTheme.textColor,
                 ),
               ),
               const SizedBox(height: 4),

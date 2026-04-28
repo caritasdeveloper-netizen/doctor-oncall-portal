@@ -22,6 +22,7 @@ class PublicOnCallPage extends ConsumerStatefulWidget {
 class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
   DateTime _selectedDate = DateUtils.dateOnly(DateTime.now());
   String _searchQuery = '';
+  bool _isSearchVisible = false;
   late final ScrollController _dateScrollController;
   late final DateTime _startDate;
 
@@ -29,7 +30,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
   void initState() {
     super.initState();
     _dateScrollController = ScrollController();
-    _startDate = _selectedDate;
+    _startDate = DateUtils.dateOnly(DateTime.now()).subtract(const Duration(days: 30));
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelectedDate(animate: false));
   }
 
@@ -40,23 +41,30 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
   }
 
   void _scrollToSelectedDate({bool animate = true}) {
-    if (!_dateScrollController.hasClients) return;
-    
-    final index = _selectedDate.difference(_startDate).inDays;
-    const itemWidth = 68.0; // 60 width + 4 padding each side
-    final viewportWidth = _dateScrollController.position.viewportDimension;
-    
-    final targetOffset = (index * itemWidth) + (itemWidth / 2) - (viewportWidth / 2);
-    
-    if (animate) {
-      _dateScrollController.animateTo(
-        targetOffset,
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeOutBack,
-      );
-    } else {
-      _dateScrollController.jumpTo(targetOffset);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_dateScrollController.hasClients) return;
+      
+      final index = _selectedDate.difference(_startDate).inDays;
+      const itemWidth = 60.0;
+      final viewportWidth = _dateScrollController.position.viewportDimension;
+      
+      // Calculate offset to center the selected item
+      final targetOffset = (index * itemWidth) - (viewportWidth / 2) + (itemWidth / 2);
+      
+      // Clamp the offset to valid scroll range
+      final maxScroll = _dateScrollController.position.maxScrollExtent;
+      final clampedOffset = targetOffset.clamp(0.0, maxScroll);
+      
+      if (animate) {
+        _dateScrollController.animateTo(
+          clampedOffset,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOutCubic,
+        );
+      } else {
+        _dateScrollController.jumpTo(clampedOffset);
+      }
+    });
   }
 
   void _updateSelectedDate(DateTime date) {
@@ -117,13 +125,17 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
         slivers: [
           _buildAppBar(),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-              child: _buildFiltersCard(departmentsAsync),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _StickyFiltersDelegate(
+              height: 175 + (_isSearchVisible ? 90 : 0),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+                child: _buildFiltersCard(departmentsAsync),
+              ),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 28)),
+          const SliverToBoxAdapter(child: SizedBox(height: 12)),
           schedulesAsync.when(
             data: (schedules) => doctorsAsync.when(
               data: (doctors) => departmentsAsync.when(
@@ -146,8 +158,8 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
 
   Widget _buildAppBar() {
     return SliverAppBar(
-      floating: true,
-      pinned: true,
+      floating: false,
+      pinned: false,
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
@@ -230,7 +242,7 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
     final bool isMobile = screenWidth < 768;
 
     return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -239,25 +251,24 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
             BoxShadow(color: Color(0x0F000000), blurRadius: 20, offset: Offset(0, 8)),
           ],
         ),
-        child: isMobile 
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSearchField(),
-                const SizedBox(height: 24),
-                _buildDateSelector(isMobile: true),
-              ],
-            )
-          : Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: _buildSearchField(),
-                ),
-                Container(width: 1, height: 72, margin: const EdgeInsets.symmetric(horizontal: 24), color: const Color(0xFFE8ECF0)),
-                Expanded(flex: 3, child: _buildDateSelector(isMobile: false)),
-              ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return SizeTransition(sizeFactor: animation, child: child);
+              },
+              child: _isSearchVisible 
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: _buildSearchField(),
+                  )
+                : const SizedBox.shrink(),
             ),
+            _buildDateSelector(isMobile: isMobile),
+          ],
+        ),
     );
   }
 
@@ -281,6 +292,16 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
               hintText: 'Type ward or specialty...',
               hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFFBBC1CC), fontSize: 14, fontWeight: FontWeight.w500),
               prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF8E9199), size: 20),
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    _searchQuery = '';
+                    _isSearchVisible = false;
+                  });
+                },
+                icon: const Icon(Icons.close_rounded, size: 18),
+                color: const Color(0xFF8E9199),
+              ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
             ),
@@ -291,74 +312,172 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
   }
 
   Widget _buildDateSelector({bool isMobile = false}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isCompact = screenWidth < 400;
+    final isVeryCompact = screenWidth < 350;
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Flexible(
-              child: Text(
-                DateFormat('MMMM yyyy').format(_selectedDate),
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF8E9199),
-                  letterSpacing: 0.8,
+            OutlinedButton.icon(
+              onPressed: () => setState(() => _isSearchVisible = !_isSearchVisible),
+              icon: Icon(
+                Icons.search_rounded,
+                size: 18,
+                color: _isSearchVisible ? const Color(0xFF0056D2) : const Color(0xFF8E9199),
+              ),
+              label: isVeryCompact 
+                ? const SizedBox.shrink() 
+                : Text(
+                    'Search',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: _isSearchVisible ? const Color(0xFF0056D2) : const Color(0xFF8E9199),
+                    ),
+                  ),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(
+                  color: _isSearchVisible ? const Color(0xFF0056D2) : const Color(0xFFE8ECF0),
                 ),
+                padding: EdgeInsets.symmetric(horizontal: isVeryCompact ? 8 : 12, vertical: 0),
+                minimumSize: const Size(0, 36),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
             const SizedBox(width: 8),
-            TextButton.icon(
-              onPressed: _showCalendarPicker,
-              icon: const Icon(Icons.calendar_month_rounded, size: 14),
-              label: const Text('Pick'),
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF0056D2),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                textStyle: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700),
+            Builder(
+              builder: (context) {
+                final isDateToday = DateUtils.isSameDay(_selectedDate, DateTime.now());
+                final label = isVeryCompact ? 'T' : 'Today';
+                
+                if (isDateToday) {
+                  return ElevatedButton(
+                    onPressed: () => _updateSelectedDate(DateTime.now()),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0056D2),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: EdgeInsets.symmetric(horizontal: isVeryCompact ? 10 : 12),
+                      minimumSize: const Size(0, 36),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      textStyle: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    child: Text(label),
+                  );
+                } else {
+                  return OutlinedButton(
+                    onPressed: () => _updateSelectedDate(DateTime.now()),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF0056D2),
+                      side: const BorderSide(color: Color(0xFFE8ECF0)),
+                      padding: EdgeInsets.symmetric(horizontal: isVeryCompact ? 10 : 12),
+                      minimumSize: const Size(0, 36),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      textStyle: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    child: Text(label),
+                  );
+                }
+              },
+            ),
+            const Spacer(),
+            InkWell(
+              onTap: _showCalendarPicker,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!isCompact)
+                      Flexible(
+                        child: Text(
+                          DateFormat('MMMM yyyy').format(_selectedDate),
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF8E9199),
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ),
+                    if (!isCompact) const SizedBox(width: 8),
+                    const Icon(Icons.calendar_month_rounded, size: 14, color: Color(0xFF0056D2)),
+                    const SizedBox(width: 4),
+                    Text(
+                      isCompact ? DateFormat('MMM yy').format(_selectedDate) : 'Pick',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF0056D2),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Row(
           children: [
-            _buildDateNavButton(Icons.chevron_left_rounded, () {
-              final newDate = _selectedDate.subtract(const Duration(days: 1));
-              if (newDate.isBefore(_startDate)) return;
-              _updateSelectedDate(newDate);
-            }),
+            _buildDateNavButton(
+              Icons.chevron_left_rounded, 
+              () {
+                final newDate = _selectedDate.subtract(const Duration(days: 1));
+                if (newDate.isBefore(DateUtils.dateOnly(DateTime.now()))) return;
+                _updateSelectedDate(newDate);
+              },
+              isDisabled: DateUtils.isSameDay(_selectedDate, DateTime.now()),
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: SizedBox(
-                height: 80,
+                height: 70,
                 child: ListView.builder(
                   controller: _dateScrollController,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                  itemCount: 730,
-                  itemExtent: 68,
+                  itemCount: 730 + 30, // 2 years + 30 days
+                  itemExtent: 60,
                   itemBuilder: (context, index) {
                     final date = _startDate.add(Duration(days: index));
                     final isSelected = DateUtils.isSameDay(date, _selectedDate);
+                    final isToday = DateUtils.isSameDay(date, DateTime.now());
+                    final isPast = date.isBefore(DateUtils.dateOnly(DateTime.now()));
+
                     return RepaintBoundary(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: GestureDetector(
-                          onTap: () => _updateSelectedDate(date),
+                          onTap: isPast ? null : () => _updateSelectedDate(date),
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             curve: Curves.easeOut,
-                            width: 60,
+                            width: 52,
                             decoration: BoxDecoration(
                               color: isSelected ? const Color(0xFF0056D2) : Colors.white,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: isSelected ? const Color(0xFF0056D2) : const Color(0xFFE8ECF0),
+                                color: isSelected 
+                                    ? const Color(0xFF0056D2) 
+                                    : isToday
+                                        ? const Color(0xFF0056D2).withOpacity(0.4)
+                                        : isPast
+                                            ? const Color(0xFFE8ECF0).withOpacity(0.3)
+                                            : const Color(0xFFE8ECF0),
                                 width: 1.5,
                               ),
                               boxShadow: isSelected
@@ -371,29 +490,32 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
                                     ]
                                   : const [],
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  DateFormat('E').format(date).toUpperCase(),
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: isSelected ? const Color(0xE6FFFFFF) : const Color(0xFF8E9199),
-                                    letterSpacing: 0.5,
+                            child: Opacity(
+                              opacity: isPast ? 0.4 : 1.0,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    DateFormat('E').format(date).toUpperCase(),
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                      color: isSelected ? const Color(0xE6FFFFFF) : const Color(0xFF8E9199),
+                                      letterSpacing: 0.5,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  date.day.toString(),
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: isSelected ? Colors.white : const Color(0xFF1A1C1E),
-                                    height: 1,
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    date.day.toString(),
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: isSelected ? Colors.white : const Color(0xFF1A1C1E),
+                                      height: 1,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -411,14 +533,21 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
     );
   }
 
-  Widget _buildDateNavButton(IconData icon, VoidCallback onTap) {
+  Widget _buildDateNavButton(IconData icon, VoidCallback onTap, {bool isDisabled = false}) {
     return InkWell(
-      onTap: onTap,
+      onTap: isDisabled ? null : onTap,
       borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.all(7),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFFE8ECF0)), color: const Color(0xFFF5F7FA)),
-        child: Icon(icon, color: const Color(0xFF1A1C1E), size: 18),
+      child: Opacity(
+        opacity: isDisabled ? 0.4 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFE8ECF0)),
+            color: const Color(0xFFF5F7FA),
+          ),
+          child: Icon(icon, color: const Color(0xFF1A1C1E), size: 16),
+        ),
       ),
     );
   }
@@ -663,4 +792,30 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
   }
 
 
+}
+
+class _StickyFiltersDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double height;
+
+  _StickyFiltersDelegate({required this.child, required this.height});
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: Colors.white,
+      child: child,
+    );
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(covariant _StickyFiltersDelegate oldDelegate) {
+    return oldDelegate.height != height || oldDelegate.child != child;
+  }
 }

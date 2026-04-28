@@ -26,13 +26,6 @@ class BulkAssignmentView extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Section
-            _buildSectionHeader(
-              'Bulk Assignment',
-              'Configure and apply schedules across multiple dates for a single department.',
-              Icons.auto_awesome_rounded,
-            ),
-            const SizedBox(height: 32),
 
             // Step 1: Department Selection
             _buildStepIndicator('01', 'Target Department'),
@@ -1503,7 +1496,7 @@ class _CustomRangePickerState extends State<_CustomRangePicker> {
                         child: _buildPickerField(
                           context: context,
                           label: 'From Date',
-                          icon: Icons.flight_takeoff_rounded,
+                          icon: Icons.calendar_month_rounded,
                           date: _fromDate,
                           isFrom: true,
                         ),
@@ -1522,7 +1515,7 @@ class _CustomRangePickerState extends State<_CustomRangePicker> {
                         child: _buildPickerField(
                           context: context,
                           label: 'To Date',
-                          icon: Icons.flight_land_rounded,
+                          icon:  Icons.calendar_month_rounded,
                           date: _toDate,
                           isFrom: false,
                         ),

@@ -97,7 +97,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   Text(
                     AppConfig.appName,
                     style: GoogleFonts.outfit(
-                      fontSize: 32,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.onSurface,
                     ),

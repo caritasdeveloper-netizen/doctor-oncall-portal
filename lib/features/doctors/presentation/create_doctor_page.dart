@@ -25,7 +25,7 @@ class CreateDoctorPage extends ConsumerWidget {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 32, vertical: 16),
@@ -387,125 +387,44 @@ class CreateDoctorPage extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 10),
-        SearchAnchor(
-          viewBackgroundColor: Colors.white,
-          viewSurfaceTintColor: Colors.white,
-          builder: (context, controller) {
-            return TextField(
-              controller: controller,
-              readOnly: true,
-              onTap: () => controller.openView(),
-              style: GoogleFonts.plusJakartaSans(
-                fontWeight: FontWeight.w500,
-                fontSize: 15,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Search and select departments...',
-                prefixIcon: const Icon(Icons.business_rounded, color: AppTheme.textSecondaryColor, size: 20),
-                suffixIcon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.textSecondaryColor),
-                filled: true,
-                fillColor: AppTheme.backgroundColor.withOpacity(0.5),
-                enabledBorder: OutlineInputBorder(
+        ListenableBuilder(
+          listenable: selectedDepts,
+          builder: (context, _) {
+            final validSelectedCount = selectedDepts.value.where((id) => 
+              departments.any((d) => d.id == id)
+            ).length;
+
+            return InkWell(
+              onTap: () => _showDepartmentSelectionDialog(context, departments, selectedDepts),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppTheme.backgroundColor.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppTheme.borderColor),
+                  border: Border.all(color: AppTheme.borderColor),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
+                child: Row(
+                  children: [
+                    const Icon(Icons.business_rounded, color: AppTheme.textSecondaryColor, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        validSelectedCount == 0 
+                          ? 'Select departments...' 
+                          : '$validSelectedCount department(s) selected',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          color: validSelectedCount == 0 ? AppTheme.textSecondaryColor : AppTheme.textColor,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.keyboard_arrow_right_rounded, color: AppTheme.textSecondaryColor),
+                  ],
                 ),
               ),
             );
-          },
-          suggestionsBuilder: (context, controller) {
-            final query = controller.text.toLowerCase();
-            final filtered = departments.where((d) => d.name.toLowerCase().contains(query)).toList();
-
-            if (filtered.isEmpty) {
-              return [
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Center(
-                    child: Text(
-                      'No departments found matching "$query"',
-                      style: GoogleFonts.plusJakartaSans(color: AppTheme.textSecondaryColor),
-                    ),
-                  ),
-                )
-              ];
-            }
-
-            return [
-              ListenableBuilder(
-                listenable: selectedDepts,
-                builder: (context, _) {
-                  final selectedIds = selectedDepts.value;
-                  return Column(
-                    children: filtered.map((dept) {
-                      final isSelected = selectedIds.contains(dept.id);
-                      return ListTile(
-                        title: Text(
-                          dept.name,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                            color: isSelected ? AppTheme.primaryColor : AppTheme.textColor,
-                          ),
-                        ),
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppTheme.primaryColor.withOpacity(0.1) : AppTheme.backgroundColor,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            isSelected ? Icons.check_circle_rounded : Icons.business_rounded,
-                            color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondaryColor,
-                            size: 20,
-                          ),
-                        ),
-                        trailing: Checkbox(
-                          value: isSelected,
-                          activeColor: AppTheme.primaryColor,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                          onChanged: (val) {
-                            final newList = List<String>.from(selectedIds);
-                            if (val == true) {
-                              newList.add(dept.id);
-                            } else {
-                              newList.remove(dept.id);
-                            }
-                            selectedDepts.value = newList;
-                          },
-                        ),
-                        onTap: () {
-                          final newList = List<String>.from(selectedIds);
-                          if (isSelected) {
-                            newList.remove(dept.id);
-                          } else {
-                            newList.add(dept.id);
-                          }
-                          selectedDepts.value = newList;
-                        },
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () => controller.closeView(null),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: const Text('Done Selecting'),
-                  ),
-                ),
-              ),
-            ];
           },
         ),
         ListenableBuilder(
@@ -521,7 +440,9 @@ class CreateDoctorPage extends ConsumerWidget {
                   spacing: 8,
                   runSpacing: 8,
                   children: selectedIds.map((id) {
-                    final dept = departments.firstWhere((d) => d.id == id);
+                    final deptMatch = departments.where((d) => d.id == id).toList();
+                    if (deptMatch.isEmpty) return const SizedBox.shrink();
+                    final dept = deptMatch.first;
                     return Chip(
                       label: Text(dept.name),
                       onDeleted: () {
@@ -549,6 +470,22 @@ class CreateDoctorPage extends ConsumerWidget {
     );
   }
 
+  void _showDepartmentSelectionDialog(
+    BuildContext context, 
+    List<dynamic> departments, 
+    ValueNotifier<List<String>> selectedDepts,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return _DepartmentSelectionDialog(
+          departments: departments,
+          selectedDepts: selectedDepts,
+        );
+      },
+    );
+  }
+
   void _showSnackBar(BuildContext context, String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -571,6 +508,142 @@ class CreateDoctorPage extends ConsumerWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(24),
         duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+}
+
+class _DepartmentSelectionDialog extends StatefulWidget {
+  final List<dynamic> departments;
+  final ValueNotifier<List<String>> selectedDepts;
+
+  const _DepartmentSelectionDialog({
+    required this.departments,
+    required this.selectedDepts,
+  });
+
+  @override
+  State<_DepartmentSelectionDialog> createState() => _DepartmentSelectionDialogState();
+}
+
+class _DepartmentSelectionDialogState extends State<_DepartmentSelectionDialog> {
+  String _searchQuery = '';
+  late List<String> _tempSelected;
+
+  @override
+  void initState() {
+    super.initState();
+    _tempSelected = List<String>.from(widget.selectedDepts.value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = widget.departments
+        .where((d) => d.name.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final dialogWidth = screenWidth < 600 ? screenWidth * 0.9 : 500.0;
+
+    return Dialog(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: Container(
+        width: dialogWidth,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Select Departments',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close_rounded),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              onChanged: (v) => setState(() => _searchQuery = v),
+              decoration: InputDecoration(
+                hintText: 'Search departments...',
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: filtered.length,
+                itemBuilder: (context, index) {
+                  final dept = filtered[index];
+                  final isSelected = _tempSelected.contains(dept.id);
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          _tempSelected.remove(dept.id);
+                        } else {
+                          _tempSelected.add(dept.id);
+                        }
+                      });
+                    },
+                    leading: Checkbox(
+                      value: isSelected,
+                      activeColor: AppTheme.primaryColor,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == true) {
+                            _tempSelected.add(dept.id);
+                          } else {
+                            _tempSelected.remove(dept.id);
+                          }
+                        });
+                      },
+                    ),
+                    title: Text(
+                      dept.name,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        color: isSelected ? AppTheme.primaryColor : AppTheme.textColor,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () {
+                  widget.selectedDepts.value = _tempSelected;
+                  Navigator.pop(context);
+                },
+                child: const Text('Confirm Selection'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
