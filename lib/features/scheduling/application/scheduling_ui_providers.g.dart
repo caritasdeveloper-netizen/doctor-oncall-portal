@@ -313,3 +313,66 @@ abstract class _$SchedulingViewIndex extends $Notifier<int> {
     element.handleCreate(ref, build);
   }
 }
+
+/// Tracks whether the schedule data for the currently selected date is loading.
+/// Set to true when date changes, false when Firestore data arrives.
+
+@ProviderFor(ScheduleLoadingState)
+final scheduleLoadingStateProvider = ScheduleLoadingStateProvider._();
+
+/// Tracks whether the schedule data for the currently selected date is loading.
+/// Set to true when date changes, false when Firestore data arrives.
+final class ScheduleLoadingStateProvider
+    extends $NotifierProvider<ScheduleLoadingState, bool> {
+  /// Tracks whether the schedule data for the currently selected date is loading.
+  /// Set to true when date changes, false when Firestore data arrives.
+  ScheduleLoadingStateProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'scheduleLoadingStateProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$scheduleLoadingStateHash();
+
+  @$internal
+  @override
+  ScheduleLoadingState create() => ScheduleLoadingState();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(bool value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<bool>(value),
+    );
+  }
+}
+
+String _$scheduleLoadingStateHash() =>
+    r'90e839ebb57759d725e5fc1a26d20ea83d3796bd';
+
+/// Tracks whether the schedule data for the currently selected date is loading.
+/// Set to true when date changes, false when Firestore data arrives.
+
+abstract class _$ScheduleLoadingState extends $Notifier<bool> {
+  bool build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<bool, bool>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<bool, bool>,
+              bool,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}

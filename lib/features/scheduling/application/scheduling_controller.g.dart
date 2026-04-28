@@ -119,7 +119,7 @@ final class SchedulingControllerProvider
 }
 
 String _$schedulingControllerHash() =>
-    r'c8387395a9a07965d1d25450f0205e2fbc50dc7c';
+    r'68480bf97ad89f5c107ed965a527d7db6cee220b';
 
 abstract class _$SchedulingController extends $Notifier<SchedulingState> {
   SchedulingState build();

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:oncall_doctor/core/theme/app_theme.dart';
+import 'package:oncall_doctor/core/widgets/shimmer_loading.dart';
 import 'package:oncall_doctor/features/departments/application/department_provider.dart';
 import 'package:oncall_doctor/features/doctors/application/doctor_provider.dart';
 import 'package:oncall_doctor/features/scheduling/application/scheduling_controller.dart';
@@ -136,19 +137,24 @@ class _PublicOnCallPageState extends ConsumerState<PublicOnCallPage> {
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 12)),
-          schedulesAsync.when(
-            data: (schedules) => doctorsAsync.when(
-              data: (doctors) => departmentsAsync.when(
-                data: (departments) => _buildScheduleList(schedules, doctors, departments),
-                loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+
+          // Show shimmer while the Firestore stream hasn't emitted for this date yet
+          if (schedulesAsync.isLoading)
+            const ShimmerPublicDeptList(count: 5)
+          else
+            schedulesAsync.when(
+              data: (schedules) => doctorsAsync.when(
+                data: (doctors) => departmentsAsync.when(
+                  data: (departments) => _buildScheduleList(schedules, doctors, departments),
+                  loading: () => const ShimmerPublicDeptList(count: 5),
+                  error: (e, s) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
+                ),
+                loading: () => const ShimmerPublicDeptList(count: 5),
                 error: (e, s) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
               ),
-              loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+              loading: () => const ShimmerPublicDeptList(count: 5),
               error: (e, s) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
             ),
-            loading: () => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
-            error: (e, s) => SliverFillRemaining(child: Center(child: Text('Error: $e'))),
-          ),
 
           const SliverPadding(padding: EdgeInsets.only(bottom: 40)),
         ],

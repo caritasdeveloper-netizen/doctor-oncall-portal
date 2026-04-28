@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:oncall_doctor/core/theme/app_theme.dart';
+import 'package:oncall_doctor/core/widgets/shimmer_loading.dart';
 import 'package:oncall_doctor/features/departments/application/department_provider.dart';
 import 'package:oncall_doctor/features/departments/domain/department.dart';
 import 'package:oncall_doctor/features/doctors/application/doctor_provider.dart';
@@ -21,9 +22,13 @@ class DayByDayView extends ConsumerWidget {
     final state = ref.watch(schedulingControllerProvider);
     final departmentsAsync = ref.watch(departmentsProvider);
     final doctorsAsync = ref.watch(doctorsProvider);
+    // Derive loading from the actual stream — true while Firestore hasn't
+    // delivered the first event for the selected date yet.
+    final schedulesAsync = ref.watch(dailySchedulesProvider(state.selectedDate));
+    final isLoadingSchedule = schedulesAsync.isLoading;
 
     if (onlyList) {
-      return _buildDepartmentList(context, departmentsAsync, state, doctorsAsync);
+      return _buildDepartmentList(context, departmentsAsync, state, doctorsAsync, isLoadingSchedule);
     }
 
     return Column(
@@ -49,61 +54,102 @@ class DayByDayView extends ConsumerWidget {
 
         const SizedBox(height: 20),
 
-        // Department list
+        // Department list (shimmer while loading)
         Expanded(
-          child: _buildDepartmentList(context, departmentsAsync, state, doctorsAsync),
+          child: _buildDepartmentList(context, departmentsAsync, state, doctorsAsync, isLoadingSchedule),
         ),
       ],
     );
   }
 
-  Widget _buildDepartmentList(BuildContext context, AsyncValue<List<Department>> departmentsAsync, SchedulingState state, AsyncValue<List<Doctor>> doctorsAsync) {
-    return departmentsAsync.when(
-      data: (departments) {
-        final filtered = departments
-            .where(
-              (d) => d.name
-                  .toLowerCase()
-                  .contains(state.searchQuery.toLowerCase()),
-            )
-            .toList();
+  Widget _buildDepartmentList(
+    BuildContext context,
+    AsyncValue<List<Department>> departmentsAsync,
+    SchedulingState state,
+    AsyncValue<List<Doctor>> doctorsAsync,
+    bool isLoadingSchedule,
+  ) {
+    // Show shimmer while schedule data is loading for the selected date.
+    // IMPORTANT: when useOverlapInjector is true (NestedScrollView context),
+    // the SliverOverlapInjector must still be emitted to avoid the
+    // "layoutExtent exceeds paintExtent" SliverGeometry error.
+    Widget contentSliver;
 
-        if (filtered.isEmpty) {
-          return _buildEmptyState();
-        }
+    if (isLoadingSchedule) {
+      contentSliver = SliverPadding(
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (index.isOdd) return const SizedBox(height: 12);
+              return const ShimmerDepartmentAccordion();
+            },
+            childCount: 11,
+          ),
+        ),
+      );
+    } else {
+      contentSliver = departmentsAsync.when(
+        data: (departments) {
+          final filtered = departments
+              .where((d) => d.name.toLowerCase().contains(state.searchQuery.toLowerCase()))
+              .toList();
 
-        return CustomScrollView(
-          slivers: [
-            if (useOverlapInjector)
-              SliverOverlapInjector(
-                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-              ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    if (index.isOdd) return const SizedBox(height: 12);
-                    final itemIndex = index ~/ 2;
-                    final dept = filtered[itemIndex];
-                    final draft = state.draftSchedules[dept.id];
-                    return DepartmentAccordionCard(
-                      department: dept,
-                      draft: draft,
-                      doctorsAsync: doctorsAsync,
-                    );
-                  },
-                  childCount: filtered.length > 0 ? filtered.length * 2 - 1 : 0,
-                ),
+          if (filtered.isEmpty) {
+            return SliverFillRemaining(
+              hasScrollBody: false,
+              child: _buildEmptyState(),
+            );
+          }
+
+          return SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  if (index.isOdd) return const SizedBox(height: 12);
+                  final itemIndex = index ~/ 2;
+                  final dept = filtered[itemIndex];
+                  final draft = state.draftSchedules[dept.id];
+                  return DepartmentAccordionCard(
+                    department: dept,
+                    draft: draft,
+                    doctorsAsync: doctorsAsync,
+                  );
+                },
+                childCount: filtered.length > 0 ? filtered.length * 2 - 1 : 0,
               ),
             ),
-          ],
-        );
-      },
-      loading: () => const Center(
-        child: CircularProgressIndicator(color: AppTheme.primaryColor),
-      ),
-      error: (e, s) => Center(child: Text('Error: $e')),
+          );
+        },
+        loading: () => SliverPadding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index.isOdd) return const SizedBox(height: 12);
+                return const ShimmerDepartmentAccordion();
+              },
+              childCount: 11,
+            ),
+          ),
+        ),
+        error: (e, s) => SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(child: Text('Error: $e')),
+        ),
+      );
+    }
+
+    return CustomScrollView(
+      physics: isLoadingSchedule || departmentsAsync.isLoading ? const NeverScrollableScrollPhysics() : null,
+      slivers: [
+        if (useOverlapInjector)
+          SliverOverlapInjector(
+            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+          ),
+        contentSliver,
+      ],
     );
   }
 
@@ -282,18 +328,27 @@ class DayByDayHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: overlapsContent ? [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ] : null,
+    return SizedBox(
+      // Force rendered height to equal declared sliver extent.
+      // Without this the Container takes its natural content height (≈147px)
+      // while the delegate reports maxExtent=150, triggering:
+      //   "SliverGeometry is not valid: layoutExtent exceeds paintExtent"
+      height: maxExtent,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: overlapsContent
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: _DayByDayHeader(state: state, ref: ref),
       ),
-      child: _DayByDayHeader(state: state, ref: ref),
     );
   }
 

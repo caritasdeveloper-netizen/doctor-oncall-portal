@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:oncall_doctor/features/scheduling/domain/schedule.dart';
 import 'package:oncall_doctor/features/scheduling/infrastructure/firebase_schedule_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'scheduling_controller.freezed.dart';
 part 'scheduling_controller.g.dart';
@@ -53,14 +54,27 @@ Stream<List<DailySchedule>> dailySchedules(Ref ref, DateTime date) {
 
 @riverpod
 class SchedulingController extends _$SchedulingController {
+  ProviderSubscription? _subscription;
+
   @override
   SchedulingState build() {
     final date = DateTime.now();
-    
-    // Watch the schedules for the selected date
-    ref.listen(dailySchedulesProvider(date), (prev, next) {
-      next.whenData((schedules) {
-        final scheduleMap = {for (var s in schedules) s.departmentId: s};
+
+    // Read initial data synchronously to avoid updating state during build
+    final initialAsync = ref.read(dailySchedulesProvider(date));
+    var original = <String, DailySchedule>{};
+    var draft = <String, DailySchedule>{};
+
+    initialAsync.whenData((schedules) {
+      original = {for (var s in schedules) s.departmentId: s};
+      draft = original;
+    });
+
+    // Watch the schedules for future updates on the selected date
+    _subscription = ref.listen(dailySchedulesProvider(date), (prev, next) {
+      final asyncNext = next as AsyncValue<List<DailySchedule>>;
+      asyncNext.whenData((schedules) {
+        final scheduleMap = <String, DailySchedule>{for (var s in schedules) s.departmentId: s};
         state = state.copyWith(
           originalSchedules: scheduleMap,
           // Only update draft if it hasn't been modified yet or if it was empty
@@ -69,23 +83,40 @@ class SchedulingController extends _$SchedulingController {
       });
     });
 
-    return SchedulingState(selectedDate: date);
+    return SchedulingState(
+      selectedDate: date,
+      originalSchedules: original,
+      draftSchedules: draft,
+    );
   }
 
   void setDate(DateTime date) {
+    _subscription?.close();
+
+    // Read initial data synchronously for the new date
+    final initialAsync = ref.read(dailySchedulesProvider(date));
+    var original = <String, DailySchedule>{};
+    var draft = <String, DailySchedule>{};
+
+    initialAsync.whenData((schedules) {
+      original = {for (var s in schedules) s.departmentId: s};
+      draft = original;
+    });
+
     state = state.copyWith(
-      selectedDate: date, 
-      draftSchedules: {}, 
-      originalSchedules: {}
+      selectedDate: date,
+      draftSchedules: draft,
+      originalSchedules: original,
     );
-    
-    // We need to listen to the new date's provider
-    ref.listen(dailySchedulesProvider(date), (prev, next) {
-      next.whenData((schedules) {
-        final scheduleMap = {for (var s in schedules) s.departmentId: s};
+
+    // Listen to the new date's stream for future updates
+    _subscription = ref.listen(dailySchedulesProvider(date), (prev, next) {
+      final asyncNext = next as AsyncValue<List<DailySchedule>>;
+      asyncNext.whenData((schedules) {
+        final scheduleMap = <String, DailySchedule>{for (var s in schedules) s.departmentId: s};
         state = state.copyWith(
           originalSchedules: scheduleMap,
-          draftSchedules: scheduleMap,
+          draftSchedules: state.hasUnsavedChanges ? state.draftSchedules : scheduleMap,
         );
       });
     });

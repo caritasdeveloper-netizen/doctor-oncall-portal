@@ -94,3 +94,13 @@ class SchedulingViewIndex extends _$SchedulingViewIndex {
 
   void setIndex(int index) => state = index;
 }
+
+/// Tracks whether the schedule data for the currently selected date is loading.
+/// Set to true when date changes, false when Firestore data arrives.
+@riverpod
+class ScheduleLoadingState extends _$ScheduleLoadingState {
+  @override
+  bool build() => true; // starts as loading on first open
+
+  void setLoading(bool loading) => state = loading;
+}
